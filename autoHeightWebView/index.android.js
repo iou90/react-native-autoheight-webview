@@ -11,10 +11,14 @@ import {
     WebView
 } from 'react-native';
 
+const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', AutoHeightWebView);
+
 export default class AutoHeightWebView extends Component {
     constructor(props) {
         super(props);
-        this.handleNavigationStateChange = this.handleNavigationStateChange.bind(this);
+        this.onLoadingStart = this.onLoadingStart.bind(this);
+        this.onLoadingFinish = this.onLoadingStart.bind(this);
+        this.handleNavigationStateChanged = this.handleNavigationStateChanged.bind(this);
         const initialScript = props.files ? this.appendFilesToHead(props.files, BaseScript) : BaseScript;
         this.state = {
             height: 0,
@@ -28,6 +32,18 @@ export default class AutoHeightWebView extends Component {
             currentScript = this.appendFilesToHead(nextProps.files, BaseScript);
         }
         this.setState({ script: currentScript });
+    }
+
+    onLoadingStart(event) {
+        this.updateNavigationState(event);
+    }
+
+    onLoadingFinish(event) {
+        this.updateNavigationState(event);
+    }
+
+    updateNavigationState(event) {
+        this.handleNavigationStateChanged(event.nativeEvent);
     }
 
     appendFilesToHead(files, script) {
@@ -47,11 +63,13 @@ export default class AutoHeightWebView extends Component {
         return script;
     }
 
-    handleNavigationStateChange(navState) {
+    handleNavigationStateChanged(navState) {
         const height = Number(navState.title);
-        this.setState({ height });
-        if (this.props.onHeightUpdated) {
-            this.props.onHeightUpdated(height);
+        if (height) {
+            this.setState({ height });
+            if (this.props.onHeightUpdated) {
+                this.props.onHeightUpdated(height);
+            }
         }
     }
 
@@ -60,22 +78,26 @@ export default class AutoHeightWebView extends Component {
             html: this.props.html,
             baseUrl: 'file:///android_asset/web/'
         } : { html: this.props.html };
+        console.log(this.state.height + this.props.heightOffset);
         return (
             <View style={[{
                 height: this.state.height + this.props.heightOffset
             }, this.props.style]}>
                 <RCTAutoHeightWebView
+                    style={{ flex: 1 }}
+                    javaScriptEnabled={true}
                     injectedJavaScript={this.state.script + this.props.customScript}
                     scrollEnabled={false}
                     source={source}
-                    onNavigationStateChange={this.handleNavigationStateChange} />
+                    onLoadingStart={this.onLoadingStart}
+                    onLoadingFinish={this.onLoadingFinish} />
             </View>
         );
     }
 }
 
 AutoHeightWebView.propTypes = {
-    ...View.propTypes,
+    ...WebView.propTypes,
     html: PropTypes.string,
     onHeightUpdated: PropTypes.func,
     customScript: PropTypes.string,
@@ -83,7 +105,7 @@ AutoHeightWebView.propTypes = {
     heightOffset: PropTypes.number,
     // baseUrl not work in android 4.3 or below version
     enableBaseUrl: PropTypes.bool,
-    // add web/files... to android/app/src/assets/
+    // works if set enableBaseUrl to true; add web/files... to android/app/src/assets/
     files: PropTypes.arrayOf(PropTypes.shape({
         href: PropTypes.string,
         type: PropTypes.string,
@@ -91,7 +113,10 @@ AutoHeightWebView.propTypes = {
     }))
 }
 
-const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', AutoHeightWebView);
+AutoHeightWebView.defaultProps = {
+    enableBaseUrl: false,
+    heightOffset: 25
+}
 
 const BaseScript =
     `
