@@ -75,7 +75,7 @@ export default class AutoHeightWebView extends Component {
 }
 
 AutoHeightWebView.propTypes = {
-    ...View.propTypes,
+    ...WebView.propTypes,
     html: PropTypes.string,
     onHeightUpdated: PropTypes.func,
     customScript: PropTypes.string,
