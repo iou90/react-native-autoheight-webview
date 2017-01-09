@@ -75,10 +75,10 @@ export default class AutoHeightWebView extends Component {
 }
 
 AutoHeightWebView.propTypes = {
+    ...View.propTypes,
     html: PropTypes.string,
     onHeightUpdated: PropTypes.func,
     customScript: PropTypes.string,
-    style: View.propTypes.style,
     // offset rn webview margin
     heightOffset: PropTypes.number,
     // baseUrl not work in android 4.3 or below version
