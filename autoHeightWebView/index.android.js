@@ -78,7 +78,6 @@ export default class AutoHeightWebView extends Component {
             html: this.props.html,
             baseUrl: 'file:///android_asset/web/'
         } : { html: this.props.html };
-        console.log(this.state.height + this.props.heightOffset);
         return (
             <View style={[{
                 height: this.state.height + this.props.heightOffset
