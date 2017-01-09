@@ -1,0 +1,19 @@
+{
+  "name": "react-native-autoheightwebview",
+  "version": "0.0.1",
+  "description": "An auto height webview for React Native",
+  "main": "autoHeightWebView",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/iou90/react-native-autoheightwebview.git"
+  },
+  "author": "iou90",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/iou90/react-native-autoheightwebview/issues"
+  },
+  "homepage": "https://github.com/iou90/react-native-autoheightwebview#readme"
+}
