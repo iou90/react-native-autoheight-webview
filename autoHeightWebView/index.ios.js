@@ -48,9 +48,11 @@ export default class AutoHeightWebView extends Component {
 
     handleNavigationStateChange(navState) {
         const height = Number(navState.title);
-        this.setState({ height });
-        if (this.props.onHeightUpdated) {
-            this.props.onHeightUpdated(height);
+        if (height) {
+            this.setState({ height });
+            if (this.props.onHeightUpdated) {
+                this.props.onHeightUpdated(height);
+            }
         }
     }
 
