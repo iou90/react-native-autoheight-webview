@@ -6,6 +6,10 @@ import React, {
 } from 'react';
 
 import {
+    findNodeHandle,
+    requireNativeComponent,
+    Dimensions,
+    UIManager,
     Platform,
     ScrollView,
     StyleSheet,
@@ -55,11 +59,9 @@ export default class Explorer extends Component {
                     justifyContent: 'center',
                     alignItems: 'center'
                 }}>
-                {
-                    <AutoHeightWebView
-                        html={this.state.html}
-                        customScript={this.state.script} />
-                }
+                <AutoHeightWebView
+                    html={this.state.html}
+                    customScript={this.state.script} />
                 <TouchableOpacity
                     onPress={this.changeHtml}
                     style={Styles.button}>

@@ -64,6 +64,7 @@ export default class AutoHeightWebView extends Component {
                 height: this.state.height + this.props.heightOffset,
             }, this.props.style]}>
                 <WebView
+                    style={{ flex: 1 }}
                     injectedJavaScript={this.state.script + this.props.customScript}
                     scrollEnabled={false}
                     source={{
