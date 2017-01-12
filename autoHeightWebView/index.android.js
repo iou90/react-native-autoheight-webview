@@ -7,6 +7,7 @@ import React, {
 
 import {
     requireNativeComponent,
+    Dimensions,
     View,
     WebView
 } from 'react-native';
@@ -80,6 +81,7 @@ export default class AutoHeightWebView extends Component {
         } : { html: this.props.html };
         return (
             <View style={[{
+                width: ScreenWidth,
                 height: this.state.height + this.props.heightOffset
             }, this.props.style]}>
                 <RCTAutoHeightWebView
@@ -116,6 +118,8 @@ AutoHeightWebView.defaultProps = {
     enableBaseUrl: false,
     heightOffset: 25
 }
+
+const ScreenWidth = Dimensions.get('window').width;
 
 const BaseScript =
     `
