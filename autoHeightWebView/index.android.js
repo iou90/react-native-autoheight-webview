@@ -31,6 +31,7 @@ export default class AutoHeightWebView extends Component {
     }
 
     componentDidMount() {
+        this.stopInterval = false;
         this.intervalPostMessage();
     }
 
@@ -57,6 +58,7 @@ export default class AutoHeightWebView extends Component {
     componentDidUpdate(prevProps, prevState) {
         if (this.htmlHasChanged) {
             if (this.state.isOnLoadingStart && this.state.height === 0 && this.state.heightOffset === 0) {
+                this.stopInterval = false;
                 this.intervalPostMessage();
                 this.htmlHasChanged = false;
                 this.setState({ isOnLoadingStart: false });
@@ -84,14 +86,16 @@ export default class AutoHeightWebView extends Component {
 
     intervalPostMessage() {
         this.interval = setInterval(() => {
-            this.postMessage('getBodyHeight');
+            if (!this.stopInterval) {
+                this.postMessage('getBodyHeight');
+            }
         }, 205);
     }
 
     onMessage(e) {
         const height = parseInt(e.nativeEvent.data);
-        console.log(height);
         if (height) {
+            this.stopInterval = true;
             clearInterval(this.interval);
             this.setState({
                 heightOffset: this.props.heightOffset,
