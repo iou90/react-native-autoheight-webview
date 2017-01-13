@@ -1,0 +1,5 @@
+rootProject.name = 'explorer'
+include ':react-native-autoheightwebview'
+project(':react-native-autoheightwebview').projectDir = new File(rootProject.projectDir, '../node_modules/react-native-autoheightwebview/android')
+
+include ':app'

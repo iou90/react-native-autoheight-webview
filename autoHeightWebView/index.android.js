@@ -8,7 +8,9 @@ import React, {
 import {
     findNodeHandle,
     requireNativeComponent,
+    DeviceEventEmitter,
     Dimensions,
+    Platform,
     UIManager,
     View,
     WebView
@@ -20,14 +22,22 @@ export default class AutoHeightWebView extends Component {
     constructor(props) {
         super(props);
         this.onMessage = this.onMessage.bind(this);
-        this.onLoadingStart = this.onLoadingStart.bind(this);
+        if (IsBelowKitKat) {
+            this.listenWebViewBridgeMessage = this.listenWebViewBridgeMessage.bind(this);
+        }
         const initialScript = props.files ? this.appendFilesToHead(props.files, BaseScript) : BaseScript;
         this.state = {
-            isOnLoadingStart: false,
+            isChangingSource: false,
             height: 0,
             heightOffset: 0,
             script: initialScript
         };
+    }
+
+    componentWillMount() {
+        if (IsBelowKitKat) {
+            DeviceEventEmitter.addListener("webViewBridgeMessage", this.listenWebViewBridgeMessage);
+        }
     }
 
     componentDidMount() {
@@ -41,8 +51,8 @@ export default class AutoHeightWebView extends Component {
             return;
         }
         else {
-            this.htmlHasChanged = true;
             this.setState({
+                isChangingSource: true,
                 height: 0,
                 heightOffset: 0
             });
@@ -55,52 +65,59 @@ export default class AutoHeightWebView extends Component {
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if (this.htmlHasChanged) {
-            if (this.state.isOnLoadingStart && this.state.height === 0 && this.state.heightOffset === 0) {
-                this.stopInterval = false;
-                this.startInterval();
-                this.htmlHasChanged = false;
-                this.setState({ isOnLoadingStart: false });
-            }
+        // redisplay webview when changing source
+        if (this.state.isChangingSource) {
+            this.startInterval();
+            this.setState({ isChangingSource: false });
         }
     }
 
     componentWillUnmount() {
         this.stopInterval();
+        if (IsBelowKitKat) {
+            DeviceEventEmitter.removeListener("webViewBridgeMessage", listenWebViewBridgeMessage);
+        }
     }
 
-    onLoadingStart() {
-        if (this.htmlHasChanged) {
-            this.setState({ isOnLoadingStart: true });
-        }
+    listenWebViewBridgeMessage(body) {
+        this.onMessage(body.message);
     }
 
     postMessage(data) {
         UIManager.dispatchViewManagerCommand(
             findNodeHandle(this.webview),
-            UIManager.RCTWebView.Commands.postMessage,
+            UIManager.RCTAutoHeightWebView.Commands.postMessage,
             [String(data)]
         );
     };
 
+    sendToWebView(message) {
+        UIManager.dispatchViewManagerCommand(
+            findNodeHandle(this.webview),
+            UIManager.RCTAutoHeightWebView.Commands.sendToWebView,
+            [String(message)]
+        );
+    }
+
     startInterval() {
-        this.stopInterval = false;
+        this.finishInterval = false;
         this.interval = setInterval(() => {
-            if (!this.stopInterval) {
-                this.postMessage('getBodyHeight');
+            if (!this.finishInterval) {
+                IsBelowKitKat ? this.sendToWebView('getBodyHeight') : this.postMessage('getBodyHeight');
             }
         }, 205);
     }
 
     stopInterval() {
-        this.stopInterval = true;
+        this.finishInterval = true;
         clearInterval(this.interval);
     }
 
     onMessage(e) {
-        const height = parseInt(e.nativeEvent.data);
+        const height = parseInt(IsBelowKitKat ? e.nativeEvent.message : e.nativeEvent.data);
         if (height) {
             this.stopInterval();
+            console.log(height);
             this.setState({
                 heightOffset: this.props.heightOffset,
                 height
@@ -138,16 +155,19 @@ export default class AutoHeightWebView extends Component {
                 width: ScreenWidth,
                 height: this.state.height + this.state.heightOffset
             }, this.props.style]}>
-                <RCTAutoHeightWebView
-                    ref={webview => this.webview = webview}
-                    style={{ flex: 1 }}
-                    javaScriptEnabled={true}
-                    injectedJavaScript={this.state.script + this.props.customScript}
-                    onLoadingStart={this.onLoadingStart}
-                    scrollEnabled={false}
-                    source={source}
-                    onMessage={this.onMessage}
-                    messagingEnabled={true} />
+                {
+                    this.state.isChangingSource ? null :
+                        <RCTAutoHeightWebView
+                            ref={webview => this.webview = webview}
+                            style={{ flex: 1 }}
+                            javaScriptEnabled={true}
+                            injectedJavaScript={this.state.script + this.props.customScript}
+                            scrollEnabled={false}
+                            source={source}
+                            onChange={this.onMessage}
+                            onMessage={this.onMessage}
+                            messagingEnabled={true} />
+                }
             </View>
         );
     }
@@ -177,8 +197,18 @@ AutoHeightWebView.defaultProps = {
 
 const ScreenWidth = Dimensions.get('window').width;
 
+const IsBelowKitKat = Platform.Version < 19;
+
 const BaseScript =
-    `
+    IsBelowKitKat ?
+        `
+    (function () {
+        AutoHeightWebView.onMessage = function (message) {
+            AutoHeightWebView.send(String(document.body.offsetHeight));
+        };
+    } ()); 
+    ` :
+        `
     ; (function () {
         document.addEventListener('message', function (e) {
             window.postMessage(String(document.body.offsetHeight));
