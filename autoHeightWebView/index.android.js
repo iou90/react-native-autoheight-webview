@@ -117,7 +117,6 @@ export default class AutoHeightWebView extends Component {
         const height = parseInt(IsBelowKitKat ? e.nativeEvent.message : e.nativeEvent.data);
         if (height) {
             this.stopInterval();
-            console.log(height);
             this.setState({
                 heightOffset: this.props.heightOffset,
                 height
