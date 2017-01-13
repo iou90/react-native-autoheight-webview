@@ -75,7 +75,7 @@ export default class AutoHeightWebView extends Component {
     componentWillUnmount() {
         this.stopInterval();
         if (IsBelowKitKat) {
-            DeviceEventEmitter.removeListener("webViewBridgeMessage", listenWebViewBridgeMessage);
+            DeviceEventEmitter.removeListener("webViewBridgeMessage", this.listenWebViewBridgeMessage);
         }
     }
 
