@@ -24,7 +24,7 @@ export default class AutoHeightWebView extends Component {
 
     componentWillReceiveProps(nextProps) {
         let currentScript = BaseScript;
-        if ((nextProps.files && !this.props.files) || (nextProps.files && this.props.files && JSON.stringify(nextProps.files) !== JSON.stringify(this.props.files))) {
+        if (nextProps.files) {
             currentScript = this.appendFilesToHead(nextProps.files, BaseScript);
         }
         this.setState({ script: currentScript });
