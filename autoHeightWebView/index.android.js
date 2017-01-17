@@ -79,6 +79,7 @@ export default class AutoHeightWebView extends Component {
         }
     }
 
+    // below kitkat
     listenWebViewBridgeMessage(body) {
         this.onMessage(body.message);
     }
@@ -91,6 +92,7 @@ export default class AutoHeightWebView extends Component {
         );
     };
 
+    // below kitkat
     sendToWebView(message) {
         UIManager.dispatchViewManagerCommand(
             findNodeHandle(this.webview),
@@ -163,6 +165,7 @@ export default class AutoHeightWebView extends Component {
                             injectedJavaScript={this.state.script + this.props.customScript}
                             scrollEnabled={false}
                             source={source}
+                            // below kitkat
                             onChange={this.onMessage}
                             onMessage={this.onMessage}
                             messagingEnabled={true} />

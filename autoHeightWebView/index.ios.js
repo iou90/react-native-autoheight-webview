@@ -113,9 +113,7 @@ const BaseScript =
             window.location.hash = ++i;
         }
         updateHeight();
-        window.addEventListener('load', function () {
-            updateHeight();
-        });
+        window.addEventListener('load', updateHeight);
         window.addEventListener('resize', updateHeight);
     } ());
     `;
