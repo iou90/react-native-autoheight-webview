@@ -13,7 +13,7 @@ import {
     View
 } from 'react-native';
 
-import AutoHeightWebView from 'react-native-autoheightwebview';
+import AutoHeightWebView from 'react-native-autoheight-webview';
 
 export default class Explorer extends Component {
     constructor(props) {

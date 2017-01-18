@@ -11,7 +11,9 @@ import {
     WebView
 } from 'react-native';
 
-export default class AutoHeightWebView extends Component {
+import ImmutableComponent from 'react-immutable-component';
+
+export default class AutoHeightWebView extends ImmutableComponent {
     constructor(props) {
         super(props);
         this.handleNavigationStateChange = this.handleNavigationStateChange.bind(this);

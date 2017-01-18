@@ -16,9 +16,11 @@ import {
     WebView
 } from 'react-native';
 
+import ImmutableComponent from 'react-immutable-component';
+
 const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', AutoHeightWebView, { nativeOnly: { messagingEnabled: PropTypes.bool } });
 
-export default class AutoHeightWebView extends Component {
+export default class AutoHeightWebView extends ImmutableComponent {
     constructor(props) {
         super(props);
         this.onMessage = this.onMessage.bind(this);

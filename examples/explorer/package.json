@@ -9,7 +9,7 @@
   "dependencies": {
     "react": "15.4.2",
     "react-native": "0.40.0",
-    "react-native-autoheightwebview": "file:///Users/iou90/Works/Lab/react-native-autoheightwebview"
+    "react-native-autoheight-webview": "file:///Users/iou90/Works/Lab/react-native-autoheight-webview"
   },
   "devDependencies": {
     "babel-jest": "18.0.0",
