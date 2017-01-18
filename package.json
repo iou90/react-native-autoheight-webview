@@ -14,6 +14,12 @@
     "type": "git",
     "url": "git+https://github.com/iou90/react-native-autoheight-webview.git"
   },
+  "keywords": [
+    "react",
+    "native",
+    "autoheight",
+    "webview"
+  ],
   "author": "iou90",
   "license": "ISC",
   "bugs": {
