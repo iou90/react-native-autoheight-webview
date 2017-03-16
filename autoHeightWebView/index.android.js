@@ -206,7 +206,7 @@ const IsBelowKitKat = Platform.Version < 19;
 const BaseScript =
     IsBelowKitKat ?
         `
-    (function () {
+    ; (function () {
         AutoHeightWebView.onMessage = function (message) {
             AutoHeightWebView.send(String(document.body.offsetHeight));
         };
