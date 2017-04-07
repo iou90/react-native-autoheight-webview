@@ -22,7 +22,7 @@ export default class Explorer extends Component {
         this.html1 = `<p>Tags are great for describing the essence of your story in a single word or phrase, but stories are rarely about a single thing. <span>If I pen a story about moving across the country to start a new job in a car with my husband, two cats, a dog, and a tarantula, I wouldn’t only tag the piece with “moving”. I’d also use the tags “pets”, “marriage”, “career change”, and “travel tips”.</span></p>`;
         this.script0 = '';
         this.script1 = `document.body.style.background = 'lightyellow';`;
-        this.changeHtml = this.changeHtml.bind(this);
+        this.changeSource = this.changeSource.bind(this);
         this.changeScript = this.changeScript.bind(this);
         this.state = {
             html: this.html0,
@@ -30,14 +30,14 @@ export default class Explorer extends Component {
         };
     }
 
-    changeHtml() {
+    changeSource() {
         this.setState(prevState => ({
             html: prevState.html === this.html0 ? this.html1 : this.html0
         }));
     }
 
     changeScript() {
-        this.changeHtml();
+        this.changeSource();
         this.setState(prevState => ({
             script: prevState.script === this.script0 ? this.script1 : this.script0
         }));
@@ -54,17 +54,17 @@ export default class Explorer extends Component {
                     alignItems: 'center'
                 }}>
                 <AutoHeightWebView
-                    html={this.state.html}
+                    source={{ html: this.state.html }}
                     customScript={this.state.script} />
                 <TouchableOpacity
-                    onPress={this.changeHtml}
+                    onPress={this.changeSource}
                     style={Styles.button}>
-                    <Text>change html</Text>
+                    <Text>change source</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                     onPress={this.changeScript}
                     style={Styles.button}>
-                    <Text>change script (have to change html to reload)</Text>
+                    <Text>change script (have to change source to reload on android)</Text>
                 </TouchableOpacity>
             </ScrollView>
         );

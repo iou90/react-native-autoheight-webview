@@ -1,6 +1,6 @@
 {
   "name": "react-native-autoheight-webview",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "An auto height webview for React Native",
   "main": "autoHeightWebView",
   "files": [
@@ -27,6 +27,7 @@
   },
   "homepage": "https://github.com/iou90/react-native-autoheight-webview#readme",
   "dependencies": {
+    "immutable": "^3.8.1",
     "react-immutable-component": "0.0.1"
   }
 }

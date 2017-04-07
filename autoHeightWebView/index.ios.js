@@ -60,19 +60,23 @@ export default class AutoHeightWebView extends ImmutableComponent {
     }
 
     render() {
+        const { height, script } = this.state;
+        const { source, heightOffset, customScript, style } = this.props;
+        const webViewSource = Object.assign({}, source, { baseUrl: 'web/' });
         return (
             <View style={[{
                 width: ScreenWidth,
-                height: this.state.height + this.props.heightOffset,
-            }, this.props.style]}>
+                height: height + heightOffset,
+                backgroundColor: 'transparent'
+            }, style]}>
                 <WebView
-                    style={{ flex: 1 }}
-                    injectedJavaScript={this.state.script + this.props.customScript}
-                    scrollEnabled={false}
-                    source={{
-                        html: this.props.html,
-                        baseUrl: 'web/'
+                    style={{
+                        flex: 1,
+                        backgroundColor: 'transparent'
                     }}
+                    injectedJavaScript={script + customScript}
+                    scrollEnabled={false}
+                    source={webViewSource}
                     onNavigationStateChange={this.handleNavigationStateChange} />
             </View>
         );
@@ -80,7 +84,7 @@ export default class AutoHeightWebView extends ImmutableComponent {
 }
 
 AutoHeightWebView.propTypes = {
-    html: PropTypes.string,
+    source: WebView.propTypes.source,
     onHeightUpdated: PropTypes.func,
     customScript: PropTypes.string,
     // offset rn webview margin

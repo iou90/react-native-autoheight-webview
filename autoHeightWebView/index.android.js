@@ -18,6 +18,8 @@ import {
 
 import ImmutableComponent from 'react-immutable-component';
 
+import Immutable from 'immutable';
+
 const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', AutoHeightWebView, { nativeOnly: { messagingEnabled: PropTypes.bool } });
 
 export default class AutoHeightWebView extends ImmutableComponent {
@@ -47,9 +49,8 @@ export default class AutoHeightWebView extends ImmutableComponent {
     }
 
     componentWillReceiveProps(nextProps) {
-        // injectedJavaScript only works when webview reload (html changed)
-        if (nextProps.html === this.props.html) {
-            this.htmlHasChanged = false;
+        // injectedJavaScript only works when webview reload (source changed)
+        if (Immutable.is(Immutable.fromJS(this.props.source), Immutable.fromJS(nextProps.source))) {
             return;
         }
         else {
@@ -149,24 +150,30 @@ export default class AutoHeightWebView extends ImmutableComponent {
     }
 
     render() {
-        const source = this.props.enableBaseUrl ? {
-            html: this.props.html,
-            baseUrl: 'file:///android_asset/web/'
-        } : { html: this.props.html };
+        const { height, script, isChangingSource } = this.state;
+        const { source, heightOffset, customScript, style, enableBaseUrl } = this.props;
+        let webViewSource = source;
+        if (enableBaseUrl) {
+            webViewSource = Object.assign({}, source, { baseUrl: 'file:///android_asset/web/' });
+        }
         return (
             <View style={[{
                 width: ScreenWidth,
-                height: this.state.height + this.state.heightOffset
-            }, this.props.style]}>
+                height: height + heightOffset,
+                backgroundColor: 'transparent'
+            }, style]}>
                 {
-                    this.state.isChangingSource ? null :
+                    isChangingSource ? null :
                         <RCTAutoHeightWebView
                             ref={webview => this.webview = webview}
-                            style={{ flex: 1 }}
+                            style={{
+                                flex: 1,
+                                backgroundColor: 'transparent'
+                            }}
                             javaScriptEnabled={true}
-                            injectedJavaScript={this.state.script + this.props.customScript}
+                            injectedJavaScript={script + customScript}
                             scrollEnabled={false}
-                            source={source}
+                            source={webViewSource}
                             // below kitkat
                             onChange={this.onMessage}
                             onMessage={this.onMessage}
@@ -178,14 +185,14 @@ export default class AutoHeightWebView extends ImmutableComponent {
 }
 
 AutoHeightWebView.propTypes = {
-    ...WebView.propTypes,
-    html: PropTypes.string,
+    source: WebView.propTypes.source,
     onHeightUpdated: PropTypes.func,
     customScript: PropTypes.string,
     // offset rn webview margin
     heightOffset: PropTypes.number,
     // baseUrl not work in android 4.3 or below version
     enableBaseUrl: PropTypes.bool,
+    style: View.propTypes.style,
     // works if set enableBaseUrl to true; add web/files... to android/app/src/assets/
     files: PropTypes.arrayOf(PropTypes.shape({
         href: PropTypes.string,
