@@ -26,7 +26,8 @@ export default class Explorer extends Component {
         this.changeScript = this.changeScript.bind(this);
         this.state = {
             html: this.html0,
-            script: this.script0
+            script: this.script0,
+            height: 0
         };
     }
 
@@ -54,6 +55,7 @@ export default class Explorer extends Component {
                     alignItems: 'center'
                 }}>
                 <AutoHeightWebView
+                    onHeightUpdated={height => this.setState({ height })}
                     source={{ html: this.state.html }}
                     customScript={this.state.script} />
                 <TouchableOpacity
@@ -66,6 +68,9 @@ export default class Explorer extends Component {
                     style={Styles.button}>
                     <Text>change script (have to change source to reload on android)</Text>
                 </TouchableOpacity>
+                <Text style={{ padding: 5 }}>
+                    {this.state.height}
+                </Text>
             </ScrollView>
         );
     }
