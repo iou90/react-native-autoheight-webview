@@ -55,6 +55,7 @@ export default class Explorer extends Component {
                     alignItems: 'center'
                 }}>
                 <AutoHeightWebView
+                    enableAnimation
                     onHeightUpdated={height => this.setState({ height })}
                     source={{ html: this.state.html }}
                     customScript={this.state.script} />

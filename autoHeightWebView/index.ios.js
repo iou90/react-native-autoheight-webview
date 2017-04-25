@@ -6,6 +6,7 @@ import React, {
 } from 'react';
 
 import {
+    Animated,
     Dimensions,
     View,
     WebView
@@ -17,6 +18,9 @@ export default class AutoHeightWebView extends ImmutableComponent {
     constructor(props) {
         super(props);
         this.handleNavigationStateChange = this.handleNavigationStateChange.bind(this);
+        if (this.props.enableAnimation) {
+            this.opacityAnimatedValue = new Animated.Value(0);
+        }
         const initialScript = props.files ? this.appendFilesToHead(props.files, BaseScript) : BaseScript;
         this.state = {
             height: 0,
@@ -49,22 +53,39 @@ export default class AutoHeightWebView extends ImmutableComponent {
         return script;
     }
 
+    onHeightUpdated(height) {
+        if (this.props.onHeightUpdated) {
+            this.props.onHeightUpdated(height);
+        }
+    }
+
     handleNavigationStateChange(navState) {
         const height = Number(navState.title);
         if (height) {
-            this.setState({ height });
-            if (this.props.onHeightUpdated) {
-                this.props.onHeightUpdated(height);
+            if (this.props.enableAnimation) {
+                this.opacityAnimatedValue.setValue(0);
             }
+            this.setState({ height }, () => {
+                if (this.props.enableAnimation) {
+                    Animated.timing(this.opacityAnimatedValue, {
+                        toValue: 1,
+                        duration: this.props.animationDuration
+                    }).start(() => this.onHeightUpdated(height));
+                }
+                else {
+                    this.onHeightUpdated(height);
+                }
+            });
         }
     }
 
     render() {
         const { height, script } = this.state;
-        const { source, heightOffset, customScript, style } = this.props;
+        const { enableAnimation, source, heightOffset, customScript, style } = this.props;
         const webViewSource = Object.assign({}, source, { baseUrl: 'web/' });
         return (
-            <View style={[{
+            <Animated.View style={[{
+                opacity: enableAnimation ? this.opacityAnimatedValue : 1,
                 width: ScreenWidth,
                 height: height + heightOffset,
                 backgroundColor: 'transparent'
@@ -78,12 +99,15 @@ export default class AutoHeightWebView extends ImmutableComponent {
                     scrollEnabled={false}
                     source={webViewSource}
                     onNavigationStateChange={this.handleNavigationStateChange} />
-            </View>
+            </Animated.View>
         );
     }
 }
 
 AutoHeightWebView.propTypes = {
+    enableAnimation: PropTypes.bool,
+    // only works on enable animation
+    animationDuration: PropTypes.number,
     source: WebView.propTypes.source,
     onHeightUpdated: PropTypes.func,
     customScript: PropTypes.string,
@@ -99,6 +123,7 @@ AutoHeightWebView.propTypes = {
 }
 
 AutoHeightWebView.defaultProps = {
+    animationDuration: 555,
     heightOffset: 12
 }
 

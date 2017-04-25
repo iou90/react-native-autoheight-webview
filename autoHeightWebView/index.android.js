@@ -8,6 +8,7 @@ import React, {
 import {
     findNodeHandle,
     requireNativeComponent,
+    Animated,
     DeviceEventEmitter,
     Dimensions,
     Platform,
@@ -26,6 +27,9 @@ export default class AutoHeightWebView extends ImmutableComponent {
     constructor(props) {
         super(props);
         this.onMessage = this.onMessage.bind(this);
+        if (this.props.enableAnimation) {
+            this.opacityAnimatedValue = new Animated.Value(0);
+        }
         if (IsBelowKitKat) {
             this.listenWebViewBridgeMessage = this.listenWebViewBridgeMessage.bind(this);
         }
@@ -58,6 +62,9 @@ export default class AutoHeightWebView extends ImmutableComponent {
                 isChangingSource: true,
                 height: 0,
                 heightOffset: 0
+            }, () => {
+                this.startInterval();
+                this.setState({ isChangingSource: false });
             });
         }
         let currentScript = BaseScript;
@@ -67,13 +74,13 @@ export default class AutoHeightWebView extends ImmutableComponent {
         this.setState({ script: currentScript });
     }
 
-    componentDidUpdate(prevProps, prevState) {
-        // redisplay webview when changing source
-        if (this.state.isChangingSource) {
-            this.startInterval();
-            this.setState({ isChangingSource: false });
-        }
-    }
+    // componentDidUpdate(prevProps, prevState) {
+    //     // redisplay webview when changing source
+    //     if (this.state.isChangingSource) {
+    //         this.startInterval();
+    //         this.setState({ isChangingSource: false });
+    //     }
+    // }
 
     componentWillUnmount() {
         this.stopInterval();
@@ -118,17 +125,33 @@ export default class AutoHeightWebView extends ImmutableComponent {
         clearInterval(this.interval);
     }
 
+    onHeightUpdated(height) {
+        if (this.props.onHeightUpdated) {
+            this.props.onHeightUpdated(height);
+        }
+    }
+
     onMessage(e) {
         const height = parseInt(IsBelowKitKat ? e.nativeEvent.message : e.nativeEvent.data);
         if (height) {
+            if (this.props.enableAnimation) {
+                this.opacityAnimatedValue.setValue(0);
+            }
             this.stopInterval();
             this.setState({
                 heightOffset: this.props.heightOffset,
                 height
+            }, () => {
+                if (this.props.enableAnimation) {
+                    Animated.timing(this.opacityAnimatedValue, {
+                        toValue: 1,
+                        duration: this.props.animationDuration
+                    }).start(() => this.onHeightUpdated(height));
+                }
+                else {
+                    this.onHeightUpdated(height);
+                }
             });
-            if (this.props.onHeightUpdated) {
-                this.props.onHeightUpdated(height);
-            }
         }
     }
 
@@ -150,14 +173,15 @@ export default class AutoHeightWebView extends ImmutableComponent {
     }
 
     render() {
-        const { height, script, isChangingSource } = this.state;
-        const { source, heightOffset, customScript, style, enableBaseUrl } = this.props;
+        const { height, script, isChangingSource, heightOffset } = this.state;
+        const { enableAnimation, source, customScript, style, enableBaseUrl } = this.props;
         let webViewSource = source;
         if (enableBaseUrl) {
             webViewSource = Object.assign({}, source, { baseUrl: 'file:///android_asset/web/' });
         }
         return (
-            <View style={[{
+            <Animated.View style={[{
+                opacity: enableAnimation ? this.opacityAnimatedValue : 1,
                 width: ScreenWidth,
                 height: height + heightOffset,
                 backgroundColor: 'transparent'
@@ -174,17 +198,18 @@ export default class AutoHeightWebView extends ImmutableComponent {
                             injectedJavaScript={script + customScript}
                             scrollEnabled={false}
                             source={webViewSource}
-                            // below kitkat
-                            onChange={this.onMessage}
                             onMessage={this.onMessage}
-                            messagingEnabled={true} />
+                            messagingEnabled={true}
+                            // below kitkat
+                            onChange={this.onMessage} />
                 }
-            </View>
+            </Animated.View>
         );
     }
 }
 
 AutoHeightWebView.propTypes = {
+    enableAnimation: PropTypes.bool,
     source: WebView.propTypes.source,
     onHeightUpdated: PropTypes.func,
     customScript: PropTypes.string,
@@ -202,6 +227,7 @@ AutoHeightWebView.propTypes = {
 }
 
 AutoHeightWebView.defaultProps = {
+    animationDuration: 555,
     enableBaseUrl: false,
     heightOffset: 20
 }
