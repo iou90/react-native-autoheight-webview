@@ -7,8 +7,8 @@ An auto height webview for React Native.
 `react-native link react-native-autoheight-webview`
 
 ## showcase
-![react-native-autoheight-webview](https://media.giphy.com/media/xUA7bj3KScXHeom1I4/giphy.gif)&nbsp;
-![react-native-autoheight-webview](https://media.giphy.com/media/l0Iyaze16ATSDIZoI/giphy.gif)
+![react-native-autoheight-webview ios](https://media.giphy.com/media/l4FGyhnvWfUgxCfe0/200w.gif)&nbsp;
+![react-native-autoheight-webview android](https://media.giphy.com/media/xUPGcIO0a1ggESelfq/200w.gif)
 
 # usage
 
