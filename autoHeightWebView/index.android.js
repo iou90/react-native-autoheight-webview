@@ -74,14 +74,6 @@ export default class AutoHeightWebView extends ImmutableComponent {
         this.setState({ script: currentScript });
     }
 
-    // componentDidUpdate(prevProps, prevState) {
-    //     // redisplay webview when changing source
-    //     if (this.state.isChangingSource) {
-    //         this.startInterval();
-    //         this.setState({ isChangingSource: false });
-    //     }
-    // }
-
     componentWillUnmount() {
         this.stopInterval();
         if (IsBelowKitKat) {
@@ -94,14 +86,6 @@ export default class AutoHeightWebView extends ImmutableComponent {
         this.onMessage(body.message);
     }
 
-    postMessage(data) {
-        UIManager.dispatchViewManagerCommand(
-            findNodeHandle(this.webview),
-            UIManager.RCTAutoHeightWebView.Commands.postMessage,
-            [String(data)]
-        );
-    };
-
     // below kitkat
     sendToWebView(message) {
         UIManager.dispatchViewManagerCommand(
@@ -110,6 +94,14 @@ export default class AutoHeightWebView extends ImmutableComponent {
             [String(message)]
         );
     }
+
+    postMessage(data) {
+        UIManager.dispatchViewManagerCommand(
+            findNodeHandle(this.webview),
+            UIManager.RCTAutoHeightWebView.Commands.postMessage,
+            [String(data)]
+        );
+    };
 
     startInterval() {
         this.finishInterval = false;
@@ -209,11 +201,13 @@ export default class AutoHeightWebView extends ImmutableComponent {
 }
 
 AutoHeightWebView.propTypes = {
-    enableAnimation: PropTypes.bool,
     source: WebView.propTypes.source,
     onHeightUpdated: PropTypes.func,
     customScript: PropTypes.string,
-    // offset rn webview margin
+    enableAnimation: PropTypes.bool,
+    // only works on enable animation
+    animationDuration: PropTypes.number,
+    // offset of rn webview margin
     heightOffset: PropTypes.number,
     // baseUrl not work in android 4.3 or below version
     enableBaseUrl: PropTypes.bool,
@@ -227,6 +221,7 @@ AutoHeightWebView.propTypes = {
 }
 
 AutoHeightWebView.defaultProps = {
+    enableAnimation: true,
     animationDuration: 555,
     enableBaseUrl: false,
     heightOffset: 20
