@@ -130,18 +130,13 @@ AutoHeightWebView.defaultProps = {
 
 const ScreenWidth = Dimensions.get('window').width;
 
+// note that it can not get height when there are only text objects in a html body which does not make any sense 
 const BaseScript =
     `
     ; (function () {
-        var wrapper = document.createElement('div');
-        wrapper.id = 'height-wrapper';
-        while (document.body.firstChild) {
-            wrapper.appendChild(document.body.firstChild);
-        }
-        document.body.appendChild(wrapper);
         var i = 0;
         function updateHeight() {
-            document.title = wrapper.clientHeight;
+            document.title = document.body.firstChild.clientHeight;
             window.location.hash = ++i;
         }
         updateHeight();
