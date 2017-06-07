@@ -11,6 +11,7 @@ import {
     Animated,
     DeviceEventEmitter,
     Dimensions,
+    StyleSheet,
     Platform,
     UIManager,
     View,
@@ -172,20 +173,15 @@ export default class AutoHeightWebView extends ImmutableComponent {
             webViewSource = Object.assign({}, source, { baseUrl: 'file:///android_asset/web/' });
         }
         return (
-            <Animated.View style={[{
+            <Animated.View style={[Styles.container, {
                 opacity: enableAnimation ? this.opacityAnimatedValue : 1,
-                width: ScreenWidth,
                 height: height + heightOffset,
-                backgroundColor: 'transparent'
             }, style]}>
                 {
                     isChangingSource ? null :
                         <RCTAutoHeightWebView
                             ref={webview => this.webview = webview}
-                            style={{
-                                flex: 1,
-                                backgroundColor: 'transparent'
-                            }}
+                            style={Styles.webView}
                             javaScriptEnabled={true}
                             injectedJavaScript={script + customScript}
                             scrollEnabled={false}
@@ -230,6 +226,17 @@ AutoHeightWebView.defaultProps = {
 const ScreenWidth = Dimensions.get('window').width;
 
 const IsBelowKitKat = Platform.Version < 19;
+
+const Styles = StyleSheet.create({
+    container: {
+        width: ScreenWidth,
+        backgroundColor: 'transparent'
+    },
+    webView: {
+        flex: 1,
+        backgroundColor: 'transparent'
+    }
+});
 
 const BaseScript =
     IsBelowKitKat ?
