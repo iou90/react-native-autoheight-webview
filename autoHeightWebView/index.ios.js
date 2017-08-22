@@ -1,19 +1,22 @@
 'use strict'
 
-import React, { PureComponent } from 'react';
+import React, {
+    Component,
+    PropTypes
+} from 'react';
 
 import {
     Animated,
     Dimensions,
     StyleSheet,
     View,
-    ViewPropTypes,
+    Linking,
     WebView
 } from 'react-native';
+import url from 'url';
+import ImmutableComponent from 'react-immutable-component';
 
-import PropTypes from 'prop-types';
-
-export default class AutoHeightWebView extends PureComponent {
+export default class AutoHeightWebView extends ImmutableComponent {
     constructor(props) {
         super(props);
         this.handleNavigationStateChange = this.handleNavigationStateChange.bind(this);
@@ -80,21 +83,47 @@ export default class AutoHeightWebView extends PureComponent {
 
     render() {
         const { height, script } = this.state;
-        const { enableAnimation, source, heightOffset, customScript, style } = this.props;
+        const { enableAnimation, source, heightOffset, customScript, style, onLoad, LoadEnd } = this.props;
         const webViewSource = Object.assign({}, source, { baseUrl: 'web/' });
         return (
             <Animated.View style={[Styles.container, {
                 opacity: enableAnimation ? this.opacityAnimatedValue : 1,
-                height: height + heightOffset,
+                height: height + heightOffset + 5,
             }, style]}>
                 <WebView
+                    ref={(ref) => this.webview = ref}
                     style={Styles.webView}
                     injectedJavaScript={script + customScript}
                     scrollEnabled={false}
                     source={webViewSource}
-                    onNavigationStateChange={this.handleNavigationStateChange} />
+                    onNavigationStateChange={this.handleNavigationStateChange}
+                    onLoadStart={this.OnLoadWebview.bind(this)}/>
             </Animated.View>
         );
+    }
+
+    shouldLoadUrl(urlString) {
+        const parsedURL = url.parse(urlString);
+        switch (parsedURL.protocol) {
+            case 'https:':
+            case 'http:':
+                return false;
+            default:
+                return true;
+        }
+    }
+
+    OnLoadWebview(event) {
+        let nativeEvent = { ...event.nativeEvent };
+        if (this.shouldLoadUrl(nativeEvent.url))
+            return;
+
+        this.webview.stopLoading();
+        let openLinkPromise = Linking.canOpenURL(nativeEvent.url).then(supported => {
+            if (!supported)
+                return Promise.reject({ msg: 'cannot open url' });
+            return Linking.openURL(nativeEvent.url);
+        }).catch(() => { });
     }
 }
 
@@ -107,7 +136,7 @@ AutoHeightWebView.propTypes = {
     animationDuration: PropTypes.number,
     // offset of rn webview margin
     heightOffset: PropTypes.number,
-    style: ViewPropTypes.style,
+    style: View.propTypes.style,
     // add web/files... to project root
     files: PropTypes.arrayOf(PropTypes.shape({
         href: PropTypes.string,
