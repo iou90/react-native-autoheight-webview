@@ -1,9 +1,6 @@
 'use strict'
 
-import React, {
-    Component,
-    PropTypes
-} from 'react';
+import React, { PureComponent } from 'react';
 
 import {
     findNodeHandle,
@@ -15,16 +12,17 @@ import {
     Platform,
     UIManager,
     View,
+    ViewPropTypes,
     WebView
 } from 'react-native';
 
-import ImmutableComponent from 'react-immutable-component';
+import PropTypes from 'prop-types';
 
 import Immutable from 'immutable';
 
 const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', AutoHeightWebView, { nativeOnly: { messagingEnabled: PropTypes.bool } });
 
-export default class AutoHeightWebView extends ImmutableComponent {
+export default class AutoHeightWebView extends PureComponent {
     constructor(props) {
         super(props);
         this.onMessage = this.onMessage.bind(this);
@@ -207,7 +205,7 @@ AutoHeightWebView.propTypes = {
     heightOffset: PropTypes.number,
     // baseUrl not work in android 4.3 or below version
     enableBaseUrl: PropTypes.bool,
-    style: View.propTypes.style,
+    style: ViewPropTypes.style,
     // works if set enableBaseUrl to true; add web/files... to android/app/src/assets/
     files: PropTypes.arrayOf(PropTypes.shape({
         href: PropTypes.string,
