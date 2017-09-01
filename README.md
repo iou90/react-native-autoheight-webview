@@ -19,6 +19,13 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
 ```javascript
 <AutoHeightWebView
     onHeightUpdated={height => console.log(height)},
+    /*
+    if set to false may cause some layout issues (width of container will be than width of screen) on android
+    if set to true may cause some layout issues (smaller font size) on ios
+    */
+    scalesPageToFit={Platform.OS === 'android' ? true : false}
+    // baseUrl not work in android 4.3 or below version
+    enableBaseUrl={true}
     // offset of rn webview margin 
     heightOffset={5}
     // default width is the width of screen
@@ -38,3 +45,7 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
     // change script (have to change source to reload on android)
     customScript={`document.body.style.background = 'lightyellow';`} />
 ```
+
+# demo
+
+There could have some issues when installing & running the demo, related to https://github.com/facebook/react-native/issues/14209, you should try to delete the demo folder in node_modules/react-native-autoheight-webview of the demo project and npm start -- --reset-cache or restart your machine.
