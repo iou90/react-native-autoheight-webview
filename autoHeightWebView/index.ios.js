@@ -14,6 +14,33 @@ import {
 import PropTypes from 'prop-types';
 
 export default class AutoHeightWebView extends PureComponent {
+    static propTypes = {
+        source: WebView.propTypes.source,
+        onHeightUpdated: PropTypes.func,
+        customScript: PropTypes.string,
+        enableAnimation: PropTypes.bool,
+        // if set to true may cause some layout issues (smaller font size)
+        scalesPageToFit: PropTypes.bool,
+        // only works on enable animation
+        animationDuration: PropTypes.number,
+        // offset of rn webview margin
+        heightOffset: PropTypes.number,
+        style: ViewPropTypes.style,
+        // add web/files... to project root
+        files: PropTypes.arrayOf(PropTypes.shape({
+            href: PropTypes.string,
+            type: PropTypes.string,
+            rel: PropTypes.string
+        }))
+    }
+
+    static defaultProps = {
+        scalesPageToFit: false,
+        enableAnimation: true,
+        animationDuration: 555,
+        heightOffset: 12
+    }
+
     constructor(props) {
         super(props);
         this.handleNavigationStateChange = this.handleNavigationStateChange.bind(this);
@@ -80,7 +107,7 @@ export default class AutoHeightWebView extends PureComponent {
 
     render() {
         const { height, script } = this.state;
-        const { enableAnimation, source, heightOffset, customScript, style } = this.props;
+        const { scalesPageToFit, enableAnimation, source, heightOffset, customScript, style } = this.props;
         const webViewSource = Object.assign({}, source, { baseUrl: 'web/' });
         return (
             <Animated.View style={[Styles.container, {
@@ -91,35 +118,12 @@ export default class AutoHeightWebView extends PureComponent {
                     style={Styles.webView}
                     injectedJavaScript={script + customScript}
                     scrollEnabled={false}
+                    scalesPageToFit={scalesPageToFit}
                     source={webViewSource}
                     onNavigationStateChange={this.handleNavigationStateChange} />
             </Animated.View>
         );
     }
-}
-
-AutoHeightWebView.propTypes = {
-    source: WebView.propTypes.source,
-    onHeightUpdated: PropTypes.func,
-    customScript: PropTypes.string,
-    enableAnimation: PropTypes.bool,
-    // only works on enable animation
-    animationDuration: PropTypes.number,
-    // offset of rn webview margin
-    heightOffset: PropTypes.number,
-    style: ViewPropTypes.style,
-    // add web/files... to project root
-    files: PropTypes.arrayOf(PropTypes.shape({
-        href: PropTypes.string,
-        type: PropTypes.string,
-        rel: PropTypes.string
-    }))
-}
-
-AutoHeightWebView.defaultProps = {
-    enableAnimation: true,
-    animationDuration: 555,
-    heightOffset: 12
 }
 
 const ScreenWidth = Dimensions.get('window').width;
@@ -141,7 +145,7 @@ const BaseScript =
     ; (function () {
         var i = 0;
         function updateHeight() {
-            document.title = document.body.firstChild.clientHeight;
+            document.title = document.body.offsetHeight;
             window.location.hash = ++i;
         }
         updateHeight();

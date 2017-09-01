@@ -23,6 +23,36 @@ import Immutable from 'immutable';
 const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', AutoHeightWebView, { nativeOnly: { messagingEnabled: PropTypes.bool } });
 
 export default class AutoHeightWebView extends PureComponent {
+    static propTypes = {
+        source: WebView.propTypes.source,
+        onHeightUpdated: PropTypes.func,
+        customScript: PropTypes.string,
+        enableAnimation: PropTypes.bool,
+        // if set to true may cause some layout issues (smaller font size)
+        scalesPageToFit: PropTypes.bool,
+        // only works on enable animation
+        animationDuration: PropTypes.number,
+        // offset of rn webview margin
+        heightOffset: PropTypes.number,
+        // baseUrl not work in android 4.3 or below version
+        enableBaseUrl: PropTypes.bool,
+        style: ViewPropTypes.style,
+        // works if set enableBaseUrl to true; add web/files... to android/app/src/assets/
+        files: PropTypes.arrayOf(PropTypes.shape({
+            href: PropTypes.string,
+            type: PropTypes.string,
+            rel: PropTypes.string
+        }))
+    }
+
+    static defaultProps = {
+        scalesPageToFit: false,
+        enableBaseUrl: false,
+        enableAnimation: true,
+        animationDuration: 555,
+        heightOffset: 20
+    }
+
     constructor(props) {
         super(props);
         this.onMessage = this.onMessage.bind(this);
@@ -165,7 +195,7 @@ export default class AutoHeightWebView extends PureComponent {
 
     render() {
         const { height, script, isChangingSource, heightOffset } = this.state;
-        const { enableAnimation, source, customScript, style, enableBaseUrl } = this.props;
+        const { scalesPageToFit, enableAnimation, source, customScript, style, enableBaseUrl } = this.props;
         let webViewSource = source;
         if (enableBaseUrl) {
             webViewSource = Object.assign({}, source, { baseUrl: 'file:///android_asset/web/' });
@@ -182,7 +212,7 @@ export default class AutoHeightWebView extends PureComponent {
                             style={Styles.webView}
                             javaScriptEnabled={true}
                             injectedJavaScript={script + customScript}
-                            scrollEnabled={false}
+                            scalesPageToFit={scalesPageToFit}
                             source={webViewSource}
                             onMessage={this.onMessage}
                             messagingEnabled={true}
@@ -192,33 +222,6 @@ export default class AutoHeightWebView extends PureComponent {
             </Animated.View>
         );
     }
-}
-
-AutoHeightWebView.propTypes = {
-    source: WebView.propTypes.source,
-    onHeightUpdated: PropTypes.func,
-    customScript: PropTypes.string,
-    enableAnimation: PropTypes.bool,
-    // only works on enable animation
-    animationDuration: PropTypes.number,
-    // offset of rn webview margin
-    heightOffset: PropTypes.number,
-    // baseUrl not work in android 4.3 or below version
-    enableBaseUrl: PropTypes.bool,
-    style: ViewPropTypes.style,
-    // works if set enableBaseUrl to true; add web/files... to android/app/src/assets/
-    files: PropTypes.arrayOf(PropTypes.shape({
-        href: PropTypes.string,
-        type: PropTypes.string,
-        rel: PropTypes.string
-    }))
-}
-
-AutoHeightWebView.defaultProps = {
-    enableAnimation: true,
-    animationDuration: 555,
-    enableBaseUrl: false,
-    heightOffset: 20
 }
 
 const ScreenWidth = Dimensions.get('window').width;
