@@ -22,9 +22,4 @@ public class AutoHeightWebViewPackage implements ReactPackage {
                 new AutoHeightWebViewManager()
         );
     }
-
-    @Override
-    public List<Class<? extends JavaScriptModule>> createJSModules() {
-        return Arrays.asList();
-    }
 }

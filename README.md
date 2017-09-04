@@ -1,11 +1,15 @@
 # react-native-autoheight-webview
 An auto height webview for React Native.
 
-Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://github.com/facebook/react-native/releases) and PropTypes has been moved to a separate package in React 16 (https://facebook.github.io/react/blog/2017/04/07/react-v15.5.0.html#migrating-from-react.proptypes), please install react-native-autoheight-webview 0.2.3 for the project with rn version lower than 0.44.
+Cause of removing unused createJSModules calls in React Naitve 0.47 (https://github.com/facebook/react-native/releases/tag/v0.47.2), please install react-native-autoheight-webview 0.3.1 for the project with 0.44 <= rn < 0.47.
 
-`npm install react-native-autoheight-webview --save`
+Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://github.com/facebook/react-native/releases/tag/v0.44.3) and PropTypes has been moved to a separate package in React 16 (https://facebook.github.io/react/blog/2017/04/07/react-v15.5.0.html#migrating-from-react.proptypes), please install react-native-autoheight-webview 0.2.3 for the project with rn < 0.44.
 
-`npm install react-native-autoheight-webview@0.2.3 --save` (if the project with rn version lower than 0.44)
+`npm install react-native-autoheight-webview --save` (rn >= 0.47)
+
+`npm install react-native-autoheight-webview@0.3.1 --save` (0.44 <= rn < 0.47)
+
+`npm install react-native-autoheight-webview@0.2.3 --save` (rn < 0.44)
 
 ## android
 `react-native link react-native-autoheight-webview`
