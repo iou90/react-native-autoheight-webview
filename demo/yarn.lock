@@ -3241,7 +3241,7 @@ react-devtools-core@2.3.1:
     ws "^2.0.3"
 
 react-native-autoheight-webview@../:
-  version "0.3.1"
+  version "0.3.2"
   dependencies:
     immutable "^3.8.1"
     prop-types "^15.5.10"
