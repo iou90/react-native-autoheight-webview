@@ -23,6 +23,8 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
 ```javascript
 <AutoHeightWebView
     onHeightUpdated={height => console.log(height)},
+    // if page contains iframe on iOS, use a specific script for it
+    hasIframe={true}
     /*
     if set to false may cause some layout issues (width of container not fit for screen) on android
     if set to true may cause some layout issues (smaller font size) on ios

@@ -15,6 +15,7 @@ import PropTypes from 'prop-types';
 
 export default class AutoHeightWebView extends PureComponent {
     static propTypes = {
+        hasIframe: PropTypes.bool,
         source: WebView.propTypes.source,
         onHeightUpdated: PropTypes.func,
         customScript: PropTypes.string,
@@ -47,7 +48,7 @@ export default class AutoHeightWebView extends PureComponent {
         if (this.props.enableAnimation) {
             this.opacityAnimatedValue = new Animated.Value(0);
         }
-        const initialScript = props.files ? this.appendFilesToHead(props.files, BaseScript) : BaseScript;
+        const initialScript = props.files ? this.appendFilesToHead(props.files, props.hasIframe ? IframeBaseScript : BaseScript) : props.hasIframe ? IframeBaseScript : BaseScript;
         this.state = {
             height: 0,
             script: initialScript
@@ -55,9 +56,9 @@ export default class AutoHeightWebView extends PureComponent {
     }
 
     componentWillReceiveProps(nextProps) {
-        let currentScript = BaseScript;
+        let currentScript = nextProps.hasIframe ? IframeBaseScript : BaseScript;
         if (nextProps.files) {
-            currentScript = this.appendFilesToHead(nextProps.files, BaseScript);
+            currentScript = this.appendFilesToHead(nextProps.files, nextProps.hasIframe ? IframeBaseScript : BaseScript);
         }
         this.setState({ script: currentScript });
     }
@@ -155,6 +156,25 @@ const BaseScript =
             if(document.body.offsetHeight !== height) {
                 height = wrapper.clientHeight;
                 document.title = wrapper.clientHeight;
+                window.location.hash = ++i;
+            }
+        }
+        updateHeight();
+        window.addEventListener('load', updateHeight);
+        window.addEventListener('resize', updateHeight);
+    } ());
+    `;
+
+const IframeBaseScript =
+    `
+    ; 
+    (function () {
+        var i = 0;
+        var height = 0;
+        function updateHeight() {
+            if(document.body.offsetHeight !== height) {
+                height = document.body.firstChild.clientHeight;
+                document.title = document.body.firstChild.clientHeight;
                 window.location.hash = ++i;
             }
         }
