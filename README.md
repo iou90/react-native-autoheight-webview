@@ -33,7 +33,8 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
     // offset of rn webview margin 
     heightOffset={5}
     // default width is the width of screen
-    style={customStyle}
+    // to fix that it can not select text when the length of it is not long enough on iOS, the width should be reduced more than 15
+    style={{ width: Dimensions.get('window').width - 15 }}
     // enable animation by default
     enableAnimation={true},
     // only works on enable animation

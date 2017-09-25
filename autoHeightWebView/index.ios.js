@@ -87,7 +87,7 @@ export default class AutoHeightWebView extends PureComponent {
 
     handleNavigationStateChange(navState) {
         const height = Number(navState.title);
-        if (height) {
+        if (height && height !== this.state.height) {
             if (this.props.enableAnimation) {
                 this.opacityAnimatedValue.setValue(0);
             }
@@ -139,14 +139,24 @@ const Styles = StyleSheet.create({
     }
 });
 
-// note that it can not get height when there are only text objects in a html body which does not make any sense 
 const BaseScript =
     `
-    ; (function () {
+    ; 
+    (function () {
         var i = 0;
+        var height = 0;
+        var wrapper = document.createElement('div');
+        wrapper.id = 'height-wrapper';
+        while (document.body.firstChild) {
+            wrapper.appendChild(document.body.firstChild);
+        }
+        document.body.appendChild(wrapper);
         function updateHeight() {
-            document.title = document.body.offsetHeight;
-            window.location.hash = ++i;
+            if(document.body.offsetHeight !== height) {
+                height = wrapper.clientHeight;
+                document.title = wrapper.clientHeight;
+                window.location.hash = ++i;
+            }
         }
         updateHeight();
         window.addEventListener('load', updateHeight);
