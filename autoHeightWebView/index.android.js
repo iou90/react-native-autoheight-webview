@@ -216,24 +216,14 @@ export default class AutoHeightWebView extends PureComponent {
     if (!files) {
       return script;
     }
-    for (let file of files) {
-      script =
-        `
-                var link  = document.createElement('link');
-                link.rel  = '` +
-        file.rel +
-        `';
-                link.type = '` +
-        file.type +
-        `';
-                link.href = '` +
-        file.href +
-        `';
-                document.head.appendChild(link);
-                ` +
-        script;
-    }
-    return script;
+    return files.reduceRight((file, combinedScript) => `
+      var link  = document.createElement('link');
+      link.rel  = '${file.rel}';
+      link.type = '${file.type}';
+      link.href = '${file.href}';
+      document.head.appendChild(link);
+      ${combinedScript}
+    `, script)
   }
 
   appendStylesToHead(styles, script) {
