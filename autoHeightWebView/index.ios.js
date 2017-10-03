@@ -94,9 +94,11 @@ export default class AutoHeightWebView extends PureComponent {
       if (!styles) {
         return script;
       }
+      // Escape any single quotes or newlines in the CSS with .replace()
+      const escaped = styles.replace(/\'/g, "\\'").replace(/\n/g, '\\n')
       return `
         var styleElement = document.createElement('style');
-        var styleText = document.createTextNode('${styles}');
+        var styleText = document.createTextNode('${escaped}');
         styleElement.appendChild(styleText);
         document.head.appendChild(styleElement);
         ${script}
