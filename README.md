@@ -50,7 +50,17 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
         rel: 'stylesheet'
     }]}
     // change script (have to change source to reload on android)
-    customScript={`document.body.style.background = 'lightyellow';`} />
+    customScript={`document.body.style.background = 'lightyellow';`}
+    // add custom CSS to the page's <head>
+    customStyle={`
+      * {
+        font-family: 'Times New Roman';
+      }
+      p {
+        font-size: 16px;
+      }
+    `}
+  />
 ```
 
 # demo
