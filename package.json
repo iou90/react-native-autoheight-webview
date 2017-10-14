@@ -26,6 +26,10 @@
     "url": "https://github.com/iou90/react-native-autoheight-webview/issues"
   },
   "homepage": "https://github.com/iou90/react-native-autoheight-webview#readme",
+  "peerDependencies": {
+    "react": "*",
+    "react-native": ">= 0.47.0"
+  },
   "dependencies": {
     "immutable": "^3.8.1",
     "prop-types": "^15.5.10"
