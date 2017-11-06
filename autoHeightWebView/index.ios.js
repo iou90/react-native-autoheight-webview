@@ -28,6 +28,12 @@ export default class AutoHeightWebView extends PureComponent {
         // offset of rn webview margin
         heightOffset: PropTypes.number,
         style: ViewPropTypes.style,
+        //  rn WebView callback
+        onError: PropTypes.func,
+        onLoad: PropTypes.func,
+        onLoadStart: PropTypes.func,
+        onLoadEnd: PropTypes.func,
+        onShouldStartLoadWithRequest: PropTypes.func,
         // add web/files... to project root
         files: PropTypes.arrayOf(PropTypes.shape({
             href: PropTypes.string,
@@ -84,7 +90,7 @@ export default class AutoHeightWebView extends PureComponent {
           link.href = '${file.href}';
           document.head.appendChild(link);
           ${combinedScript}
-        `, script)
+        `, script);
     }
 
     appendStylesToHead(styles, script) {
@@ -99,7 +105,7 @@ export default class AutoHeightWebView extends PureComponent {
         styleElement.appendChild(styleText);
         document.head.appendChild(styleElement);
         ${script}
-      `
+      `;
     }
 
     onHeightUpdated(height) {
@@ -130,7 +136,7 @@ export default class AutoHeightWebView extends PureComponent {
 
     render() {
         const { height, script } = this.state;
-        const { scalesPageToFit, enableAnimation, source, heightOffset, customScript, style } = this.props;
+        const { onError, onLoad, onLoadStart, onLoadEnd, onShouldStartLoadWithRequest, scalesPageToFit, enableAnimation, source, heightOffset, customScript, style } = this.props;
         const webViewSource = Object.assign({}, source, { baseUrl: 'web/' });
         return (
             <Animated.View style={[Styles.container, {
@@ -138,6 +144,11 @@ export default class AutoHeightWebView extends PureComponent {
                 height: height + heightOffset,
             }, style]}>
                 <WebView
+                    onError={onError}
+                    onLoad={onLoad}
+                    onLoadStart={onLoadStart}
+                    onLoadEnd={onLoadEnd}
+                    onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
                     style={Styles.webView}
                     injectedJavaScript={script + customScript}
                     scrollEnabled={false}

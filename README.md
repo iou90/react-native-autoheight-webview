@@ -27,7 +27,7 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
     hasIframe={true}
     /*
     if set to false may cause some layout issues (width of container not fit for screen) on android
-    if set to true may cause some layout issues (smaller font size) on ios
+    if set to true may cause some layout issues (smaller font size) on iOS
     */
     scalesPageToFit={Platform.OS === 'android' ? true : false}
     // baseUrl not work in android 4.3 or below version
@@ -35,8 +35,8 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
     // offset of rn webview margin 
     heightOffset={5}
     // default width is the width of screen
-    // to fix that it can not select text when the length of it is not long enough on iOS, the width should be reduced more than 15
-    style={{ width: Dimensions.get('window').width - 15 }}
+    // if there are some text selection issues on iOS, the width should be reduced more than 15 and the marginTop should be added more than 35
+    style={{ width: Dimensions.get('window').width - 15, marginTop: 35 }}
     // enable animation by default
     enableAnimation={true},
     // only works on enable animation
@@ -51,6 +51,16 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
     }]}
     // change script (have to change source to reload on android)
     customScript={`document.body.style.background = 'lightyellow';`}
+    // rn WebView callbacks
+    onError={() => console.log('on error')}
+    onLoad={() => console.log('on load')}
+    onLoadStart={() => console.log('on load start')}
+    onLoadEnd={() => console.log('on load end')}
+    // only on iOS
+    onShouldStartLoadWithRequest={result => {
+      console.log(result)
+      return true;
+    }}
     // add custom CSS to the page's <head>
     customStyle={`
       * {
@@ -65,4 +75,4 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
 
 # demo
 
-There could have some issues when installing & running the demo, related to https://github.com/facebook/react-native/issues/14209, you should try to delete the demo folder in node_modules/react-native-autoheight-webview of the demo project and npm start -- --reset-cache or restart your machine.
+There could have some issues when installing & running the demo, related to https://github.com/facebook/react-native/issues/14423, try: rm -rf ~/.rncache.

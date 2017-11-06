@@ -23,7 +23,16 @@ import Immutable from "immutable";
 const RCTAutoHeightWebView = requireNativeComponent(
   "RCTAutoHeightWebView",
   AutoHeightWebView,
-  { nativeOnly: { messagingEnabled: PropTypes.bool } }
+  { nativeOnly: 
+    {
+      nativeOnly: {
+        onLoadingStart: true,
+        onLoadingError: true,
+        onLoadingFinish: true,
+        messagingEnabled: PropTypes.bool
+      }
+    }
+   }
 );
 
 export default class AutoHeightWebView extends PureComponent {
@@ -42,6 +51,11 @@ export default class AutoHeightWebView extends PureComponent {
     // baseUrl not work in android 4.3 or below version
     enableBaseUrl: PropTypes.bool,
     style: ViewPropTypes.style,
+    //  rn WebView callback
+    onError: PropTypes.func,
+    onLoad: PropTypes.func,
+    onLoadStart: PropTypes.func,
+    onLoadEnd: PropTypes.func,
     // works if set enableBaseUrl to true; add web/files... to android/app/src/assets/
     files: PropTypes.arrayOf(
       PropTypes.shape({
@@ -223,7 +237,7 @@ export default class AutoHeightWebView extends PureComponent {
       link.href = '${file.href}';
       document.head.appendChild(link);
       ${combinedScript}
-    `, script)
+    `, script);
   }
 
   appendStylesToHead(styles, script) {
@@ -238,8 +252,26 @@ export default class AutoHeightWebView extends PureComponent {
       styleElement.appendChild(styleText);
       document.head.appendChild(styleElement);
       ${script}
-    `
+    `;
   }
+
+  onLoadingStart = (event) => {
+    var onLoadStart = this.props.onLoadStart;
+    onLoadStart && onLoadStart(event);
+  };
+
+  onLoadingError = (event) => {
+    var {onError, onLoadEnd} = this.props;
+    onError && onError(event);
+    onLoadEnd && onLoadEnd(event);
+    console.warn('Encountered an error loading page', event.nativeEvent);
+  };
+
+  onLoadingFinish = (event) => {
+    var {onLoad, onLoadEnd} = this.props;
+    onLoad && onLoad(event);
+    onLoadEnd && onLoadEnd(event);
+  };
 
   render() {
     const { height, script, isChangingSource, heightOffset } = this.state;
@@ -270,6 +302,9 @@ export default class AutoHeightWebView extends PureComponent {
       >
         {isChangingSource ? null : (
           <RCTAutoHeightWebView
+            onLoadingStart={this.onLoadingStart}
+            onLoadingFinish={this.onLoadingFinish}
+            onLoadingError={this.onLoadingError}
             ref={webview => (this.webview = webview)}
             style={Styles.webView}
             javaScriptEnabled={true}
