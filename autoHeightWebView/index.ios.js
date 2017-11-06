@@ -19,6 +19,7 @@ export default class AutoHeightWebView extends PureComponent {
         source: WebView.propTypes.source,
         onHeightUpdated: PropTypes.func,
         customScript: PropTypes.string,
+        customStyle: PropTypes.string,
         enableAnimation: PropTypes.bool,
         // if set to true may cause some layout issues (smaller font size)
         scalesPageToFit: PropTypes.bool,
@@ -48,7 +49,13 @@ export default class AutoHeightWebView extends PureComponent {
         if (this.props.enableAnimation) {
             this.opacityAnimatedValue = new Animated.Value(0);
         }
-        const initialScript = props.files ? this.appendFilesToHead(props.files, props.hasIframe ? IframeBaseScript : BaseScript) : props.hasIframe ? IframeBaseScript : BaseScript;
+        let initialScript = props.hasIframe ? IframeBaseScript : BaseScript;
+        initialScript = props.files
+          ? this.appendFilesToHead(props.files, BaseScript)
+          : BaseScript;
+        initialScript = props.customStyle
+          ? this.appendStylesToHead(props.customStyle, initialScript)
+          : initialScript;
         this.state = {
             height: 0,
             script: initialScript
@@ -58,8 +65,11 @@ export default class AutoHeightWebView extends PureComponent {
     componentWillReceiveProps(nextProps) {
         let currentScript = nextProps.hasIframe ? IframeBaseScript : BaseScript;
         if (nextProps.files) {
-            currentScript = this.appendFilesToHead(nextProps.files, nextProps.hasIframe ? IframeBaseScript : BaseScript);
+            currentScript = this.appendFilesToHead(nextProps.files, currentScript);
         }
+        currentScript = nextProps.customStyle
+          ? this.appendStylesToHead(nextProps.customStyle, currentScript)
+          : currentScript;
         this.setState({ script: currentScript });
     }
 
@@ -67,17 +77,29 @@ export default class AutoHeightWebView extends PureComponent {
         if (!files) {
             return script;
         }
-        for (let file of files) {
-            script =
-                `
-                var link  = document.createElement('link');
-                link.rel  = '` + file.rel + `';
-                link.type = '` + file.type + `';
-                link.href = '` + file.href + `';
-                document.head.appendChild(link);
-                `+ script;
-        }
+        return files.reduceRight((file, combinedScript) => `
+          var link  = document.createElement('link');
+          link.rel  = '${file.rel}';
+          link.type = '${file.type}';
+          link.href = '${file.href}';
+          document.head.appendChild(link);
+          ${combinedScript}
+        `, script)
+    }
+
+    appendStylesToHead(styles, script) {
+      if (!styles) {
         return script;
+      }
+      // Escape any single quotes or newlines in the CSS with .replace()
+      const escaped = styles.replace(/\'/g, "\\'").replace(/\n/g, '\\n')
+      return `
+        var styleElement = document.createElement('style');
+        var styleText = document.createTextNode('${escaped}');
+        styleElement.appendChild(styleText);
+        document.head.appendChild(styleElement);
+        ${script}
+      `
     }
 
     onHeightUpdated(height) {
