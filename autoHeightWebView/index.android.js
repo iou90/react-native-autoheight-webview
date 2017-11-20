@@ -23,7 +23,7 @@ import Immutable from "immutable";
 const RCTAutoHeightWebView = requireNativeComponent(
   "RCTAutoHeightWebView",
   AutoHeightWebView,
-  { nativeOnly: 
+  { nativeOnly:
     {
       nativeOnly: {
         onLoadingStart: true,
@@ -56,6 +56,7 @@ export default class AutoHeightWebView extends PureComponent {
     onLoad: PropTypes.func,
     onLoadStart: PropTypes.func,
     onLoadEnd: PropTypes.func,
+    onMessage: PropTypes.func,
     // works if set enableBaseUrl to true; add web/files... to android/app/src/assets/
     files: PropTypes.arrayOf(
       PropTypes.shape({
@@ -202,6 +203,9 @@ export default class AutoHeightWebView extends PureComponent {
     const height = parseInt(
       IsBelowKitKat ? e.nativeEvent.message : e.nativeEvent.data
     );
+    if (this.props.onMessage) {
+      this.props.onMessage(e);
+    }
     if (height) {
       if (this.props.enableAnimation) {
         this.opacityAnimatedValue.setValue(0);
@@ -343,12 +347,12 @@ const BaseScript = IsBelowKitKat
         AutoHeightWebView.onMessage = function (message) {
             AutoHeightWebView.send(String(document.body.offsetHeight));
         };
-    } ()); 
+    } ());
     `
   : `
     ; (function () {
         document.addEventListener('message', function (e) {
             window.postMessage(String(document.body.offsetHeight));
         });
-    } ()); 
+    } ());
     `;
