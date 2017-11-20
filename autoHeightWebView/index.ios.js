@@ -34,6 +34,7 @@ export default class AutoHeightWebView extends PureComponent {
         onLoadStart: PropTypes.func,
         onLoadEnd: PropTypes.func,
         onShouldStartLoadWithRequest: PropTypes.func,
+        onMessage: PropTypes.func,
         // add web/files... to project root
         files: PropTypes.arrayOf(PropTypes.shape({
             href: PropTypes.string,
@@ -136,7 +137,7 @@ export default class AutoHeightWebView extends PureComponent {
 
     render() {
         const { height, script } = this.state;
-        const { onError, onLoad, onLoadStart, onLoadEnd, onShouldStartLoadWithRequest, scalesPageToFit, enableAnimation, source, heightOffset, customScript, style } = this.props;
+        const { onError, onLoad, onLoadStart, onLoadEnd, onShouldStartLoadWithRequest, scalesPageToFit, enableAnimation, source, heightOffset, customScript, style, onMessage } = this.props;
         const webViewSource = Object.assign({}, source, { baseUrl: 'web/' });
         return (
             <Animated.View style={[Styles.container, {
@@ -154,6 +155,7 @@ export default class AutoHeightWebView extends PureComponent {
                     scrollEnabled={false}
                     scalesPageToFit={scalesPageToFit}
                     source={webViewSource}
+                    onMessage={onMessage}
                     onNavigationStateChange={this.handleNavigationStateChange} />
             </Animated.View>
         );
@@ -175,7 +177,7 @@ const Styles = StyleSheet.create({
 
 const BaseScript =
     `
-    ; 
+    ;
     (function () {
         var i = 0;
         var height = 0;
@@ -200,7 +202,7 @@ const BaseScript =
 
 const IframeBaseScript =
     `
-    ; 
+    ;
     (function () {
         var i = 0;
         var height = 0;
