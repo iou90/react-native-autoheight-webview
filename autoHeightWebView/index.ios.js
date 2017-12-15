@@ -34,7 +34,6 @@ export default class AutoHeightWebView extends PureComponent {
         onLoadStart: PropTypes.func,
         onLoadEnd: PropTypes.func,
         onShouldStartLoadWithRequest: PropTypes.func,
-        _ref: PropTypes.func,
         // add web/files... to project root
         files: PropTypes.arrayOf(PropTypes.shape({
             href: PropTypes.string,
@@ -135,9 +134,13 @@ export default class AutoHeightWebView extends PureComponent {
         }
     }
 
+    stopLoading() {
+        this.webview.stopLoading();   
+    }
+
     render() {
         const { height, script } = this.state;
-        const { _ref, onError, onLoad, onLoadStart, onLoadEnd, onShouldStartLoadWithRequest, scalesPageToFit, enableAnimation, source, heightOffset, customScript, style } = this.props;
+        const { onError, onLoad, onLoadStart, onLoadEnd, onShouldStartLoadWithRequest, scalesPageToFit, enableAnimation, source, heightOffset, customScript, style } = this.props;
         const webViewSource = Object.assign({}, source, { baseUrl: 'web/' });
         return (
             <Animated.View style={[Styles.container, {
@@ -145,7 +148,7 @@ export default class AutoHeightWebView extends PureComponent {
                 height: height + heightOffset,
             }, style]}>
                 <WebView
-                    ref={_ref}
+                    ref={webview => this.webview = webview}
                     onError={onError}
                     onLoad={onLoad}
                     onLoadStart={onLoadStart}
