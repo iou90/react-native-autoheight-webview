@@ -12,7 +12,22 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
 `npm install react-native-autoheight-webview@0.2.3 --save` (rn < 0.44)
 
 ## android
-`react-native link react-native-autoheight-webview`
+1. `react-native link react-native-autoheight-webview`
+2. in MainApplication.java
+```javascript
+import com.dscj.autoheightwebview.AutoHeightWebViewPackage; // Add this
+
+public class MainApplication extends Application implements ReactApplication {
+  //...
+  private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
+    //...
+    @Override
+    protected List<ReactPackage> getPackages() {
+      return Arrays.<ReactPackage>asList(
+        //...
+        new AutoHeightWebViewPackage() // Add this
+        //...
+```
 
 ## showcase
 ![react-native-autoheight-webview ios](https://media.giphy.com/media/l4FGyhnvWfUgxCfe0/200w.gif)&nbsp;
@@ -32,7 +47,7 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
     scalesPageToFit={Platform.OS === 'android' ? true : false}
     // baseUrl not work in android 4.3 or below version
     enableBaseUrl={true}
-    // offset of rn webview margin 
+    // offset of rn webview margin
     heightOffset={5}
     // default width is the width of screen
     // if there are some text selection issues on iOS, the width should be reduced more than 15 and the marginTop should be added more than 35
