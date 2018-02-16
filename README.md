@@ -32,7 +32,7 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
     scalesPageToFit={Platform.OS === 'android' ? true : false}
     // baseUrl not work in android 4.3 or below version
     enableBaseUrl={true}
-    // offset of rn webview margin
+    // offset of rn webview margin 
     heightOffset={5}
     // default width is the width of screen
     // if there are some text selection issues on iOS, the width should be reduced more than 15 and the marginTop should be added more than 35
