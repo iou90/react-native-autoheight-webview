@@ -79,6 +79,12 @@ export default class AutoHeightWebView extends PureComponent {
     }
   };
 
+  getWebView = webView => (this.webView = webView);
+
+  stopLoading() {
+    this.webView.stopLoading();
+  }
+
   render() {
     const { height, script } = this.state;
     const {
@@ -107,6 +113,7 @@ export default class AutoHeightWebView extends PureComponent {
         ]}
       >
         <WebView
+          ref={this.getWebView}
           onError={onError}
           onLoad={onLoad}
           onLoadStart={onLoadStart}
