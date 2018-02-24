@@ -23,7 +23,7 @@ import Immutable from "immutable";
 const RCTAutoHeightWebView = requireNativeComponent(
   "RCTAutoHeightWebView",
   AutoHeightWebView,
-  { nativeOnly: 
+  { nativeOnly:
     {
       nativeOnly: {
         onLoadingStart: true,
@@ -343,12 +343,28 @@ const BaseScript = IsBelowKitKat
         AutoHeightWebView.onMessage = function (message) {
             AutoHeightWebView.send(String(document.body.offsetHeight));
         };
-    } ()); 
+        MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+        var observer = new MutationObserver(function() {
+            AutoHeightWebView.send(String(document.body.offsetHeight));
+        });
+        observer.observe(document, {
+            subtree: true,
+            attributes: true
+        });
+    } ());
     `
   : `
     ; (function () {
         document.addEventListener('message', function (e) {
             window.postMessage(String(document.body.offsetHeight));
         });
-    } ()); 
+        MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+        var observer = new MutationObserver(function() {
+            window.postMessage(String(document.body.offsetHeight));
+        });
+        observer.observe(document, {
+            subtree: true,
+            attributes: true
+        });
+    } ());
     `;

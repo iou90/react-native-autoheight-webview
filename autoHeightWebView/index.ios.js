@@ -175,7 +175,7 @@ const Styles = StyleSheet.create({
 
 const BaseScript =
     `
-    ; 
+    ;
     (function () {
         var i = 0;
         var height = 0;
@@ -195,12 +195,18 @@ const BaseScript =
         updateHeight();
         window.addEventListener('load', updateHeight);
         window.addEventListener('resize', updateHeight);
+        MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+        var observer = new MutationObserver(updateHeight);
+        observer.observe(document, {
+            subtree: true,
+            attributes: true
+        });
     } ());
     `;
 
 const IframeBaseScript =
     `
-    ; 
+    ;
     (function () {
         var i = 0;
         var height = 0;
@@ -214,5 +220,11 @@ const IframeBaseScript =
         updateHeight();
         window.addEventListener('load', updateHeight);
         window.addEventListener('resize', updateHeight);
+        MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
+        var observer = new MutationObserver(updateHeight);
+        observer.observe(document, {
+            subtree: true,
+            attributes: true
+        });
     } ());
     `;
