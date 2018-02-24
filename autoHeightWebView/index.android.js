@@ -20,6 +20,8 @@ import PropTypes from 'prop-types';
 
 import Immutable from 'immutable';
 
+import { getScript, onHeightUpdated, DomMutationObserveScript } from './common.js';
+
 const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', AutoHeightWebView, {
   nativeOnly: {
     nativeOnly: {
@@ -72,27 +74,17 @@ export default class AutoHeightWebView extends PureComponent {
 
   constructor(props) {
     super(props);
-    this.onMessage = this.onMessage.bind(this);
-    if (this.props.enableAnimation) {
-      this.opacityAnimatedValue = new Animated.Value(0);
-    }
-    if (IsBelowKitKat) {
-      this.listenWebViewBridgeMessage = this.listenWebViewBridgeMessage.bind(this);
-    }
-    let initialScript = props.files ? this.appendFilesToHead(props.files, BaseScript) : BaseScript;
-    initialScript = props.customStyle ? this.appendStylesToHead(props.customStyle, initialScript) : initialScript;
+    props.enableAnimation && (this.opacityAnimatedValue = new Animated.Value(0));
     this.state = {
       isChangingSource: false,
       height: 0,
       heightOffset: 0,
-      script: initialScript
+      script: getScript(props, BaseScript)
     };
   }
 
   componentWillMount() {
-    if (IsBelowKitKat) {
-      DeviceEventEmitter.addListener('webViewBridgeMessage', this.listenWebViewBridgeMessage);
-    }
+    IsBelowKitKat && DeviceEventEmitter.addListener('webViewBridgeMessage', this.listenWebViewBridgeMessage);
   }
 
   componentDidMount() {
@@ -116,27 +108,16 @@ export default class AutoHeightWebView extends PureComponent {
         }
       );
     }
-    let currentScript = BaseScript;
-    if (nextProps.files) {
-      currentScript = this.appendFilesToHead(nextProps.files, BaseScript);
-    }
-    currentScript = nextProps.customStyle
-      ? this.appendStylesToHead(nextProps.customStyle, currentScript)
-      : currentScript;
-    this.setState({ script: currentScript });
+    this.setState({ script: getScript(nextProps, BaseScript) });
   }
 
   componentWillUnmount() {
     this.stopInterval();
-    if (IsBelowKitKat) {
-      DeviceEventEmitter.removeListener('webViewBridgeMessage', this.listenWebViewBridgeMessage);
-    }
+    IsBelowKitKat && DeviceEventEmitter.removeListener('webViewBridgeMessage', this.listenWebViewBridgeMessage);
   }
 
   // below kitkat
-  listenWebViewBridgeMessage(body) {
-    this.onMessage(body.message);
-  }
+  listenWebViewBridgeMessage = body => this.onMessage(body.message);
 
   // below kitkat
   sendToWebView(message) {
@@ -169,84 +150,47 @@ export default class AutoHeightWebView extends PureComponent {
     clearInterval(this.interval);
   }
 
-  onHeightUpdated(height) {
-    if (this.props.onHeightUpdated) {
-      this.props.onHeightUpdated(height);
-    }
-  }
-
-  onMessage(e) {
+  onMessage = e => {
     const height = parseInt(IsBelowKitKat ? e.nativeEvent.message : e.nativeEvent.data);
     if (height) {
-      if (this.props.enableAnimation) {
+      const { enableAnimation, animationDuration, heightOffset } = this.props;
+      if (enableAnimation) {
         this.opacityAnimatedValue.setValue(0);
       }
       this.stopInterval();
       this.setState(
         {
-          heightOffset: this.props.heightOffset,
+          heightOffset,
           height
         },
         () => {
-          if (this.props.enableAnimation) {
+          if (enableAnimation) {
             Animated.timing(this.opacityAnimatedValue, {
               toValue: 1,
-              duration: this.props.animationDuration
-            }).start(() => this.onHeightUpdated(height));
+              duration: animationDuration
+            }).start(() => onHeightUpdated(height, this.props));
           } else {
-            this.onHeightUpdated(height);
+            onHeightUpdated(height, this.props);
           }
         }
       );
     }
-  }
-
-  appendFilesToHead(files, script) {
-    if (!files) {
-      return script;
-    }
-    return files.reduceRight(
-      (file, combinedScript) => `
-      var link  = document.createElement('link');
-      link.rel  = '${file.rel}';
-      link.type = '${file.type}';
-      link.href = '${file.href}';
-      document.head.appendChild(link);
-      ${combinedScript}
-    `,
-      script
-    );
-  }
-
-  appendStylesToHead(styles, script) {
-    if (!styles) {
-      return script;
-    }
-    // Escape any single quotes or newlines in the CSS with .replace()
-    const escaped = styles.replace(/\'/g, "\\'").replace(/\n/g, '\\n');
-    return `
-      var styleElement = document.createElement('style');
-      var styleText = document.createTextNode('${escaped}');
-      styleElement.appendChild(styleText);
-      document.head.appendChild(styleElement);
-      ${script}
-    `;
-  }
+  };
 
   onLoadingStart = event => {
-    var onLoadStart = this.props.onLoadStart;
+    const { onLoadStart } = this.props;
     onLoadStart && onLoadStart(event);
   };
 
   onLoadingError = event => {
-    var { onError, onLoadEnd } = this.props;
+    const { onError, onLoadEnd } = this.props;
     onError && onError(event);
     onLoadEnd && onLoadEnd(event);
     console.warn('Encountered an error loading page', event.nativeEvent);
   };
 
   onLoadingFinish = event => {
-    var { onLoad, onLoadEnd } = this.props;
+    const { onLoad, onLoadEnd } = this.props;
     onLoad && onLoad(event);
     onLoadEnd && onLoadEnd(event);
   };
@@ -324,14 +268,7 @@ const BaseScript = IsBelowKitKat
         AutoHeightWebView.onMessage = function (message) {
             AutoHeightWebView.send(String(document.body.offsetHeight));
         };
-        MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
-        var observer = new MutationObserver(function() {
-            AutoHeightWebView.send(String(document.body.offsetHeight));
-        });
-        observer.observe(document, {
-            subtree: true,
-            attributes: true
-        });
+        ${DomMutationObserveScript}
     } ());
     `
   : `
@@ -339,13 +276,6 @@ const BaseScript = IsBelowKitKat
         document.addEventListener('message', function (e) {
             window.postMessage(String(document.body.offsetHeight));
         });
-        MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
-        var observer = new MutationObserver(function() {
-            window.postMessage(String(document.body.offsetHeight));
-        });
-        observer.observe(document, {
-            subtree: true,
-            attributes: true
-        });
+        ${DomMutationObserveScript}
     } ());
     `;

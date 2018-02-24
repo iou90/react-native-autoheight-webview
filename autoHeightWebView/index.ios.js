@@ -63,18 +63,14 @@ export default class AutoHeightWebView extends PureComponent {
     const height = Number(navState.title);
     const { enableAnimation, animationDuration } = this.props;
     if (height && height !== this.state.height) {
-      if (enableAnimation) {
-        this.opacityAnimatedValue.setValue(0);
-      }
+      enableAnimation && this.opacityAnimatedValue.setValue(0);
       this.setState({ height }, () => {
-        if (enableAnimation) {
-          Animated.timing(this.opacityAnimatedValue, {
-            toValue: 1,
-            duration: animationDuration
-          }).start(() => this.onHeightUpdated(height, this.props));
-        } else {
-          this.onHeightUpdated(height, this.props);
-        }
+        enableAnimation
+          ? Animated.timing(this.opacityAnimatedValue, {
+              toValue: 1,
+              duration: animationDuration
+            }).start(() => onHeightUpdated(height, this.props))
+          : onHeightUpdated(height, this.props);
       });
     }
   };
