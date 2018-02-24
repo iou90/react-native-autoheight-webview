@@ -134,6 +134,10 @@ export default class AutoHeightWebView extends PureComponent {
         }
     }
 
+    stopLoading() {
+        this.webview.stopLoading();   
+    }
+
     render() {
         const { height, script } = this.state;
         const { onError, onLoad, onLoadStart, onLoadEnd, onShouldStartLoadWithRequest, scalesPageToFit, enableAnimation, source, heightOffset, customScript, style } = this.props;
@@ -144,6 +148,7 @@ export default class AutoHeightWebView extends PureComponent {
                 height: height + heightOffset,
             }, style]}>
                 <WebView
+                    ref={webview => this.webview = webview}
                     onError={onError}
                     onLoad={onLoad}
                     onLoadStart={onLoadStart}

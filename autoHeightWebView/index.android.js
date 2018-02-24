@@ -273,6 +273,14 @@ export default class AutoHeightWebView extends PureComponent {
     onLoadEnd && onLoadEnd(event);
   };
 
+  stopLoading() {
+    UIManager.dispatchViewManagerCommand(
+      findNodeHandle(this.webview),
+      UIManager.RCTAutoHeightWebView.Commands.stopLoading,
+      null
+    );
+  }
+
   render() {
     const { height, script, isChangingSource, heightOffset } = this.state;
     const {
