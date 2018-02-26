@@ -44,7 +44,7 @@ function onHeightUpdated(height, props) {
   props.onHeightUpdated && props.onHeightUpdated(height);
 }
 
-const DomMutationObserveScript = 
+const domMutationObserveScript = 
 `
 var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 var observer = new MutationObserver(updateHeight);
@@ -54,4 +54,4 @@ observer.observe(document, {
 });
 `
 
-export { getScript, onHeightUpdated, DomMutationObserveScript };
+export { getScript, onHeightUpdated, domMutationObserveScript };

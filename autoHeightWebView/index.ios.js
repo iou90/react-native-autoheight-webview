@@ -2,11 +2,11 @@
 
 import React, { PureComponent } from 'react';
 
-import { Animated, Dimensions, StyleSheet, View, ViewPropTypes, WebView } from 'react-native';
+import { Animated, Dimensions, StyleSheet, ViewPropTypes, WebView } from 'react-native';
 
 import PropTypes from 'prop-types';
 
-import { getScript, onHeightUpdated, DomMutationObserveScript } from './common.js';
+import { getScript, onHeightUpdated, domMutationObserveScript } from './common.js';
 
 export default class AutoHeightWebView extends PureComponent {
   static propTypes = {
@@ -51,12 +51,12 @@ export default class AutoHeightWebView extends PureComponent {
     props.enableAnimation && (this.opacityAnimatedValue = new Animated.Value(0));
     this.state = {
       height: 0,
-      script: getScript(props, BaseScript, IframeBaseScript)
+      script: getScript(props, baseScript, iframeBaseScript)
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({ script: getScript(nextProps, BaseScript, IframeBaseScript) });
+    this.setState({ script: getScript(nextProps, baseScript, iframeBaseScript) });
   }
 
   handleNavigationStateChange = navState => {
@@ -100,7 +100,7 @@ export default class AutoHeightWebView extends PureComponent {
     return (
       <Animated.View
         style={[
-          Styles.container,
+          styles.container,
           {
             opacity: enableAnimation ? this.opacityAnimatedValue : 1,
             height: height + heightOffset
@@ -115,7 +115,7 @@ export default class AutoHeightWebView extends PureComponent {
           onLoadStart={onLoadStart}
           onLoadEnd={onLoadEnd}
           onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
-          style={Styles.webView}
+          style={styles.webView}
           injectedJavaScript={script + customScript}
           scrollEnabled={false}
           scalesPageToFit={scalesPageToFit}
@@ -127,11 +127,11 @@ export default class AutoHeightWebView extends PureComponent {
   }
 }
 
-const ScreenWidth = Dimensions.get('window').width;
+const screenWidth = Dimensions.get('window').width;
 
-const Styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
-    width: ScreenWidth,
+    width: screenWidth,
     backgroundColor: 'transparent'
   },
   webView: {
@@ -140,7 +140,7 @@ const Styles = StyleSheet.create({
   }
 });
 
-const BaseScript = `
+const baseScript = `
     ;
     (function () {
         var i = 0;
@@ -158,11 +158,11 @@ const BaseScript = `
                 window.location.hash = ++i;
             }
         }
-        ${DomMutationObserveScript}
+        ${domMutationObserveScript}
     } ());
     `;
 
-const IframeBaseScript = `
+const iframeBaseScript = `
     ;
     (function () {
         var i = 0;
@@ -177,6 +177,6 @@ const IframeBaseScript = `
         updateHeight();
         window.addEventListener('load', updateHeight);
         window.addEventListener('resize', updateHeight);
-        ${DomMutationObserveScript}
+        ${domMutationObserveScript}
     } ());
     `;

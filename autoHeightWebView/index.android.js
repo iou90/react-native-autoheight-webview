@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 
 import Immutable from 'immutable';
 
-import { getScript, onHeightUpdated, DomMutationObserveScript } from './common.js';
+import { getScript, onHeightUpdated, domMutationObserveScript } from './common.js';
 
 const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', AutoHeightWebView, {
   nativeOnly: {
@@ -74,16 +74,13 @@ export default class AutoHeightWebView extends PureComponent {
   constructor(props) {
     super(props);
     props.enableAnimation && (this.opacityAnimatedValue = new Animated.Value(0));
+    isBelowKitKat && DeviceEventEmitter.addListener('webViewBridgeMessage', this.listenWebViewBridgeMessage);
     this.state = {
       isChangingSource: false,
       height: 0,
       heightOffset: 0,
-      script: getScript(props, BaseScript)
+      script: getScript(props, baseScript)
     };
-  }
-
-  componentWillMount() {
-    IsBelowKitKat && DeviceEventEmitter.addListener('webViewBridgeMessage', this.listenWebViewBridgeMessage);
   }
 
   componentDidMount() {
@@ -107,12 +104,12 @@ export default class AutoHeightWebView extends PureComponent {
         }
       );
     }
-    this.setState({ script: getScript(nextProps, BaseScript) });
+    this.setState({ script: getScript(nextProps, baseScript) });
   }
 
   componentWillUnmount() {
     this.stopInterval();
-    IsBelowKitKat && DeviceEventEmitter.removeListener('webViewBridgeMessage', this.listenWebViewBridgeMessage);
+    isBelowKitKat && DeviceEventEmitter.removeListener('webViewBridgeMessage', this.listenWebViewBridgeMessage);
   }
 
   // below kitkat
@@ -139,7 +136,7 @@ export default class AutoHeightWebView extends PureComponent {
     this.finishInterval = false;
     this.interval = setInterval(() => {
       if (!this.finishInterval) {
-        IsBelowKitKat ? this.sendToWebView('getBodyHeight') : this.postMessage('getBodyHeight');
+        isBelowKitKat ? this.sendToWebView('getBodyHeight') : this.postMessage('getBodyHeight');
       }
     }, 205);
   }
@@ -150,12 +147,10 @@ export default class AutoHeightWebView extends PureComponent {
   }
 
   onMessage = e => {
-    const height = parseInt(IsBelowKitKat ? e.nativeEvent.message : e.nativeEvent.data);
-    if (height) {
+    const height = parseInt(isBelowKitKat ? e.nativeEvent.message : e.nativeEvent.data);
+    if (height && height !== this.state.height) {
       const { enableAnimation, animationDuration, heightOffset } = this.props;
-      if (enableAnimation) {
-        this.opacityAnimatedValue.setValue(0);
-      }
+      enableAnimation && this.opacityAnimatedValue.setValue(0);
       this.stopInterval();
       this.setState(
         {
@@ -163,14 +158,12 @@ export default class AutoHeightWebView extends PureComponent {
           height
         },
         () => {
-          if (enableAnimation) {
-            Animated.timing(this.opacityAnimatedValue, {
-              toValue: 1,
-              duration: animationDuration
-            }).start(() => onHeightUpdated(height, this.props));
-          } else {
-            onHeightUpdated(height, this.props);
-          }
+          enableAnimation
+            ? Animated.timing(this.opacityAnimatedValue, {
+                toValue: 1,
+                duration: animationDuration
+              }).start(() => onHeightUpdated(height, this.props))
+            : onHeightUpdated(height, this.props);
         }
       );
     }
@@ -216,7 +209,7 @@ export default class AutoHeightWebView extends PureComponent {
     return (
       <Animated.View
         style={[
-          Styles.container,
+          styles.container,
           {
             opacity: enableAnimation ? this.opacityAnimatedValue : 1,
             height: height + heightOffset
@@ -230,7 +223,7 @@ export default class AutoHeightWebView extends PureComponent {
             onLoadingFinish={this.onLoadingFinish}
             onLoadingError={this.onLoadingError}
             ref={this.getWebView}
-            style={Styles.webView}
+            style={styles.webView}
             javaScriptEnabled={true}
             injectedJavaScript={script + customScript}
             scalesPageToFit={scalesPageToFit}
@@ -246,13 +239,13 @@ export default class AutoHeightWebView extends PureComponent {
   }
 }
 
-const ScreenWidth = Dimensions.get('window').width;
+const screenWidth = Dimensions.get('window').width;
 
-const IsBelowKitKat = Platform.Version < 19;
+const isBelowKitKat = Platform.Version < 19;
 
-const Styles = StyleSheet.create({
+const styles = StyleSheet.create({
   container: {
-    width: ScreenWidth,
+    width: screenWidth,
     backgroundColor: 'transparent'
   },
   webView: {
@@ -261,13 +254,13 @@ const Styles = StyleSheet.create({
   }
 });
 
-const BaseScript = IsBelowKitKat
+const baseScript = isBelowKitKat
   ? `
     ; (function () {
         AutoHeightWebView.onMessage = function (message) {
             AutoHeightWebView.send(String(document.body.offsetHeight));
         };
-        ${DomMutationObserveScript}
+        ${domMutationObserveScript}
     } ());
     `
   : `
@@ -275,6 +268,6 @@ const BaseScript = IsBelowKitKat
         document.addEventListener('message', function (e) {
             window.postMessage(String(document.body.offsetHeight));
         });
-        ${DomMutationObserveScript}
+        ${domMutationObserveScript}
     } ());
     `;
