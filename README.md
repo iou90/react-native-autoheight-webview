@@ -72,7 +72,3 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
     `}
   />
 ```
-
-# demo
-
-There could have some issues when installing & running the demo, related to https://github.com/facebook/react-native/issues/14423, try: rm -rf ~/.rncache.
