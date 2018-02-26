@@ -11,7 +11,6 @@ import {
   StyleSheet,
   Platform,
   UIManager,
-  View,
   ViewPropTypes,
   WebView
 } from 'react-native';
