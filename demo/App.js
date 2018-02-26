@@ -1,16 +1,8 @@
-'use strict'
+'use strict';
 
-import React, {
-  Component,
-} from 'react';
+import React, { Component } from 'react';
 
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
 
 import AutoHeightWebView from 'react-native-autoheight-webview';
 
@@ -21,8 +13,6 @@ export default class Explorer extends Component {
     this.html1 = `Tags are great for describing the essence of your story in a single word or phrase, but stories are rarely about a single thing. If I pen a story about moving across the country to start a new job in a car with my husband, two cats, a dog, and a tarantula, I wouldn’t only tag the piece with “moving”. I’d also use the tags “pets”, “marriage”, “career change”, and “travel tips”.`;
     this.script0 = '';
     this.script1 = `document.body.style.background = 'cornflowerblue';`;
-    this.changeSource = this.changeSource.bind(this);
-    this.changeScript = this.changeScript.bind(this);
     this.state = {
       html: this.html0,
       script: this.script0,
@@ -30,20 +20,21 @@ export default class Explorer extends Component {
     };
   }
 
-  changeSource() {
+  changeSource = () => {
     this.setState(prevState => ({
       html: prevState.html === this.html0 ? this.html1 : this.html0
     }));
-  }
+  };
 
-  changeScript() {
+  changeScript = () => {
     this.changeSource();
     this.setState(prevState => ({
       script: prevState.script === this.script0 ? this.script1 : this.script0
     }));
-  }
+  };
 
   render() {
+    const { html, script, height } = this.state;
     return (
       <ScrollView
         style={{
@@ -52,38 +43,34 @@ export default class Explorer extends Component {
         contentContainerStyle={{
           justifyContent: 'center',
           alignItems: 'center'
-        }}>
+        }}
+      >
         <AutoHeightWebView
           onError={() => console.log('on error')}
           onLoad={() => console.log('on load')}
           onLoadStart={() => console.log('on load start')}
           onLoadEnd={() => console.log('on load end')}
           onShouldStartLoadWithRequest={result => {
-            console.log(result)
+            console.log(result);
             return true;
           }}
           onHeightUpdated={height => this.setState({ height })}
-          source={{ html: this.state.html }}
-          customScript={this.state.script} />
-        <TouchableOpacity
-          onPress={this.changeSource}
-          style={Styles.button}>
+          source={{ html }}
+          customScript={script}
+        />
+        <TouchableOpacity onPress={this.changeSource} style={styles.button}>
           <Text>change source</Text>
         </TouchableOpacity>
-        <TouchableOpacity
-          onPress={this.changeScript}
-          style={Styles.button}>
+        <TouchableOpacity onPress={this.changeScript} style={styles.button}>
           <Text>change script (have to change source to reload on android)</Text>
         </TouchableOpacity>
-        <Text style={{ padding: 5 }}>
-          {this.state.height}
-        </Text>
+        <Text style={{ padding: 5 }}>{height}</Text>
       </ScrollView>
     );
   }
 }
 
-const Styles = StyleSheet.create({
+const styles = StyleSheet.create({
   button: {
     marginTop: 15,
     backgroundColor: 'aliceblue',
@@ -91,61 +78,3 @@ const Styles = StyleSheet.create({
     padding: 5
   }
 });
-
-// /**
-//  * Sample React Native App
-//  * https://github.com/facebook/react-native
-//  * @flow
-//  */
-
-// import React, { Component } from 'react';
-// import {
-//   Platform,
-//   StyleSheet,
-//   Text,
-//   View
-// } from 'react-native';
-
-// const instructions = Platform.select({
-//   ios: 'Press Cmd+R to reload,\n' +
-//     'Cmd+D or shake for dev menu',
-//   android: 'Double tap R on your keyboard to reload,\n' +
-//     'Shake or press menu button for dev menu',
-// });
-
-// export default class App extends Component<{}> {
-//   render() {
-//     return (
-//       <View style={styles.container}>
-//         <Text style={styles.welcome}>
-//           Welcome to React Native!
-//         </Text>
-//         <Text style={styles.instructions}>
-//           To get started, edit App.js
-//         </Text>
-//         <Text style={styles.instructions}>
-//           {instructions}
-//         </Text>
-//       </View>
-//     );
-//   }
-// }
-
-// const styles = StyleSheet.create({
-//   container: {
-//     flex: 1,
-//     justifyContent: 'center',
-//     alignItems: 'center',
-//     backgroundColor: '#F5FCFF',
-//   },
-//   welcome: {
-//     fontSize: 20,
-//     textAlign: 'center',
-//     margin: 10,
-//   },
-//   instructions: {
-//     textAlign: 'center',
-//     color: '#333333',
-//     marginBottom: 5,
-//   },
-// });

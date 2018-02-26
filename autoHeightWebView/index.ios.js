@@ -140,6 +140,12 @@ const styles = StyleSheet.create({
   }
 });
 
+const commonScript = `
+    updateHeight();
+    window.addEventListener('load', updateHeight);
+    window.addEventListener('resize', updateHeight);
+    `;
+
 const baseScript = `
     ;
     (function () {
@@ -158,6 +164,7 @@ const baseScript = `
                 window.location.hash = ++i;
             }
         }
+        ${commonScript}
         ${domMutationObserveScript}
     } ());
     `;
@@ -174,9 +181,7 @@ const iframeBaseScript = `
                 window.location.hash = ++i;
             }
         }
-        updateHeight();
-        window.addEventListener('load', updateHeight);
-        window.addEventListener('resize', updateHeight);
+        ${commonScript}
         ${domMutationObserveScript}
     } ());
     `;
