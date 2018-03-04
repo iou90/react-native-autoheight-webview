@@ -77,7 +77,7 @@ export default class AutoHeightWebView extends PureComponent {
 
   getWebView = webView => {
       this.webView = webView;
-      this.props.webViewInstance(webView));
+      this.props.webViewInstance(webView);
   }
 
 
