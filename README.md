@@ -25,6 +25,7 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
     onHeightUpdated={height => console.log(height)},
     // if page contains iframe on iOS, use a specific script for it
     hasIframe={true}
+    webViewInstance={ (webview) => {this.webview = webview}} // if you want to get reference to the webview instance
     /*
     if set to false may cause some layout issues (width of container not fit for screen) on android
     if set to true may cause some layout issues (smaller font size) on iOS
