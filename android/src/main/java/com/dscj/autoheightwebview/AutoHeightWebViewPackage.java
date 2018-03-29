@@ -1,4 +1,4 @@
-package com.dscj.autoheightwebview;
+package com.iou90.autoheightwebview;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;

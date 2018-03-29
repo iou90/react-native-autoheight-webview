@@ -1,4 +1,4 @@
-package com.dscj.autoheightwebview;
+package com.iou90.autoheightwebview;
 
 import android.content.Context;
 import android.support.test.InstrumentationRegistry;
@@ -21,6 +21,6 @@ public class ExampleInstrumentedTest {
         // Context of the app under test.
         Context appContext = InstrumentationRegistry.getTargetContext();
 
-        assertEquals("com.dscj.autoheightwebview.test", appContext.getPackageName());
+        assertEquals("com.iou90.autoheightwebview.test", appContext.getPackageName());
     }
 }

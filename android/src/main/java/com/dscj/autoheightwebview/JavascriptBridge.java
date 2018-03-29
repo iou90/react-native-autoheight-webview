@@ -1,4 +1,4 @@
-package com.dscj.autoheightwebview;
+package com.iou90.autoheightwebview;
 
 import android.webkit.JavascriptInterface;
 import android.webkit.WebView;

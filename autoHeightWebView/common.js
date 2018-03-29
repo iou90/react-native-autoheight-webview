@@ -52,6 +52,6 @@ observer.observe(document, {
     subtree: true,
     attributes: true
 });
-`
+`;
 
 export { getScript, onHeightUpdated, domMutationObserveScript };

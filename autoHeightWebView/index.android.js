@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 
 import Immutable from 'immutable';
 
-import { getScript, onHeightUpdated, domMutationObserveScript } from './common.js';
+import { getScript, onHeightUpdated, domMutationObserveScript, getHeight } from './common.js';
 
 const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', AutoHeightWebView, {
   nativeOnly: {

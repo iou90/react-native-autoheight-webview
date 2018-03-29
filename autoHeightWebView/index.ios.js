@@ -146,21 +146,31 @@ const commonScript = `
     window.addEventListener('resize', updateHeight);
     `;
 
+const getHeight = `
+    function getHeight(height) {
+      if(height < 1) {
+        return document.body.offsetHeight;
+      }
+      return height;
+    }
+    `;
+
 const baseScript = `
     ;
+    ${getHeight}
     (function () {
         var i = 0;
         var height = 0;
         var wrapper = document.createElement('div');
         wrapper.id = 'height-wrapper';
-        while (document.body.firstChild) {
+        while (document.body.firstChild instanceof Node) {
             wrapper.appendChild(document.body.firstChild);
         }
         document.body.appendChild(wrapper);
         function updateHeight() {
             if(document.body.offsetHeight !== height) {
-                height = wrapper.clientHeight;
-                document.title = wrapper.clientHeight;
+                height = getHeight(wrapper.clientHeight);
+                document.title = height;
                 window.location.hash = ++i;
             }
         }
@@ -171,13 +181,14 @@ const baseScript = `
 
 const iframeBaseScript = `
     ;
+    ${getHeight}
     (function () {
         var i = 0;
         var height = 0;
         function updateHeight() {
             if(document.body.offsetHeight !== height) {
-                height = document.body.firstChild.clientHeight;
-                document.title = document.body.firstChild.clientHeight;
+                height = getHeight(document.body.firstChild.clientHeight);
+                document.title = height;
                 window.location.hash = ++i;
             }
         }
