@@ -1,12 +1,18 @@
-'use strict';
+
 
 import React, { PureComponent } from 'react';
 
-import { Animated, Dimensions, StyleSheet, ViewPropTypes, WebView } from 'react-native';
+import {
+    Animated,
+    Dimensions,
+    StyleSheet,
+    View,
+    ViewPropTypes,
+    WebView,
+    Linking,
+} from 'react-native';
 
 import PropTypes from 'prop-types';
-
-import { getScript, onHeightUpdated, domMutationObserveScript } from './common.js';
 
 export default class AutoHeightWebView extends PureComponent {
   static propTypes = {
@@ -16,183 +22,210 @@ export default class AutoHeightWebView extends PureComponent {
     customScript: PropTypes.string,
     customStyle: PropTypes.string,
     enableAnimation: PropTypes.bool,
-    // if set to true may cause some layout issues (smaller font size)
+        // if set to true may cause some layout issues (smaller font size)
     scalesPageToFit: PropTypes.bool,
-    // only works on enable animation
+        // only works on enable animation
     animationDuration: PropTypes.number,
-    // offset of rn webview margin
+        // offset of rn webview margin
     heightOffset: PropTypes.number,
     style: ViewPropTypes.style,
-    //  rn WebView callback
+        //  rn WebView callback
     onError: PropTypes.func,
     onLoad: PropTypes.func,
     onLoadStart: PropTypes.func,
     onLoadEnd: PropTypes.func,
     onShouldStartLoadWithRequest: PropTypes.func,
-    // add web/files... to project root
-    files: PropTypes.arrayOf(
-      PropTypes.shape({
-        href: PropTypes.string,
-        type: PropTypes.string,
-        rel: PropTypes.string
-      })
-    )
-  };
+        // add web/files... to project root
+    files: PropTypes.arrayOf(PropTypes.shape({
+      href: PropTypes.string,
+      type: PropTypes.string,
+      rel: PropTypes.string,
+    })),
+  }
 
   static defaultProps = {
     scalesPageToFit: false,
     enableAnimation: true,
     animationDuration: 555,
-    heightOffset: 12
-  };
+    heightOffset: 25,
+  }
 
   constructor(props) {
     super(props);
-    props.enableAnimation && (this.opacityAnimatedValue = new Animated.Value(0));
+    this.handleNavigationStateChange = this.handleNavigationStateChange.bind(this);
+    if (this.props.enableAnimation) {
+      this.opacityAnimatedValue = new Animated.Value(0);
+    }
+    let initialScript = props.hasIframe ? IframeBaseScript : BaseScript;
+    initialScript = props.files
+            ? this.appendFilesToHead(props.files, BaseScript)
+            : BaseScript;
+    initialScript = props.customStyle
+            ? this.appendStylesToHead(props.customStyle, initialScript)
+            : initialScript;
     this.state = {
       height: 0,
-      script: getScript(props, baseScript, iframeBaseScript)
+      script: initialScript,
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({ script: getScript(nextProps, baseScript, iframeBaseScript) });
+    let currentScript = nextProps.hasIframe ? IframeBaseScript : BaseScript;
+    if (nextProps.files) {
+      currentScript = this.appendFilesToHead(nextProps.files, currentScript);
+    }
+    currentScript = nextProps.customStyle
+            ? this.appendStylesToHead(nextProps.customStyle, currentScript)
+            : currentScript;
+    this.setState({ script: currentScript });
   }
 
-  handleNavigationStateChange = navState => {
+  appendFilesToHead(files, script) {
+    if (!files) {
+      return script;
+    }
+    return files.reduceRight((file, combinedScript) => `
+          var link  = document.createElement('link');
+          link.rel  = '${file.rel}';
+          link.type = '${file.type}';
+          link.href = '${file.href}';
+          document.head.appendChild(link);
+          ${combinedScript}
+        `, script);
+  }
+
+  appendStylesToHead(styles, script) {
+    if (!styles) {
+      return script;
+    }
+        // Escape any single quotes or newlines in the CSS with .replace()
+    const escaped = styles.replace(/\'/g, "\\'").replace(/\n/g, '\\n');
+    return `
+        var styleElement = document.createElement('style');
+        var styleText = document.createTextNode('${escaped}');
+        styleElement.appendChild(styleText);
+        document.head.appendChild(styleElement);
+        ${script}
+      `;
+  }
+
+  onHeightUpdated(height) {
+    if (this.props.onHeightUpdated) {
+      this.props.onHeightUpdated(height);
+    }
+  }
+
+  handleNavigationStateChange(navState) {
     const height = Number(navState.title);
-    const { enableAnimation, animationDuration } = this.props;
     if (height && height !== this.state.height) {
-      enableAnimation && this.opacityAnimatedValue.setValue(0);
+      if (this.props.enableAnimation) {
+        this.opacityAnimatedValue.setValue(0);
+       
+      }
       this.setState({ height }, () => {
-        enableAnimation
-          ? Animated.timing(this.opacityAnimatedValue, {
+        if (this.props.enableAnimation) {
+          Animated.timing(this.opacityAnimatedValue, {
               toValue: 1,
-              duration: animationDuration
-            }).start(() => onHeightUpdated(height, this.props))
-          : onHeightUpdated(height, this.props);
+              duration: this.props.animationDuration,
+            }).start(() => this.onHeightUpdated(height));
+        } else {
+          this.onHeightUpdated(height);
+        }
       });
     }
-  };
-
-  getWebView = webView => (this.webView = webView);
-
-  stopLoading() {
-    this.webView.stopLoading();
+    Linking.canOpenURL(navState.url).then((supported) => {
+        if (supported) {
+            this.webview.stopLoading();
+          Linking.openURL(navState.url);
+        }
+        return false;
+      });
   }
 
   render() {
     const { height, script } = this.state;
-    const {
-      onError,
-      onLoad,
-      onLoadStart,
-      onLoadEnd,
-      onShouldStartLoadWithRequest,
-      scalesPageToFit,
-      enableAnimation,
-      source,
-      heightOffset,
-      customScript,
-      style
-    } = this.props;
-    const webViewSource = Object.assign({}, source, { baseUrl: 'web/' });
+    const { onError, onLoad, onLoadStart, onLoadEnd, onShouldStartLoadWithRequest, scalesPageToFit, enableAnimation, source, heightOffset, customScript, style, dataDetectorTypes } = this.props;
+    const webViewSource = Object.assign({}, source);
     return (
-      <Animated.View
-        style={[
-          styles.container,
-          {
-            opacity: enableAnimation ? this.opacityAnimatedValue : 1,
-            height: height + heightOffset
-          },
-          style
-        ]}
+      <Animated.View style={[Styles.container, {
+        opacity: enableAnimation ? this.opacityAnimatedValue : 1,
+        height: height + heightOffset,
+      }, style]}
       >
         <WebView
-          ref={this.getWebView}
+          ref={(ref) => { this.webview = ref; }}
           onError={onError}
           onLoad={onLoad}
           onLoadStart={onLoadStart}
           onLoadEnd={onLoadEnd}
           onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
-          style={styles.webView}
+          style={Styles.webView}
           injectedJavaScript={script + customScript}
-          scrollEnabled={false}
+          scrollEnabled
           scalesPageToFit={scalesPageToFit}
           source={webViewSource}
+          bounces={false}
           onNavigationStateChange={this.handleNavigationStateChange}
+          dataDetectorTypes={dataDetectorTypes || 'all'}
         />
       </Animated.View>
     );
   }
 }
 
-const screenWidth = Dimensions.get('window').width;
+const ScreenWidth = Dimensions.get('window').width;
 
-const styles = StyleSheet.create({
+const Styles = StyleSheet.create({
   container: {
-    width: screenWidth,
-    backgroundColor: 'transparent'
+    width: ScreenWidth,
+    backgroundColor: 'transparent',
   },
   webView: {
     flex: 1,
-    backgroundColor: 'transparent'
-  }
+    backgroundColor: 'transparent',
+  },
 });
 
-const commonScript = `
-    updateHeight();
-    window.addEventListener('load', updateHeight);
-    window.addEventListener('resize', updateHeight);
-    `;
-
-const getHeight = `
-    function getHeight(height) {
-      if(height < 1) {
-        return document.body.offsetHeight;
-      }
-      return height;
-    }
-    `;
-
-const baseScript = `
-    ;
-    ${getHeight}
+const BaseScript =
+    `
+    ; 
     (function () {
         var i = 0;
         var height = 0;
         var wrapper = document.createElement('div');
         wrapper.id = 'height-wrapper';
-        while (document.body.firstChild instanceof Node) {
+        while (document.body.firstChild) {
             wrapper.appendChild(document.body.firstChild);
         }
         document.body.appendChild(wrapper);
         function updateHeight() {
             if(document.body.offsetHeight !== height) {
-                height = getHeight(wrapper.clientHeight);
-                document.title = height;
+                height = wrapper.clientHeight;
+                document.title = wrapper.clientHeight;
                 window.location.hash = ++i;
             }
         }
-        ${commonScript}
-        ${domMutationObserveScript}
+        updateHeight();
+        window.addEventListener('load', updateHeight);
+        window.addEventListener('resize', updateHeight);
     } ());
     `;
 
-const iframeBaseScript = `
-    ;
-    ${getHeight}
+const IframeBaseScript =
+    `
+    ; 
     (function () {
         var i = 0;
         var height = 0;
         function updateHeight() {
             if(document.body.offsetHeight !== height) {
-                height = getHeight(document.body.firstChild.clientHeight);
-                document.title = height;
+                height = document.body.firstChild.clientHeight;
+                document.title = document.body.firstChild.clientHeight;
                 window.location.hash = ++i;
             }
         }
-        ${commonScript}
-        ${domMutationObserveScript}
+        updateHeight();
+        window.addEventListener('load', updateHeight);
+        window.addEventListener('resize', updateHeight);
     } ());
     `;
