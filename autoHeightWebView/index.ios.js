@@ -2,33 +2,29 @@
 
 import React, { PureComponent } from 'react';
 
-import { Animated, Dimensions, StyleSheet, ViewPropTypes, WebView } from 'react-native';
+import { Animated, StyleSheet, ViewPropTypes, WebView } from 'react-native';
 
 import PropTypes from 'prop-types';
 
-import { getScript, onHeightUpdated, onWidthUpdated, onHeightWidthUpdated, domMutationObserveScript } from './common.js';
-
-const screenWidth = Dimensions.get('window').width;
+import { getWidth, getScript, handleSizeUpdated, domMutationObserveScript } from './common.js';
 
 export default class AutoHeightWebView extends PureComponent {
   static propTypes = {
     hasIframe: PropTypes.bool,
     source: WebView.propTypes.source,
-      onHeightUpdated: PropTypes.func,
-      onWidthUpdated: PropTypes.func,
-      onHeightWidthUpdated: PropTypes.func,
-      shouldResizeWidth: PropTypes.bool,
     customScript: PropTypes.string,
     customStyle: PropTypes.string,
     enableAnimation: PropTypes.bool,
+    style: ViewPropTypes.style,
+    scrollEnabled: PropTypes.bool,
+    // either height or width updated will trigger this
+    onSizeUpdated: PropTypes.func,
     // if set to true may cause some layout issues (smaller font size)
     scalesPageToFit: PropTypes.bool,
     // only works on enable animation
     animationDuration: PropTypes.number,
     // offset of rn webview margin
-      heightOffset: PropTypes.number,
-      widthOffset: PropTypes.number,
-    style: ViewPropTypes.style,
+    heightOffset: PropTypes.number,
     //  rn WebView callback
     onError: PropTypes.func,
     onLoad: PropTypes.func,
@@ -49,43 +45,57 @@ export default class AutoHeightWebView extends PureComponent {
     scalesPageToFit: false,
     enableAnimation: true,
     animationDuration: 555,
-      heightOffset: 12,
-      widthOffset: 12,
-      shouldResizeWidth: false
+    heightOffset: 12
   };
 
   constructor(props) {
     super(props);
-    props.enableAnimation && (this.opacityAnimatedValue = new Animated.Value(0));
+    const { enableAnimation, style } = props;
+    enableAnimation && (this.opacityAnimatedValue = new Animated.Value(0));
     this.state = {
-        height: 0,
-        //heightOffset: 0, //?? I added this
-        width: screenWidth,
-        //widthOffset: 0,
-      script: getScript(props, baseScript, iframeBaseScript)
+      width: getWidth(style),
+      height: style && style.height ? style.height : 0,
+      script: getScript(props, getBaseScript, getIframeBaseScript)
     };
   }
 
   componentWillReceiveProps(nextProps) {
-    this.setState({ script: getScript(nextProps, baseScript, iframeBaseScript) });
+    if (nextProps.style) {
+      const { width, height } = nextProps.style;
+      width && this.setState({ width });
+      height && this.setState({ height });
+    }
+    this.setState({ script: getScript(nextProps, getBaseScript, getIframeBaseScript) });
   }
 
-    handleNavigationStateChange = navState => {
-        var [width, height] = navState.title.split(',');
-        width = Number(width);
-        height = Number(height);
-        const { enableAnimation, animationDuration } = this.props;
-        if (height && height !== this.state.height) {       // ??? add to logic ??? width && width !== this.state.width
-            enableAnimation && this.opacityAnimatedValue.setValue(0);
-            this.setState({ height, width }, () => {
-                enableAnimation
-                    ? Animated.timing(this.opacityAnimatedValue, {
-                        toValue: 1,
-                        duration: animationDuration
-                    }).start(() => onHeightWidthUpdated(height, width, this.props))
-                    : onHeightWidthUpdated(height, width, this.props);
-            });
+  handleNavigationStateChange = navState => {
+    const { title } = navState;
+    if (!title) {
+      return;
+    }
+    const [heightValue, widthValue] = title.split(',');
+    const width = Number(widthValue);
+    const height = Number(heightValue);
+    const { height: oldHeight, width: oldWidth } = this.state;
+    if ((height && height !== oldHeight) || (width && width !== oldWidth)) {
+      // if ((height && height !== oldHeight)) {
+      const { enableAnimation, animationDuration, onSizeUpdated } = this.props;
+      enableAnimation && this.opacityAnimatedValue.setValue(0);
+      this.setState(
+        {
+          height,
+          width
+        },
+        () => {
+          enableAnimation
+            ? Animated.timing(this.opacityAnimatedValue, {
+                toValue: 1,
+                duration: animationDuration
+              }).start(() => handleSizeUpdated(height, width, onSizeUpdated))
+            : handleSizeUpdated(height, width, onSizeUpdated);
         }
+      );
+    }
   };
 
   getWebView = webView => (this.webView = webView);
@@ -106,9 +116,9 @@ export default class AutoHeightWebView extends PureComponent {
       enableAnimation,
       source,
       heightOffset,
-      widthOffset,
       customScript,
-      style
+      style,
+      scrollEnabled
     } = this.props;
     const webViewSource = Object.assign({}, source, { baseUrl: 'web/' });
     return (
@@ -117,8 +127,8 @@ export default class AutoHeightWebView extends PureComponent {
           styles.container,
           {
             opacity: enableAnimation ? this.opacityAnimatedValue : 1,
-              height: height + heightOffset,
-              width: width + widthOffset
+            width,
+            height: height + heightOffset
           },
           style
         ]}
@@ -132,7 +142,7 @@ export default class AutoHeightWebView extends PureComponent {
           onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
           style={styles.webView}
           injectedJavaScript={script + customScript}
-          scrollEnabled={false}
+          scrollEnabled={scrollEnabled}
           scalesPageToFit={scalesPageToFit}
           source={webViewSource}
           onNavigationStateChange={this.handleNavigationStateChange}
@@ -158,41 +168,37 @@ const commonScript = `
     window.addEventListener('resize', updateSize);
     `;
 
-const _getter = `
-    function getHeight(height) {
-      if(height < 1) {
-        return document.body.offsetHeight;
-      }
-      return height;
-    }
-    function getWidth(width) {
-      if(width < 1) {
-        return document.body.clientWidth; // maybe should be .offsetWidth ??
-      }
-      return width;
+const getSize = `
+    function getSize(container) {
+      var height = container.clientHeight || document.body.offsetHeight;
+      var width = container.clientWidth || document.body.offsetWidth;
+      return {
+        height,
+        width
+      };
     }
     `;
-const baseScript = `
+
+function getBaseScript(style) {
+  return `
     ;
-    ${_getter}
+    ${getSize}
     (function () {
         var i = 0;
         var height = 0;
-        var width = ${screenWidth};
+        var width = ${getWidth(style)};
         var wrapper = document.createElement('div');
-        wrapper.id = 'height-wrapper';
+        wrapper.id = 'rnahw-wrapper';
         while (document.body.firstChild instanceof Node) {
             wrapper.appendChild(document.body.firstChild);
         }
         document.body.appendChild(wrapper);
         function updateSize() {
-            var rect = document.body.firstElementChild.getBoundingClientRect().toJSON();
-            var newWidth = Math.round(rect.width);
-            var newHeight = Math.round(rect.height);
-            if(newHeight !== height) {
-                //height = getHeight(wrapper.clientHeight);
-                //width = getWidth(wrapper.clientWidth);
-                document.title = newWidth + ',' + newHeight;
+            if(document.body.offsetHeight !== height || document.body.offsetWidth !== width) {
+                var size = getSize(wrapper);
+                height = size.height;
+                width = size.width;
+                document.title = height.toString() + ',' + width.toString();
                 window.location.hash = ++i;
             }
         }
@@ -200,22 +206,22 @@ const baseScript = `
         ${domMutationObserveScript}
     } ());
     `;
+}
 
-const iframeBaseScript = `
+function getIframeBaseScript(style) {
+  return `
     ;
-    ${_getter}
+    ${getSize}
     (function () {
         var i = 0;
         var height = 0;
-        var width = ${screenWidth};
+        var width = ${getWidth(style)};
         function updateSize() {
-            var rect = document.body.firstElementChild.getBoundingClientRect().toJSON();
-            var newWidth = Math.round(rect.width);
-            var newHeight = Math.round(rect.height);
-            if(newHeight !== height) {
-                //height = getHeight(document.body.firstChild.clientHeight);
-                //width = getWidth(document.body.firstChild.clientHeight);
-                document.title = newWidth + ',' + newHeight;
+            if(document.body.offsetHeight !== height || document.body.offsetWidth !== width) {
+                var size = getSize(document.body.firstChild);
+                height = size.height;
+                width = size.width;
+                document.title = height.toString() + ',' + width.toString();
                 window.location.hash = ++i;
             }
         }
@@ -223,3 +229,4 @@ const iframeBaseScript = `
         ${domMutationObserveScript}
     } ());
     `;
+}
