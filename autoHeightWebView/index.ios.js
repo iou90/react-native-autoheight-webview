@@ -34,6 +34,8 @@ export default class AutoHeightWebView extends PureComponent {
     onLoad: PropTypes.func,
     onLoadStart: PropTypes.func,
     onLoadEnd: PropTypes.func,
+    // when false by default, the view cannot be scrolled via touch interaction
+    scrollEnabled: PropTypes.bool,
     onShouldStartLoadWithRequest: PropTypes.func,
     // add web/files... to project root
     files: PropTypes.arrayOf(
@@ -49,9 +51,10 @@ export default class AutoHeightWebView extends PureComponent {
     scalesPageToFit: false,
     enableAnimation: true,
     animationDuration: 555,
-      heightOffset: 12,
-      widthOffset: 12,
-      shouldResizeWidth: false
+    heightOffset: 12,
+    widthOffset: 12,
+    shouldResizeWidth: false,
+    scrollEnabled: false
   };
 
   constructor(props) {
@@ -108,7 +111,8 @@ export default class AutoHeightWebView extends PureComponent {
       heightOffset,
       widthOffset,
       customScript,
-      style
+      style,
+      scrollEnabled
     } = this.props;
     const webViewSource = Object.assign({}, source, { baseUrl: 'web/' });
     return (
@@ -132,7 +136,7 @@ export default class AutoHeightWebView extends PureComponent {
           onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
           style={styles.webView}
           injectedJavaScript={script + customScript}
-          scrollEnabled={false}
+          scrollEnabled={scrollEnabled}
           scalesPageToFit={scalesPageToFit}
           source={webViewSource}
           onNavigationStateChange={this.handleNavigationStateChange}
