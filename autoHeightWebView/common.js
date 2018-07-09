@@ -1,11 +1,13 @@
 'use strict';
 
+import { Dimensions } from 'react-native';
+
 function appendFilesToHead(files, script) {
   if (!files) {
     return script;
   }
   return files.reduceRight((file, combinedScript) => {
-      const { rel, type, href } = file;
+    const { rel, type, href } = file;
     return `
             var link  = document.createElement('link');
             link.rel  = '${rel}';
@@ -17,29 +19,23 @@ function appendFilesToHead(files, script) {
   }, script);
 }
 
-function appendStylesToHead(styles, script, shouldResizeWidth) {
-    var bodyStyle;
-    if (shouldResizeWidth) {
-        bodyStyle = `
-            body {
-                display: flex;
-                justify-content: center;
-                align-items: center;
-            }`;
-    }
-    else {
-        bodyStyle = '';
-    }
-    
-    if (!styles) {
-        styles = bodyStyle;
-    }
-    else {
-        styles += bodyStyle;
-    }
+const screenWidth = Dimensions.get('window').width;
+
+function getWidth(style) {
+  return style && style.width ? style.width : screenWidth;
+}
+
+const bodyStyle = `
+body {
+  margin: 0;
+  padding: 0;
+}
+`;
+
+function appendStylesToHead(styles, script) {
+  const currentStyles = bodyStyle + styles;
   // Escape any single quotes or newlines in the CSS with .replace()
-    const escaped = styles.replace(/\'/g, "\\'").replace(/\n/g, '\\n');
-    
+  const escaped = currentStyles.replace(/\'/g, "\\'").replace(/\n/g, '\\n');
   return `
           var styleElement = document.createElement('style');
           var styleText = document.createTextNode('${escaped}');
@@ -49,36 +45,30 @@ function appendStylesToHead(styles, script, shouldResizeWidth) {
         `;
 }
 
-function getScript(props, baseScript, iframeBaseScript) {
-    const { hasIframe, files, customStyle, shouldResizeWidth } = props;
-  let script = hasIframe ? iframeBaseScript : baseScript;
+function getScript(props, getBaseScript, getIframeBaseScript) {
+  const { hasIframe, files, customStyle, resizeWidth } = props;
+  const baseScript = getBaseScript(props.style);
+  let script = hasIframe ? baseScript : getIframeBaseScript(props.style);
   script = files ? appendFilesToHead(files, baseScript) : baseScript;
-    script = appendStylesToHead(customStyle, script, shouldResizeWidth);
+  script = appendStylesToHead(customStyle, script, resizeWidth);
   return script;
 }
 
-function onHeightUpdated(height, props) {
-  props.onHeightUpdated && props.onHeightUpdated(height);
+function handleSizeUpdated(height, width, onSizeUpdated) {
+  onSizeUpdated &&
+    onSizeUpdated({
+      height,
+      width
+    });
 }
 
-function onWidthUpdated(width, props) {
-    props.onWidthUpdated && props.onWidthUpdated(width);
-}
-
-function onHeightWidthUpdated(height, width, props) {
-    onHeightUpdated(height, props);
-    onWidthUpdated(width, props);
-    props.onHeightWidthUpdated && props.onHeightWidthUpdated(height, width);
-}
-
-const domMutationObserveScript = 
-`
+const domMutationObserveScript = `
 var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
-var observer = new MutationObserver(updateHeight);
+var observer = new MutationObserver(updateSize);
 observer.observe(document, {
     subtree: true,
     attributes: true
 });
 `;
 
-export { getScript, onHeightUpdated, onWidthUpdated, onHeightWidthUpdated, domMutationObserveScript };
+export { getWidth, getScript, handleSizeUpdated, domMutationObserveScript };
