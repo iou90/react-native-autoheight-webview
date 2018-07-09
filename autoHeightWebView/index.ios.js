@@ -28,6 +28,7 @@ export default class AutoHeightWebView extends PureComponent {
     onLoad: PropTypes.func,
     onLoadStart: PropTypes.func,
     onLoadEnd: PropTypes.func,
+    // when false by default, the view cannot be scrolled via touch interaction
     scrollEnabled: PropTypes.bool,
     onShouldStartLoadWithRequest: PropTypes.func,
     // add web/files... to project root
