@@ -46,11 +46,11 @@ function appendStylesToHead(styles, script) {
 }
 
 function getScript(props, getBaseScript, getIframeBaseScript) {
-  const { hasIframe, files, customStyle, resizeWidth } = props;
+  const { hasIframe, files, customStyle } = props;
   const baseScript = getBaseScript(props.style);
   let script = hasIframe ? baseScript : getIframeBaseScript(props.style);
   script = files ? appendFilesToHead(files, baseScript) : baseScript;
-  script = appendStylesToHead(customStyle, script, resizeWidth);
+  script = appendStylesToHead(customStyle, script);
   return script;
 }
 
