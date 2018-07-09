@@ -19,7 +19,7 @@ import PropTypes from 'prop-types';
 
 import Immutable from 'immutable';
 
-import { getScript, onHeightUpdated, domMutationObserveScript, getHeight } from './common.js';
+import { getScript, onHeightUpdated, onWidthUpdated, onHeightWidthUpdated, domMutationObserveScript } from './common.js';
 
 const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', AutoHeightWebView, {
   nativeOnly: {
@@ -32,10 +32,15 @@ const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', Auto
   }
 });
 
+const screenWidth = Dimensions.get('window').width;
+
 export default class AutoHeightWebView extends PureComponent {
   static propTypes = {
     source: WebView.propTypes.source,
-    onHeightUpdated: PropTypes.func,
+      onHeightUpdated: PropTypes.func,
+      onWidthUpdated: PropTypes.func,
+      onHeightWidthUpdated: PropTypes.func,
+      shouldResizeWidth: PropTypes.bool,
     customScript: PropTypes.string,
     customStyle: PropTypes.string,
     enableAnimation: PropTypes.bool,
@@ -44,7 +49,8 @@ export default class AutoHeightWebView extends PureComponent {
     // only works on enable animation
     animationDuration: PropTypes.number,
     // offset of rn webView margin
-    heightOffset: PropTypes.number,
+      heightOffset: PropTypes.number,
+      widthOffset: PropTypes.number,
     // baseUrl not work in android 4.3 or below version
     enableBaseUrl: PropTypes.bool,
     style: ViewPropTypes.style,
@@ -68,7 +74,9 @@ export default class AutoHeightWebView extends PureComponent {
     enableBaseUrl: false,
     enableAnimation: true,
     animationDuration: 555,
-    heightOffset: 20
+      heightOffset: 20,
+      widthOffset: 20,
+      shouldResizeWidth: false
   };
 
   constructor(props) {
@@ -78,7 +86,9 @@ export default class AutoHeightWebView extends PureComponent {
     this.state = {
       isChangingSource: false,
       height: 0,
-      heightOffset: 0,
+        heightOffset: 0,
+        width: screenWidth,
+        widthOffset: 0,
       script: getScript(props, baseScript)
     };
   }
@@ -89,21 +99,24 @@ export default class AutoHeightWebView extends PureComponent {
 
   componentWillReceiveProps(nextProps) {
     // injectedJavaScript only works when webView reload (source changed)
-    if (Immutable.is(Immutable.fromJS(this.props.source), Immutable.fromJS(nextProps.source))) {
-      return;
-    } else {
-      this.setState(
-        {
-          isChangingSource: true,
-          height: 0,
-          heightOffset: 0
-        },
-        () => {
-          this.startInterval();
-          this.setState({ isChangingSource: false });
-        }
-      );
-    }
+      if (Immutable.is(Immutable.fromJS(this.props.source), Immutable.fromJS(nextProps.source))) {
+          return;
+      }
+      else {
+          this.setState(
+              {
+                  isChangingSource: true,
+                  height: 0,
+                  heightOffset: 0,
+                  width: 0,
+                  widthOffset: 0,
+              },
+              () => {
+                  this.startInterval();
+                  this.setState({ isChangingSource: false });
+              }
+          );
+      }
     this.setState({ script: getScript(nextProps, baseScript) });
   }
 
@@ -147,26 +160,29 @@ export default class AutoHeightWebView extends PureComponent {
   }
 
   onMessage = e => {
-    const height = parseInt(isBelowKitKat ? e.nativeEvent.message : e.nativeEvent.data);
-    if (height && height !== this.state.height) {
-      const { enableAnimation, animationDuration, heightOffset } = this.props;
-      enableAnimation && this.opacityAnimatedValue.setValue(0);
-      this.stopInterval();
-      this.setState(
-        {
-          heightOffset,
-          height
-        },
-        () => {
-          enableAnimation
-            ? Animated.timing(this.opacityAnimatedValue, {
-                toValue: 1,
-                duration: animationDuration
-              }).start(() => onHeightUpdated(height, this.props))
-            : onHeightUpdated(height, this.props);
-        }
-      );
-    }
+      const { height, width } = JSON.parse(isBelowKitKat ? e.nativeEvent.message : e.nativeEvent.data);
+      if (height && height !== this.state.height && width && width !== this.state.width) {
+          const { enableAnimation, animationDuration, heightOffset, widthOffset } = this.props;
+          enableAnimation && this.opacityAnimatedValue.setValue(0);
+          this.stopInterval();
+          
+          this.setState(
+              {
+                  heightOffset,
+                  height,
+                  widthOffset,
+                  width
+              },
+              () => {
+                  enableAnimation
+                      ? Animated.timing(this.opacityAnimatedValue, {
+                          toValue: 1,
+                          duration: animationDuration
+                      }).start(() => onHeightWidthUpdated(height, width, this.props))
+                      : onHeightWidthUpdated(height, width, this.props);
+              }
+          );
+      }
   };
 
   onLoadingStart = event => {
@@ -198,7 +214,7 @@ export default class AutoHeightWebView extends PureComponent {
   }
 
   render() {
-    const { height, script, isChangingSource, heightOffset } = this.state;
+      const { height, width, script, isChangingSource, heightOffset, widthOffset } = this.state;
     const { scalesPageToFit, enableAnimation, source, customScript, style, enableBaseUrl } = this.props;
     let webViewSource = source;
     if (enableBaseUrl) {
@@ -206,13 +222,15 @@ export default class AutoHeightWebView extends PureComponent {
         baseUrl: 'file:///android_asset/web/'
       });
     }
+      
     return (
       <Animated.View
         style={[
           styles.container,
           {
             opacity: enableAnimation ? this.opacityAnimatedValue : 1,
-            height: height + heightOffset
+              height: height + heightOffset,
+              width: width + widthOffset
           },
           style
         ]}
@@ -239,13 +257,11 @@ export default class AutoHeightWebView extends PureComponent {
   }
 }
 
-const screenWidth = Dimensions.get('window').width;
-
 const isBelowKitKat = Platform.Version < 19;
 
 const styles = StyleSheet.create({
   container: {
-    width: screenWidth,
+    //width: screenWidth,
     backgroundColor: 'transparent'
   },
   webView: {
@@ -257,17 +273,38 @@ const styles = StyleSheet.create({
 const baseScript = isBelowKitKat
   ? `
     ; (function () {
+        var wrapper = document.createElement('div');
+        wrapper.id = 'wrapper';
+        while (document.body.firstChild instanceof Node) {
+            wrapper.appendChild(document.body.firstChild);
+        }
+        document.body.appendChild(wrapper);
+
         AutoHeightWebView.onMessage = function (message) {
-            AutoHeightWebView.send(String(document.body.offsetHeight));
+            var rect = document.body.firstElementChild.getBoundingClientRect().toJSON();
+            var width = Math.round(rect.width);
+            var height = Math.round(rect.height);
+            AutoHeightWebView.send(JSON.stringify({ width, height }));
         };
         ${domMutationObserveScript}
     } ());
     `
   : `
     ; (function () {
+        var wrapper = document.createElement('div');
+        wrapper.id = 'wrapper';
+        while (document.body.firstChild instanceof Node) {
+            wrapper.appendChild(document.body.firstChild);
+        }
+        document.body.appendChild(wrapper);
+
         document.addEventListener('message', function (e) {
-            window.postMessage(String(document.body.offsetHeight));
+            var rect = document.body.firstElementChild.getBoundingClientRect().toJSON();
+            var width = Math.round(rect.width);
+            var height = Math.round(rect.height);
+            window.postMessage(JSON.stringify({ width, height }));
         });
         ${domMutationObserveScript}
     } ());
     `;
+

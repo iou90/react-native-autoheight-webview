@@ -6,13 +6,18 @@ import { Animated, Dimensions, StyleSheet, ViewPropTypes, WebView } from 'react-
 
 import PropTypes from 'prop-types';
 
-import { getScript, onHeightUpdated, domMutationObserveScript } from './common.js';
+import { getScript, onHeightUpdated, onWidthUpdated, onHeightWidthUpdated, domMutationObserveScript } from './common.js';
+
+const screenWidth = Dimensions.get('window').width;
 
 export default class AutoHeightWebView extends PureComponent {
   static propTypes = {
     hasIframe: PropTypes.bool,
     source: WebView.propTypes.source,
-    onHeightUpdated: PropTypes.func,
+      onHeightUpdated: PropTypes.func,
+      onWidthUpdated: PropTypes.func,
+      onHeightWidthUpdated: PropTypes.func,
+      shouldResizeWidth: PropTypes.bool,
     customScript: PropTypes.string,
     customStyle: PropTypes.string,
     enableAnimation: PropTypes.bool,
@@ -21,7 +26,8 @@ export default class AutoHeightWebView extends PureComponent {
     // only works on enable animation
     animationDuration: PropTypes.number,
     // offset of rn webview margin
-    heightOffset: PropTypes.number,
+      heightOffset: PropTypes.number,
+      widthOffset: PropTypes.number,
     style: ViewPropTypes.style,
     //  rn WebView callback
     onError: PropTypes.func,
@@ -43,14 +49,19 @@ export default class AutoHeightWebView extends PureComponent {
     scalesPageToFit: false,
     enableAnimation: true,
     animationDuration: 555,
-    heightOffset: 12
+      heightOffset: 12,
+      widthOffset: 12,
+      shouldResizeWidth: false
   };
 
   constructor(props) {
     super(props);
     props.enableAnimation && (this.opacityAnimatedValue = new Animated.Value(0));
     this.state = {
-      height: 0,
+        height: 0,
+        //heightOffset: 0, //?? I added this
+        width: screenWidth,
+        //widthOffset: 0,
       script: getScript(props, baseScript, iframeBaseScript)
     };
   }
@@ -59,20 +70,22 @@ export default class AutoHeightWebView extends PureComponent {
     this.setState({ script: getScript(nextProps, baseScript, iframeBaseScript) });
   }
 
-  handleNavigationStateChange = navState => {
-    const height = Number(navState.title);
-    const { enableAnimation, animationDuration } = this.props;
-    if (height && height !== this.state.height) {
-      enableAnimation && this.opacityAnimatedValue.setValue(0);
-      this.setState({ height }, () => {
-        enableAnimation
-          ? Animated.timing(this.opacityAnimatedValue, {
-              toValue: 1,
-              duration: animationDuration
-            }).start(() => onHeightUpdated(height, this.props))
-          : onHeightUpdated(height, this.props);
-      });
-    }
+    handleNavigationStateChange = navState => {
+        var [width, height] = navState.title.split(',');
+        width = Number(width);
+        height = Number(height);
+        const { enableAnimation, animationDuration } = this.props;
+        if (height && height !== this.state.height) {       // ??? add to logic ??? width && width !== this.state.width
+            enableAnimation && this.opacityAnimatedValue.setValue(0);
+            this.setState({ height, width }, () => {
+                enableAnimation
+                    ? Animated.timing(this.opacityAnimatedValue, {
+                        toValue: 1,
+                        duration: animationDuration
+                    }).start(() => onHeightWidthUpdated(height, width, this.props))
+                    : onHeightWidthUpdated(height, width, this.props);
+            });
+        }
   };
 
   getWebView = webView => (this.webView = webView);
@@ -82,7 +95,7 @@ export default class AutoHeightWebView extends PureComponent {
   }
 
   render() {
-    const { height, script } = this.state;
+    const { height, width, script } = this.state;
     const {
       onError,
       onLoad,
@@ -93,6 +106,7 @@ export default class AutoHeightWebView extends PureComponent {
       enableAnimation,
       source,
       heightOffset,
+      widthOffset,
       customScript,
       style
     } = this.props;
@@ -103,7 +117,8 @@ export default class AutoHeightWebView extends PureComponent {
           styles.container,
           {
             opacity: enableAnimation ? this.opacityAnimatedValue : 1,
-            height: height + heightOffset
+              height: height + heightOffset,
+              width: width + widthOffset
           },
           style
         ]}
@@ -127,11 +142,8 @@ export default class AutoHeightWebView extends PureComponent {
   }
 }
 
-const screenWidth = Dimensions.get('window').width;
-
 const styles = StyleSheet.create({
   container: {
-    width: screenWidth,
     backgroundColor: 'transparent'
   },
   webView: {
@@ -141,36 +153,46 @@ const styles = StyleSheet.create({
 });
 
 const commonScript = `
-    updateHeight();
-    window.addEventListener('load', updateHeight);
-    window.addEventListener('resize', updateHeight);
+    updateSize();
+    window.addEventListener('load', updateSize);
+    window.addEventListener('resize', updateSize);
     `;
 
-const getHeight = `
+const _getter = `
     function getHeight(height) {
       if(height < 1) {
         return document.body.offsetHeight;
       }
       return height;
     }
+    function getWidth(width) {
+      if(width < 1) {
+        return document.body.clientWidth; // maybe should be .offsetWidth ??
+      }
+      return width;
+    }
     `;
-
 const baseScript = `
     ;
-    ${getHeight}
+    ${_getter}
     (function () {
         var i = 0;
         var height = 0;
+        var width = ${screenWidth};
         var wrapper = document.createElement('div');
         wrapper.id = 'height-wrapper';
         while (document.body.firstChild instanceof Node) {
             wrapper.appendChild(document.body.firstChild);
         }
         document.body.appendChild(wrapper);
-        function updateHeight() {
-            if(document.body.offsetHeight !== height) {
-                height = getHeight(wrapper.clientHeight);
-                document.title = height;
+        function updateSize() {
+            var rect = document.body.firstElementChild.getBoundingClientRect().toJSON();
+            var newWidth = Math.round(rect.width);
+            var newHeight = Math.round(rect.height);
+            if(newHeight !== height) {
+                //height = getHeight(wrapper.clientHeight);
+                //width = getWidth(wrapper.clientWidth);
+                document.title = newWidth + ',' + newHeight;
                 window.location.hash = ++i;
             }
         }
@@ -181,14 +203,19 @@ const baseScript = `
 
 const iframeBaseScript = `
     ;
-    ${getHeight}
+    ${_getter}
     (function () {
         var i = 0;
         var height = 0;
-        function updateHeight() {
-            if(document.body.offsetHeight !== height) {
-                height = getHeight(document.body.firstChild.clientHeight);
-                document.title = height;
+        var width = ${screenWidth};
+        function updateSize() {
+            var rect = document.body.firstElementChild.getBoundingClientRect().toJSON();
+            var newWidth = Math.round(rect.width);
+            var newHeight = Math.round(rect.height);
+            if(newHeight !== height) {
+                //height = getHeight(document.body.firstChild.clientHeight);
+                //width = getWidth(document.body.firstChild.clientHeight);
+                document.title = newWidth + ',' + newHeight;
                 window.location.hash = ++i;
             }
         }
