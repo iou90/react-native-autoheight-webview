@@ -2,6 +2,8 @@
 
 import { Dimensions } from 'react-native';
 
+import Immutable from 'immutable';
+
 function appendFilesToHead(files, script) {
   if (!files) {
     return script;
@@ -33,25 +35,44 @@ body {
 `;
 
 function appendStylesToHead(styles, script) {
-  const currentStyles = bodyStyle + styles;
+  const currentStyles = styles ? bodyStyle + styles : bodyStyle;
   // Escape any single quotes or newlines in the CSS with .replace()
   const escaped = currentStyles.replace(/\'/g, "\\'").replace(/\n/g, '\\n');
   return `
           var styleElement = document.createElement('style');
-          var styleText = document.createTextNode('${escaped}');
-          styleElement.appendChild(styleText);
+          styleElement.innerHTML = '${escaped}';
           document.head.appendChild(styleElement);
           ${script}
         `;
 }
 
+function getReloadRelatedData(props) {
+  const { hasIframe, files, customStyle, customScript, style } = props;
+  return {
+    hasIframe,
+    files,
+    customStyle,
+    customScript,
+    style
+  };
+}
+
+function isChanged(newValue, oldValue) {
+  return !Immutable.is(Immutable.fromJS(newValue), Immutable.fromJS(oldValue));
+}
+
 function getScript(props, getBaseScript, getIframeBaseScript) {
-  const { hasIframe, files, customStyle } = props;
-  const baseScript = getBaseScript(props.style);
-  let script = hasIframe ? baseScript : getIframeBaseScript(props.style);
+  const { hasIframe, files, customStyle, customScript, style } = props;
+  const baseScript = getBaseScript(style);
+  let script = hasIframe ? baseScript : getIframeBaseScript(style);
   script = files ? appendFilesToHead(files, baseScript) : baseScript;
   script = appendStylesToHead(customStyle, script);
+  customScript && (script = customScript + script);
   return script;
+}
+
+function needChangeSource(nextProps, props) {
+ return nextProps && props && isChanged(getReloadRelatedData(nextProps), getReloadRelatedData(props));
 }
 
 function handleSizeUpdated(height, width, onSizeUpdated) {
@@ -71,4 +92,4 @@ observer.observe(document, {
 });
 `;
 
-export { getWidth, getScript, handleSizeUpdated, domMutationObserveScript };
+export { needChangeSource, getWidth, getScript, handleSizeUpdated, domMutationObserveScript };

@@ -22,7 +22,9 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
 
 ```javascript
 <AutoHeightWebView
-    onHeightUpdated={height => console.log(height)},
+    scrollEnabled: PropTypes.bool,
+    // either height or width updated will trigger this
+    onSizeUpdated: PropTypes.func,
     // if page contains iframe on iOS, use a specific script for it
     hasIframe={true}
     /*

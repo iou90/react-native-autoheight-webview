@@ -6,7 +6,7 @@ import { Animated, StyleSheet, ViewPropTypes, WebView } from 'react-native';
 
 import PropTypes from 'prop-types';
 
-import { getWidth, getScript, handleSizeUpdated, domMutationObserveScript } from './common.js';
+import { needChangeSource, getWidth, getScript, handleSizeUpdated, domMutationObserveScript } from './common.js';
 
 export default class AutoHeightWebView extends PureComponent {
   static propTypes = {
@@ -66,6 +66,7 @@ export default class AutoHeightWebView extends PureComponent {
       height && this.setState({ height });
     }
     this.setState({ script: getScript(nextProps, getBaseScript, getIframeBaseScript) });
+    this.needChangeSource = needChangeSource(nextProps, this.props);
   }
 
   handleNavigationStateChange = navState => {
@@ -116,11 +117,14 @@ export default class AutoHeightWebView extends PureComponent {
       enableAnimation,
       source,
       heightOffset,
-      customScript,
       style,
       scrollEnabled
     } = this.props;
-    const webViewSource = Object.assign({}, source, { baseUrl: 'web/' });
+    let webViewSource = Object.assign({}, source, { baseUrl: 'web/' });
+    if (this.needChangeSource) {
+      this.changeSourceFlag = !this.changeSourceFlag;
+      webViewSource = Object.assign(webViewSource, { changeSourceFlag: this.changeSourceFlag });
+    }
     return (
       <Animated.View
         style={[
@@ -141,8 +145,8 @@ export default class AutoHeightWebView extends PureComponent {
           onLoadEnd={onLoadEnd}
           onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
           style={styles.webView}
-          injectedJavaScript={script + customScript}
-          scrollEnabled={scrollEnabled}
+          injectedJavaScript={script}
+          scrollEnabled={!!scrollEnabled}
           scalesPageToFit={scalesPageToFit}
           source={webViewSource}
           onNavigationStateChange={this.handleNavigationStateChange}
@@ -184,7 +188,6 @@ function getBaseScript(style) {
     ;
     ${getSize}
     (function () {
-        var i = 0;
         var height = 0;
         var width = ${getWidth(style)};
         var wrapper = document.createElement('div');
@@ -199,7 +202,6 @@ function getBaseScript(style) {
                 height = size.height;
                 width = size.width;
                 document.title = height.toString() + ',' + width.toString();
-                window.location.hash = ++i;
             }
         }
         ${commonScript}
@@ -213,7 +215,6 @@ function getIframeBaseScript(style) {
     ;
     ${getSize}
     (function () {
-        var i = 0;
         var height = 0;
         var width = ${getWidth(style)};
         function updateSize() {
@@ -222,7 +223,6 @@ function getIframeBaseScript(style) {
                 height = size.height;
                 width = size.width;
                 document.title = height.toString() + ',' + width.toString();
-                window.location.hash = ++i;
             }
         }
         ${commonScript}
