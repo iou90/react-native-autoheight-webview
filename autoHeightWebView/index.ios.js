@@ -34,6 +34,7 @@ export default class AutoHeightWebView extends PureComponent {
     onLoad: PropTypes.func,
     onLoadStart: PropTypes.func,
     onLoadEnd: PropTypes.func,
+    onMessage: PropTypes.func,
     onShouldStartLoadWithRequest: PropTypes.func,
     // add web/files... to project root
     files: PropTypes.arrayOf(
