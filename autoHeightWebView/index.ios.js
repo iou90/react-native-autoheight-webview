@@ -138,6 +138,7 @@ export default class AutoHeightWebView extends PureComponent {
         ]}
       >
         <WebView
+          originWhitelist={['*']}
           ref={this.getWebView}
           onError={onError}
           onLoad={onLoad}
