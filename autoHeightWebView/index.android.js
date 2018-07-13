@@ -59,6 +59,7 @@ export default class AutoHeightWebView extends PureComponent {
     onLoad: PropTypes.func,
     onLoadStart: PropTypes.func,
     onLoadEnd: PropTypes.func,
+    onMessage: PropTypes.func,
     // works if set enableBaseUrl to true; add web/files... to android/app/src/assets/
     files: PropTypes.arrayOf(
       PropTypes.shape({
@@ -165,7 +166,7 @@ export default class AutoHeightWebView extends PureComponent {
           const { enableAnimation, animationDuration, heightOffset, widthOffset } = this.props;
           enableAnimation && this.opacityAnimatedValue.setValue(0);
           this.stopInterval();
-          
+
           this.setState(
               {
                   heightOffset,
@@ -183,6 +184,8 @@ export default class AutoHeightWebView extends PureComponent {
               }
           );
       }
+      const { onMessage } = this.props;
+      onMessage && onMessage(e);
   };
 
   onLoadingStart = event => {
@@ -222,7 +225,7 @@ export default class AutoHeightWebView extends PureComponent {
         baseUrl: 'file:///android_asset/web/'
       });
     }
-      
+
     return (
       <Animated.View
         style={[
@@ -307,4 +310,3 @@ const baseScript = isBelowKitKat
         ${domMutationObserveScript}
     } ());
     `;
-
