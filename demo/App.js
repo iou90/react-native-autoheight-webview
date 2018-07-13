@@ -10,21 +10,28 @@ import {
   autoHeightHtml0,
   autoHeightHtml1,
   autoHeightScript,
-  autoHeightStyle0,
   autoWidthHtml0,
   autoWidthHtml1,
   autoWidthScript,
-  autoWidthStyle0
+  style0,
+  inlineBodyStyle
 } from './config';
 
 export default class Explorer extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      html: autoHeightHtml0,
-      script: null,
-      webViewStyle: null,
-      size: {
+      heightHtml: autoHeightHtml0,
+      heightScript: null,
+      heightStyle: null,
+      heightSize: {
+        height: 0,
+        width: 0
+      },
+      widthHtml: autoWidthHtml0,
+      widthScript: null,
+      widthStyle: inlineBodyStyle,
+      widthSize: {
         height: 0,
         width: 0
       }
@@ -33,27 +40,40 @@ export default class Explorer extends Component {
 
   changeSource = () => {
     this.setState(prevState => ({
-      html: prevState.html === autoHeightHtml0 ? autoHeightHtml1 : autoHeightHtml0
+      widthHtml: prevState.widthHtml === autoWidthHtml0 ? autoWidthHtml1 : autoWidthHtml0,
+      heightHtml: prevState.heightHtml === autoHeightHtml0 ? autoHeightHtml1 : autoHeightHtml0
     }));
   };
 
   changeStyle = () => {
     this.setState(prevState => ({
-      webViewStyle: prevState.webViewStyle == null ? autoHeightStyle0 : null
+      widthStyle: prevState.widthStyle == inlineBodyStyle ? style0 + inlineBodyStyle : inlineBodyStyle,
+      heightStyle: prevState.heightStyle == null ? style0 : null
     }));
   };
 
   changeScript = () => {
     this.setState(prevState => ({
-      script: prevState.script === null ? autoHeightScript : null
+      widthScript: prevState.widthScript === null ? autoWidthScript : null,
+      heightScript: prevState.heightScript === null ? autoHeightScript : null
     }));
   };
 
   render() {
-    const { html, size, webViewStyle, script } = this.state;
+    const {
+      heightHtml,
+      heightSize,
+      heightStyle,
+      heightScript,
+      widthHtml,
+      widthSize,
+      widthStyle,
+      widthScript
+    } = this.state;
     return (
       <ScrollView
         style={{
+          paddingTop: 45,
           backgroundColor: 'lightyellow'
         }}
         contentContainerStyle={{
@@ -62,19 +82,42 @@ export default class Explorer extends Component {
         }}
       >
         <AutoHeightWebView
-          customStyle={webViewStyle}
-          onError={() => console.log('on error')}
-          onLoad={() => console.log('on load')}
-          onLoadStart={() => console.log('on load start')}
-          onLoadEnd={() => console.log('on load end')}
+          customStyle={heightStyle}
+          onError={() => console.log('height on error')}
+          onLoad={() => console.log('height on load')}
+          onLoadStart={() => console.log('height on load start')}
+          onLoadEnd={() => console.log('height on load end')}
           onShouldStartLoadWithRequest={result => {
             console.log(result);
             return true;
           }}
-          onSizeUpdated={size => this.setState({ size })}
-          source={{ html }}
-          customScript={script}
+          onSizeUpdated={heightSize => this.setState({ heightSize })}
+          source={{ html: heightHtml }}
+          customScript={heightScript}
         />
+        <Text style={{ padding: 5 }}>
+          height: {heightSize.height}, width: {heightSize.width}
+        </Text>
+        <AutoHeightWebView
+          style={{
+            marginTop: 15
+          }}
+          customStyle={widthStyle}
+          onError={() => console.log('width on error')}
+          onLoad={() => console.log('width on load')}
+          onLoadStart={() => console.log('width on load start')}
+          onLoadEnd={() => console.log('width on load end')}
+          onShouldStartLoadWithRequest={result => {
+            console.log(result);
+            return true;
+          }}
+          onSizeUpdated={widthSize => this.setState({ widthSize })}
+          source={{ html: widthHtml }}
+          customScript={widthScript}
+        />
+        <Text style={{ padding: 5 }}>
+          height: {widthSize.height}, width: {widthSize.width}
+        </Text>
         <TouchableOpacity onPress={this.changeSource} style={styles.button}>
           <Text>change source</Text>
         </TouchableOpacity>
@@ -82,11 +125,8 @@ export default class Explorer extends Component {
           <Text>change style</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={this.changeScript} style={styles.button}>
-          <Text>change script (have to change source to reload on android)</Text>
+          <Text>change heightScript</Text>
         </TouchableOpacity>
-        <Text style={{ padding: 5 }}>
-          height: {size.height}, width: {size.width}
-        </Text>
       </ScrollView>
     );
   }
