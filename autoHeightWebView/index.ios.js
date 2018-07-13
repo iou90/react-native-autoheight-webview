@@ -6,7 +6,7 @@ import { Animated, StyleSheet, ViewPropTypes, WebView } from 'react-native';
 
 import PropTypes from 'prop-types';
 
-import { needChangeSource, getWidth, getScript, handleSizeUpdated, domMutationObserveScript } from './common.js';
+import { isScriptChanged, getSize, getWidth, getScript, handleSizeUpdated, domMutationObserveScript } from './common.js';
 
 export default class AutoHeightWebView extends PureComponent {
   static propTypes = {
@@ -53,6 +53,7 @@ export default class AutoHeightWebView extends PureComponent {
     const { enableAnimation, style } = props;
     enableAnimation && (this.opacityAnimatedValue = new Animated.Value(0));
     this.state = {
+      isScriptChanged: false,
       width: getWidth(style),
       height: style && style.height ? style.height : 0,
       script: getScript(props, getBaseScript, getIframeBaseScript)
@@ -60,13 +61,10 @@ export default class AutoHeightWebView extends PureComponent {
   }
 
   componentWillReceiveProps(nextProps) {
-    if (nextProps.style) {
-      const { width, height } = nextProps.style;
-      width && this.setState({ width });
-      height && this.setState({ height });
-    }
-    this.setState({ script: getScript(nextProps, getBaseScript, getIframeBaseScript) });
-    this.needChangeSource = needChangeSource(nextProps, this.props);
+    const size = getSize(nextProps, this.props);
+    size && this.setState(size); 
+    this.isScriptChanged = isScriptChanged(nextProps, this.props);
+    this.isScriptChanged && this.setState({ script: getScript(nextProps, getBaseScript, getIframeBaseScript) });
   }
 
   handleNavigationStateChange = navState => {
@@ -121,7 +119,7 @@ export default class AutoHeightWebView extends PureComponent {
       scrollEnabled
     } = this.props;
     let webViewSource = Object.assign({}, source, { baseUrl: 'web/' });
-    if (this.needChangeSource) {
+    if (this.isScriptChanged) {
       this.changeSourceFlag = !this.changeSourceFlag;
       webViewSource = Object.assign(webViewSource, { changeSourceFlag: this.changeSourceFlag });
     }
@@ -173,7 +171,7 @@ const commonScript = `
     window.addEventListener('resize', updateSize);
     `;
 
-const getSize = `
+const getCurrentSize = `
     function getSize(container) {
       var height = container.clientHeight || document.body.offsetHeight;
       var width = container.clientWidth || document.body.offsetWidth;
@@ -187,7 +185,7 @@ const getSize = `
 function getBaseScript(style) {
   return `
     ;
-    ${getSize}
+    ${getCurrentSize}
     (function () {
         var height = 0;
         var width = ${getWidth(style)};
@@ -214,7 +212,7 @@ function getBaseScript(style) {
 function getIframeBaseScript(style) {
   return `
     ;
-    ${getSize}
+    ${getCurrentSize}
     (function () {
         var height = 0;
         var width = ${getWidth(style)};

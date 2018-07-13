@@ -62,7 +62,7 @@ function isChanged(newValue, oldValue) {
 }
 
 function getScript(props, getBaseScript, getIframeBaseScript) {
-  const { hasIframe, files, customStyle, customScript, style } = props;
+  const { hasIframe, files, customStyle, customScript, style } = getReloadRelatedData(props);
   const baseScript = getBaseScript(style);
   let script = hasIframe ? baseScript : getIframeBaseScript(style);
   script = files ? appendFilesToHead(files, baseScript) : baseScript;
@@ -71,8 +71,23 @@ function getScript(props, getBaseScript, getIframeBaseScript) {
   return script;
 }
 
-function needChangeSource(nextProps, props) {
- return nextProps && props && isChanged(getReloadRelatedData(nextProps), getReloadRelatedData(props));
+function getSize(nextStyle, prevStyle) {
+  if (!nextStyle) {
+    return null;
+  }
+  if (isChanged(nextStyle, prevStyle)) {
+    let size = null;
+    const { height, width } = nextStyle;
+    height && Object.assign(size, { height });
+    width && Object.assign(size, { width });
+    return size;
+  } else {
+    return null;
+  }
+}
+
+function isScriptChanged(nextProps, props) {
+  return nextProps && props && isChanged(getReloadRelatedData(nextProps), getReloadRelatedData(props));
 }
 
 function handleSizeUpdated(height, width, onSizeUpdated) {
@@ -92,4 +107,4 @@ observer.observe(document, {
 });
 `;
 
-export { needChangeSource, getWidth, getScript, handleSizeUpdated, domMutationObserveScript };
+export { getSize, isScriptChanged, getWidth, getScript, handleSizeUpdated, domMutationObserveScript };
