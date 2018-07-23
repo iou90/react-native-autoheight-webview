@@ -6,11 +6,14 @@ import { Animated, StyleSheet, ViewPropTypes, WebView } from 'react-native';
 
 import PropTypes from 'prop-types';
 
-import { isScriptChanged, getSize, getWidth, getScript, handleSizeUpdated, domMutationObserveScript } from './common.js';
+import { getSize, isEqual, setState, getWidth, handleSizeUpdated, domMutationObserveScript } from './common.js';
+
+import momoize from './momoize';
 
 export default class AutoHeightWebView extends PureComponent {
   static propTypes = {
     hasIframe: PropTypes.bool,
+    onMessage: PropTypes.func,
     source: WebView.propTypes.source,
     customScript: PropTypes.string,
     customStyle: PropTypes.string,
@@ -52,20 +55,14 @@ export default class AutoHeightWebView extends PureComponent {
     super(props);
     const { enableAnimation, style } = props;
     enableAnimation && (this.opacityAnimatedValue = new Animated.Value(0));
+    this.webView = React.createRef();
     this.state = {
-      isScriptChanged: false,
       width: getWidth(style),
-      height: style && style.height ? style.height : 0,
-      script: getScript(props, getBaseScript, getIframeBaseScript)
+      height: style && style.height ? style.height : 0
     };
   }
 
-  componentWillReceiveProps(nextProps) {
-    const size = getSize(nextProps, this.props);
-    size && this.setState(size); 
-    this.isScriptChanged = isScriptChanged(nextProps, this.props);
-    this.isScriptChanged && this.setState({ script: getScript(nextProps, getBaseScript, getIframeBaseScript) });
-  }
+  getUpdatedState = momoize(setState, isEqual);
 
   handleNavigationStateChange = navState => {
     const { title } = navState;
@@ -77,35 +74,40 @@ export default class AutoHeightWebView extends PureComponent {
     const height = Number(heightValue);
     const { height: oldHeight, width: oldWidth } = this.state;
     if ((height && height !== oldHeight) || (width && width !== oldWidth)) {
-      // if ((height && height !== oldHeight)) {
       const { enableAnimation, animationDuration, onSizeUpdated } = this.props;
       enableAnimation && this.opacityAnimatedValue.setValue(0);
+      this.updatingSize = true;
       this.setState(
         {
           height,
           width
         },
         () => {
-          enableAnimation
-            ? Animated.timing(this.opacityAnimatedValue, {
-                toValue: 1,
-                duration: animationDuration
-              }).start(() => handleSizeUpdated(height, width, onSizeUpdated))
-            : handleSizeUpdated(height, width, onSizeUpdated);
+          if (enableAnimation) {
+            Animated.timing(this.opacityAnimatedValue, {
+              toValue: 1,
+              duration: animationDuration
+            }).start(() => {
+              handleSizeUpdated(height, width, onSizeUpdated);
+              this.updatingSize = false;
+            });
+          } else {
+            handleSizeUpdated(height, width, onSizeUpdated);
+            this.updatingSize = false;
+          }
         }
       );
     }
   };
-
-  getWebView = webView => (this.webView = webView);
 
   stopLoading() {
     this.webView.stopLoading();
   }
 
   render() {
-    const { height, width, script } = this.state;
+    const { height, width } = this.state;
     const {
+      onMessage,
       onError,
       onLoad,
       onLoadStart,
@@ -113,41 +115,43 @@ export default class AutoHeightWebView extends PureComponent {
       onShouldStartLoadWithRequest,
       scalesPageToFit,
       enableAnimation,
-      source,
       heightOffset,
       style,
       scrollEnabled
     } = this.props;
-    let webViewSource = Object.assign({}, source, { baseUrl: 'web/' });
-    if (this.isScriptChanged) {
-      this.changeSourceFlag = !this.changeSourceFlag;
-      webViewSource = Object.assign(webViewSource, { changeSourceFlag: this.changeSourceFlag });
-    }
+    const { height: newHeight, width: newWidth, source, script } = this.getUpdatedState(
+      this.props,
+      getBaseScript,
+      getIframeBaseScript
+    );
+    const { w, h } = getSize(newHeight, newWidth, height, width, this.updatingSize, this.calledOnce);
+    this.calledOnce = true;
     return (
       <Animated.View
         style={[
           styles.container,
           {
             opacity: enableAnimation ? this.opacityAnimatedValue : 1,
-            width,
-            height: height + heightOffset
+            width: w,
+            height: h + heightOffset
           },
           style
         ]}
       >
         <WebView
           originWhitelist={['*']}
-          ref={this.getWebView}
+          ref={this.webView}
+          onMessage={onMessage}
           onError={onError}
           onLoad={onLoad}
           onLoadStart={onLoadStart}
           onLoadEnd={onLoadEnd}
           onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
           style={styles.webView}
-          injectedJavaScript={script}
           scrollEnabled={!!scrollEnabled}
           scalesPageToFit={scalesPageToFit}
-          source={webViewSource}
+          injectedJavaScript={script}
+          source={source}
           onNavigationStateChange={this.handleNavigationStateChange}
         />
       </Animated.View>

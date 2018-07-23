@@ -47,8 +47,9 @@ function appendStylesToHead(styles, script) {
 }
 
 function getReloadRelatedData(props) {
-  const { hasIframe, files, customStyle, customScript, style } = props;
+  const { hasIframe, files, customStyle, customScript, style, source } = props;
   return {
+    source,
     hasIframe,
     files,
     customStyle,
@@ -71,23 +72,55 @@ function getScript(props, getBaseScript, getIframeBaseScript) {
   return script;
 }
 
-function getSize(nextStyle, prevStyle) {
-  if (!nextStyle) {
-    return null;
-  }
-  if (isChanged(nextStyle, prevStyle)) {
-    let size = null;
-    const { height, width } = nextStyle;
-    height && Object.assign(size, { height });
-    width && Object.assign(size, { width });
-    return size;
+function isEqual(newProps, oldProps) {
+  return isChanged(getReloadRelatedData(newProps), getReloadRelatedData(oldProps));
+}
+
+function insertStringAfterAnotherString(raw, searchValue, insertValue) {
+  const position = raw.indexOf(searchValue) + searchValue.length;
+  return [raw.slice(0, position), insertValue, raw.slice(position)].join('');
+}
+
+function getInjectedSource(html, script) {
+  const scriptString = `
+  <script>
+  ${script}
+  </script>
+  `;
+  if (html.startsWith('<html')) {
+    return insertStringAfterAnotherString(html, '>', scriptString);
   } else {
-    return null;
+    return `
+    ${html}
+    ${scriptString}
+    `;
   }
 }
 
-function isScriptChanged(nextProps, props) {
-  return nextProps && props && isChanged(getReloadRelatedData(nextProps), getReloadRelatedData(props));
+function setState(props, getBaseScript, getIframeBaseScript) {
+  const { source, style } = props;
+  const script = getScript(props, getBaseScript, getIframeBaseScript);
+  let state = {
+    height: style && style.height ? style.height : 0,
+    width: getWidth(style)
+  };
+  if (source.html) {
+    Object.assign(state, {
+      source: Object.assign(
+        {},
+        {
+          html: getInjectedSource(source.html, script),
+          baseUrl: 'web/'
+        }
+      )
+    });
+  } else {
+    Object.assign(state, {
+      source: Object.assign({}, source, { baseUrl: 'web/' }),
+      script
+    });
+  }
+  return state;
 }
 
 function handleSizeUpdated(height, width, onSizeUpdated) {
@@ -96,6 +129,19 @@ function handleSizeUpdated(height, width, onSizeUpdated) {
       height,
       width
     });
+}
+
+function getSize(newHeight, newWidth, height, width, updatingSize, calledOnce) {
+  if (!calledOnce || updatingSize) {
+    return {
+      h: height,
+      w: width
+    };
+  }
+  return {
+    h: height,
+    w: width
+  };
 }
 
 const domMutationObserveScript = `
@@ -107,4 +153,4 @@ observer.observe(document, {
 });
 `;
 
-export { getSize, isScriptChanged, getWidth, getScript, handleSizeUpdated, domMutationObserveScript };
+export { isEqual, setState, getWidth, handleSizeUpdated, domMutationObserveScript, getSize };
