@@ -23,10 +23,6 @@ function appendFilesToHead(files, script) {
 
 const screenWidth = Dimensions.get('window').width;
 
-function getWidth(style) {
-  return style && style.width ? style.width : screenWidth;
-}
-
 const bodyStyle = `
 body {
   margin: 0;
@@ -62,20 +58,6 @@ function isChanged(newValue, oldValue) {
   return !Immutable.is(Immutable.fromJS(newValue), Immutable.fromJS(oldValue));
 }
 
-function getScript(props, getBaseScript, getIframeBaseScript) {
-  const { hasIframe, files, customStyle, customScript, style } = getReloadRelatedData(props);
-  const baseScript = getBaseScript(style);
-  let script = hasIframe ? baseScript : getIframeBaseScript(style);
-  script = files ? appendFilesToHead(files, baseScript) : baseScript;
-  script = appendStylesToHead(customStyle, script);
-  customScript && (script = customScript + script);
-  return script;
-}
-
-function isEqual(newProps, oldProps) {
-  return isChanged(getReloadRelatedData(newProps), getReloadRelatedData(oldProps));
-}
-
 function insertStringAfterAnotherString(raw, searchValue, insertValue) {
   const position = raw.indexOf(searchValue) + searchValue.length;
   return [raw.slice(0, position), insertValue, raw.slice(position)].join('');
@@ -97,7 +79,25 @@ function getInjectedSource(html, script) {
   }
 }
 
-function setState(props, getBaseScript, getIframeBaseScript) {
+export function getScript(props, getBaseScript, getIframeBaseScript) {
+  const { hasIframe, files, customStyle, customScript, style } = getReloadRelatedData(props);
+  const baseScript = getBaseScript(style);
+  let script = hasIframe ? getIframeBaseScript(style) : baseScript;
+  script = files ? appendFilesToHead(files, baseScript) : baseScript;
+  script = appendStylesToHead(customStyle, script);
+  customScript && (script = customScript + script);
+  return script;
+}
+
+export function getWidth(style) {
+  return style && style.width ? style.width : screenWidth;
+}
+
+export function isEqual(newProps, oldProps) {
+  return isChanged(getReloadRelatedData(newProps), getReloadRelatedData(oldProps));
+}
+
+export function setState(props, getBaseScript, getIframeBaseScript) {
   const { source, style } = props;
   const script = getScript(props, getBaseScript, getIframeBaseScript);
   let state = {
@@ -123,7 +123,7 @@ function setState(props, getBaseScript, getIframeBaseScript) {
   return state;
 }
 
-function handleSizeUpdated(height, width, onSizeUpdated) {
+export function handleSizeUpdated(height, width, onSizeUpdated) {
   onSizeUpdated &&
     onSizeUpdated({
       height,
@@ -131,7 +131,7 @@ function handleSizeUpdated(height, width, onSizeUpdated) {
     });
 }
 
-function getSize(newHeight, newWidth, height, width, updatingSize, calledOnce) {
+export function getSize(newHeight, newWidth, height, width, updatingSize, calledOnce) {
   if (!calledOnce || updatingSize) {
     return {
       h: height,
@@ -144,7 +144,7 @@ function getSize(newHeight, newWidth, height, width, updatingSize, calledOnce) {
   };
 }
 
-const domMutationObserveScript = `
+export const domMutationObserveScript = `
 var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
 var observer = new MutationObserver(updateSize);
 observer.observe(document, {
@@ -152,5 +152,3 @@ observer.observe(document, {
     attributes: true
 });
 `;
-
-export { isEqual, setState, getWidth, handleSizeUpdated, domMutationObserveScript, getSize };

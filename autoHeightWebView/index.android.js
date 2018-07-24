@@ -7,7 +7,6 @@ import {
   requireNativeComponent,
   Animated,
   DeviceEventEmitter,
-  Dimensions,
   StyleSheet,
   Platform,
   UIManager,
@@ -19,7 +18,7 @@ import PropTypes from 'prop-types';
 
 import Immutable from 'immutable';
 
-import { getScript, onHeightUpdated, onWidthUpdated, onHeightWidthUpdated, domMutationObserveScript } from './common.js';
+import { handleSizeUpdated, getWidth, getScript, domMutationObserveScript } from './common.js';
 
 const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', AutoHeightWebView, {
   nativeOnly: {
@@ -32,25 +31,22 @@ const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', Auto
   }
 });
 
-const screenWidth = Dimensions.get('window').width;
-
 export default class AutoHeightWebView extends PureComponent {
   static propTypes = {
+    onMessage: PropTypes.func,
+    scrollEnabled: PropTypes.bool,
     source: WebView.propTypes.source,
-      onHeightUpdated: PropTypes.func,
-      onWidthUpdated: PropTypes.func,
-      onHeightWidthUpdated: PropTypes.func,
-      shouldResizeWidth: PropTypes.bool,
     customScript: PropTypes.string,
     customStyle: PropTypes.string,
     enableAnimation: PropTypes.bool,
+    // either height or width updated will trigger this
+    onSizeUpdated: PropTypes.func,
     // if set to false may cause some layout issues (width of container will be than width of screen)
     scalesPageToFit: PropTypes.bool,
     // only works on enable animation
     animationDuration: PropTypes.number,
     // offset of rn webView margin
-      heightOffset: PropTypes.number,
-      widthOffset: PropTypes.number,
+    heightOffset: PropTypes.number,
     // baseUrl not work in android 4.3 or below version
     enableBaseUrl: PropTypes.bool,
     style: ViewPropTypes.style,
@@ -74,22 +70,21 @@ export default class AutoHeightWebView extends PureComponent {
     enableBaseUrl: false,
     enableAnimation: true,
     animationDuration: 555,
-      heightOffset: 20,
-      widthOffset: 20,
-      shouldResizeWidth: false
+    heightOffset: 20
   };
 
   constructor(props) {
     super(props);
-    props.enableAnimation && (this.opacityAnimatedValue = new Animated.Value(0));
+    const { enableAnimation, style } = props;
+    enableAnimation && (this.opacityAnimatedValue = new Animated.Value(0));
+    this.webView = React.createRef();
     isBelowKitKat && DeviceEventEmitter.addListener('webViewBridgeMessage', this.listenWebViewBridgeMessage);
     this.state = {
       isChangingSource: false,
       height: 0,
-        heightOffset: 0,
-        width: screenWidth,
-        widthOffset: 0,
-      script: getScript(props, baseScript)
+      heightOffset: 0,
+      width: getWidth(style),
+      script: getScript(props, getBaseScript)
     };
   }
 
@@ -97,27 +92,25 @@ export default class AutoHeightWebView extends PureComponent {
     this.startInterval();
   }
 
-  componentWillReceiveProps(nextProps) {
+  UNSAFE_componentWillReceiveProps(nextProps) {
     // injectedJavaScript only works when webView reload (source changed)
-      if (Immutable.is(Immutable.fromJS(this.props.source), Immutable.fromJS(nextProps.source))) {
-          return;
-      }
-      else {
-          this.setState(
-              {
-                  isChangingSource: true,
-                  height: 0,
-                  heightOffset: 0,
-                  width: 0,
-                  widthOffset: 0,
-              },
-              () => {
-                  this.startInterval();
-                  this.setState({ isChangingSource: false });
-              }
-          );
-      }
-    this.setState({ script: getScript(nextProps, baseScript) });
+    if (Immutable.is(Immutable.fromJS(this.props.source), Immutable.fromJS(nextProps.source))) {
+      return;
+    } else {
+      this.setState(
+        {
+          isChangingSource: true,
+          height: 0,
+          heightOffset: 0,
+          width: 0
+        },
+        () => {
+          this.startInterval();
+          this.setState({ isChangingSource: false });
+        }
+      );
+    }
+    this.setState({ script: getScript(nextProps, getBaseScript) });
   }
 
   componentWillUnmount() {
@@ -160,29 +153,34 @@ export default class AutoHeightWebView extends PureComponent {
   }
 
   onMessage = e => {
-      const { height, width } = JSON.parse(isBelowKitKat ? e.nativeEvent.message : e.nativeEvent.data);
-      if (height && height !== this.state.height && width && width !== this.state.width) {
-          const { enableAnimation, animationDuration, heightOffset, widthOffset } = this.props;
-          enableAnimation && this.opacityAnimatedValue.setValue(0);
-          this.stopInterval();
-          
-          this.setState(
-              {
-                  heightOffset,
-                  height,
-                  widthOffset,
-                  width
-              },
-              () => {
-                  enableAnimation
-                      ? Animated.timing(this.opacityAnimatedValue, {
-                          toValue: 1,
-                          duration: animationDuration
-                      }).start(() => onHeightWidthUpdated(height, width, this.props))
-                      : onHeightWidthUpdated(height, width, this.props);
-              }
-          );
-      }
+    const { height, width } = JSON.parse(isBelowKitKat ? e.nativeEvent.message : e.nativeEvent.data);
+    const { height: oldHeight, width: oldWidth } = this.state;
+    if ((height && height !== oldHeight) || (width && width !== oldWidth)) {
+      const { enableAnimation, animationDuration, heightOffset, onSizeUpdated } = this.props;
+      enableAnimation && this.opacityAnimatedValue.setValue(0);
+      this.stopInterval();
+      this.setState(
+        {
+          heightOffset,
+          height,
+          width
+        },
+        () => {
+          if (enableAnimation) {
+            Animated.timing(this.opacityAnimatedValue, {
+              toValue: 1,
+              duration: animationDuration
+            }).start(() => {
+              handleSizeUpdated(height, width, onSizeUpdated);
+            });
+          } else {
+            handleSizeUpdated(height, width, onSizeUpdated);
+          }
+        }
+      );
+    }
+    const { onMessage } = this.props;
+    onMessage && onMessage(e);
   };
 
   onLoadingStart = event => {
@@ -203,8 +201,6 @@ export default class AutoHeightWebView extends PureComponent {
     onLoadEnd && onLoadEnd(event);
   };
 
-  getWebView = webView => (this.webView = webView);
-
   stopLoading() {
     UIManager.dispatchViewManagerCommand(
       findNodeHandle(this.webView),
@@ -214,23 +210,22 @@ export default class AutoHeightWebView extends PureComponent {
   }
 
   render() {
-      const { height, width, script, isChangingSource, heightOffset, widthOffset } = this.state;
-    const { scalesPageToFit, enableAnimation, source, customScript, style, enableBaseUrl } = this.props;
+    const { height, width, script, isChangingSource, heightOffset } = this.state;
+    const { scalesPageToFit, enableAnimation, source, customScript, style, enableBaseUrl, scrollEnabled } = this.props;
     let webViewSource = source;
     if (enableBaseUrl) {
       webViewSource = Object.assign({}, source, {
         baseUrl: 'file:///android_asset/web/'
       });
     }
-      
     return (
       <Animated.View
         style={[
           styles.container,
           {
             opacity: enableAnimation ? this.opacityAnimatedValue : 1,
-              height: height + heightOffset,
-              width: width + widthOffset
+            height: height + heightOffset,
+            width: width
           },
           style
         ]}
@@ -240,11 +235,13 @@ export default class AutoHeightWebView extends PureComponent {
             onLoadingStart={this.onLoadingStart}
             onLoadingFinish={this.onLoadingFinish}
             onLoadingError={this.onLoadingError}
-            ref={this.getWebView}
+            originWhitelist={['*']}
+            ref={this.webView}
             style={styles.webView}
             javaScriptEnabled={true}
             injectedJavaScript={script + customScript}
             scalesPageToFit={scalesPageToFit}
+            scrollEnabled={!!scrollEnabled}
             source={webViewSource}
             onMessage={this.onMessage}
             messagingEnabled={true}
@@ -261,7 +258,6 @@ const isBelowKitKat = Platform.Version < 19;
 
 const styles = StyleSheet.create({
   container: {
-    //width: screenWidth,
     backgroundColor: 'transparent'
   },
   webView: {
@@ -270,41 +266,42 @@ const styles = StyleSheet.create({
   }
 });
 
-const baseScript = isBelowKitKat
-  ? `
-    ; (function () {
-        var wrapper = document.createElement('div');
-        wrapper.id = 'wrapper';
-        while (document.body.firstChild instanceof Node) {
-            wrapper.appendChild(document.body.firstChild);
-        }
-        document.body.appendChild(wrapper);
-
-        AutoHeightWebView.onMessage = function (message) {
-            var rect = document.body.firstElementChild.getBoundingClientRect().toJSON();
-            var width = Math.round(rect.width);
-            var height = Math.round(rect.height);
-            AutoHeightWebView.send(JSON.stringify({ width, height }));
-        };
-        ${domMutationObserveScript}
-    } ());
-    `
-  : `
-    ; (function () {
-        var wrapper = document.createElement('div');
-        wrapper.id = 'wrapper';
-        while (document.body.firstChild instanceof Node) {
-            wrapper.appendChild(document.body.firstChild);
-        }
-        document.body.appendChild(wrapper);
-
-        document.addEventListener('message', function (e) {
-            var rect = document.body.firstElementChild.getBoundingClientRect().toJSON();
-            var width = Math.round(rect.width);
-            var height = Math.round(rect.height);
-            window.postMessage(JSON.stringify({ width, height }));
-        });
-        ${domMutationObserveScript}
-    } ());
-    `;
-
+const getBaseScript = isBelowKitKat
+  ? function() {
+      return `
+  ; (function () {
+    var wrapper = document.createElement('div');
+    wrapper.id = 'wrapper';
+    while (document.body.firstChild instanceof Node) {
+        wrapper.appendChild(document.body.firstChild);
+    }
+    document.body.appendChild(wrapper);
+    AutoHeightWebView.onMessage = function (message) {
+        var rect = document.body.firstElementChild.getBoundingClientRect().toJSON();
+        var width = Math.round(rect.width);
+        var height = Math.round(rect.height);
+        AutoHeightWebView.send(JSON.stringify({ width, height }));
+    };
+    ${domMutationObserveScript}
+} ());
+  `;
+    }
+  : function() {
+      return `
+  ; (function () {
+    var wrapper = document.createElement('div');
+    wrapper.id = 'wrapper';
+    while (document.body.firstChild instanceof Node) {
+        wrapper.appendChild(document.body.firstChild);
+    }
+    document.body.appendChild(wrapper);
+    document.addEventListener('message', function (e) {
+        var rect = document.body.firstElementChild.getBoundingClientRect().toJSON();
+        var width = Math.round(rect.width);
+        var height = Math.round(rect.height);
+        window.postMessage(JSON.stringify({ width, height }));
+    });
+    ${domMutationObserveScript}
+} ());
+  `;
+    };
