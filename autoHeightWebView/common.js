@@ -152,3 +152,15 @@ observer.observe(document, {
     attributes: true
 });
 `;
+
+export const getCurrentSize = `
+function getSize(container) {
+  var height = container.clientHeight || document.body.offsetHeight;
+  var width = container.clientWidth || document.body.offsetWidth;
+  return {
+    height,
+    width
+  };
+}
+`;
+

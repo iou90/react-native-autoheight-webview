@@ -6,7 +6,7 @@ import { Animated, StyleSheet, ViewPropTypes, WebView } from 'react-native';
 
 import PropTypes from 'prop-types';
 
-import { getSize, isEqual, setState, getWidth, handleSizeUpdated, domMutationObserveScript } from './common.js';
+import { getSize, isEqual, setState, getWidth, handleSizeUpdated, domMutationObserveScript, getCurrentSize } from './common.js';
 
 import momoize from './momoize';
 
@@ -175,16 +175,6 @@ const commonScript = `
     window.addEventListener('resize', updateSize);
     `;
 
-const getCurrentSize = `
-    function getSize(container) {
-      var height = container.clientHeight || document.body.offsetHeight;
-      var width = container.clientWidth || document.body.offsetWidth;
-      return {
-        height,
-        width
-      };
-    }
-    `;
 
 function getBaseScript(style) {
   return `
