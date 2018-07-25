@@ -97,26 +97,19 @@ export function isEqual(newProps, oldProps) {
   return isChanged(getReloadRelatedData(newProps), getReloadRelatedData(oldProps));
 }
 
-export function setState(props, getBaseScript, getIframeBaseScript) {
-  const { source, style } = props;
+export function setState(props, baseUrl, getBaseScript, getIframeBaseScript) {
+  const { source } = props;
   const script = getScript(props, getBaseScript, getIframeBaseScript);
-  let state = {
-    height: style && style.height ? style.height : 0,
-    width: getWidth(style)
-  };
+  let state = {};
   if (source.html) {
-    Object.assign(state, {
-      source: Object.assign(
-        {},
-        {
-          html: getInjectedSource(source.html, script),
-          baseUrl: 'web/'
-        }
-      )
-    });
+    let currentSource = { html: getInjectedSource(source.html, script) };
+    baseUrl && Object.assign(currentSource, { baseUrl });
+    Object.assign(state, { source: currentSource });
   } else {
+    let currentSource = Object.assign({}, source);
+    baseUrl && Object.assign(currentSource, { baseUrl });
     Object.assign(state, {
-      source: Object.assign({}, source, { baseUrl: 'web/' }),
+      source: currentSource,
       script
     });
   }
@@ -131,17 +124,8 @@ export function handleSizeUpdated(height, width, onSizeUpdated) {
     });
 }
 
-export function getSize(newHeight, newWidth, height, width, updatingSize, calledOnce) {
-  if (!calledOnce || updatingSize) {
-    return {
-      h: height,
-      w: width
-    };
-  }
-  return {
-    h: height,
-    w: width
-  };
+export function isSizeChanged(height, oldHeight, width, oldWidth) {
+  return (height && height !== oldHeight) || (width && width !== oldWidth);
 }
 
 export const domMutationObserveScript = `
@@ -163,4 +147,3 @@ function getSize(container) {
   };
 }
 `;
-

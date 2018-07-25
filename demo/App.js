@@ -125,7 +125,7 @@ export default class Explorer extends Component {
           <Text>change style</Text>
         </TouchableOpacity>
         <TouchableOpacity onPress={this.changeScript} style={[styles.button, { marginBottom: 100 }]}>
-          <Text>change heightScript</Text>
+          <Text>change script</Text>
         </TouchableOpacity>
       </ScrollView>
     );

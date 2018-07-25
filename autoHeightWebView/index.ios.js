@@ -6,7 +6,15 @@ import { Animated, StyleSheet, ViewPropTypes, WebView } from 'react-native';
 
 import PropTypes from 'prop-types';
 
-import { getSize, isEqual, setState, getWidth, handleSizeUpdated, domMutationObserveScript, getCurrentSize } from './common.js';
+import {
+  isEqual,
+  setState,
+  getWidth,
+  isSizeChanged,
+  handleSizeUpdated,
+  domMutationObserveScript,
+  getCurrentSize
+} from './common.js';
 
 import momoize from './momoize';
 
@@ -57,12 +65,45 @@ export default class AutoHeightWebView extends PureComponent {
     enableAnimation && (this.opacityAnimatedValue = new Animated.Value(0));
     this.webView = React.createRef();
     this.state = {
+      isSizeChanged: false,
       width: getWidth(style),
       height: style && style.height ? style.height : 0
     };
   }
 
   getUpdatedState = momoize(setState, isEqual);
+
+  static getDerivedStateFromProps(props, state) {
+    const { height: oldHeight, width: oldWidth } = state;
+    const height = props.style ? props.style.height : null;
+    const width = props.style ? props.style.width : null;
+    if (isSizeChanged(height, oldHeight, width, oldWidth)) {
+      return {
+        height,
+        width,
+        isSizeChanged: true
+      };
+    }
+    return null;
+  }
+
+  componentDidUpdate() {
+    const { height, width, isSizeChanged } = this.state;
+    if (isSizeChanged) {
+      const { enableAnimation, animationDuration, onSizeUpdated } = this.props;
+      if (enableAnimation) {
+        Animated.timing(this.opacityAnimatedValue, {
+          toValue: 1,
+          duration: animationDuration
+        }).start(() => {
+          handleSizeUpdated(height, width, onSizeUpdated);
+        });
+      } else {
+        handleSizeUpdated(height, width, onSizeUpdated);
+      }
+      this.setState({ isSizeChanged: false });
+    }
+  }
 
   handleNavigationStateChange = navState => {
     const { title } = navState;
@@ -73,30 +114,13 @@ export default class AutoHeightWebView extends PureComponent {
     const width = Number(widthValue);
     const height = Number(heightValue);
     const { height: oldHeight, width: oldWidth } = this.state;
-    if ((height && height !== oldHeight) || (width && width !== oldWidth)) {
-      const { enableAnimation, animationDuration, onSizeUpdated } = this.props;
-      enableAnimation && this.opacityAnimatedValue.setValue(0);
-      this.updatingSize = true;
-      this.setState(
-        {
-          height,
-          width
-        },
-        () => {
-          if (enableAnimation) {
-            Animated.timing(this.opacityAnimatedValue, {
-              toValue: 1,
-              duration: animationDuration
-            }).start(() => {
-              handleSizeUpdated(height, width, onSizeUpdated);
-              this.updatingSize = false;
-            });
-          } else {
-            handleSizeUpdated(height, width, onSizeUpdated);
-            this.updatingSize = false;
-          }
-        }
-      );
+    if (isSizeChanged(height, oldHeight, width, oldWidth)) {
+      this.props.enableAnimation && this.opacityAnimatedValue.setValue(0);
+      this.setState({
+        isSizeChanged: true,
+        height,
+        width
+      });
     }
   };
 
@@ -119,21 +143,15 @@ export default class AutoHeightWebView extends PureComponent {
       style,
       scrollEnabled
     } = this.props;
-    const { height: newHeight, width: newWidth, source, script } = this.getUpdatedState(
-      this.props,
-      getBaseScript,
-      getIframeBaseScript
-    );
-    const { w, h } = getSize(newHeight, newWidth, height, width, this.updatingSize, this.calledOnce);
-    this.calledOnce = true;
+    const { source, script } = this.getUpdatedState(this.props, 'web/', getBaseScript, getIframeBaseScript);
     return (
       <Animated.View
         style={[
           styles.container,
           {
             opacity: enableAnimation ? this.opacityAnimatedValue : 1,
-            width: w,
-            height: h + heightOffset
+            width,
+            height: height + heightOffset
           },
           style
         ]}
@@ -174,7 +192,6 @@ const commonScript = `
     window.addEventListener('load', updateSize);
     window.addEventListener('resize', updateSize);
     `;
-
 
 function getBaseScript(style) {
   return `
