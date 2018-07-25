@@ -1,7 +1,11 @@
+/** @format */
+
 'use strict'
 
 import { AppRegistry } from 'react-native';
 
 import Explorer from './App';
 
-AppRegistry.registerComponent('demo', () => Explorer);
+import {name as appName} from './app.json';
+
+AppRegistry.registerComponent(appName, () => Explorer);
