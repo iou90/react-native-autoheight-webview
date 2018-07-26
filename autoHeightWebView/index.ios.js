@@ -2,7 +2,7 @@
 
 import React, { PureComponent } from 'react';
 
-import { Animated, Easing, StyleSheet, ViewPropTypes, WebView } from 'react-native';
+import { Animated, StyleSheet, ViewPropTypes, WebView } from 'react-native';
 
 import PropTypes from 'prop-types';
 
@@ -13,8 +13,7 @@ import {
   isSizeChanged,
   handleSizeUpdated,
   domMutationObserveScript,
-  getCurrentSize,
-  getRenderSize
+  getCurrentSize
 } from './common.js';
 
 import momoize from './momoize';

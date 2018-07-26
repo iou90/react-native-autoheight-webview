@@ -109,7 +109,7 @@ export default class AutoHeightWebView extends PureComponent {
     };
     if (enableAnimation) {
       Object.assign(state, {
-        heightValue: new Animated.Value(initHeight + heightOffset),
+        heightValue: new Animated.Value(initHeight ? initHeight + heightOffset : 0),
         widthValue: new Animated.Value(initWidth)
       });
     }
@@ -154,7 +154,7 @@ export default class AutoHeightWebView extends PureComponent {
       if (enableAnimation) {
         Animated.parallel([
           Animated.timing(heightValue, {
-            toValue: height + heightOffset,
+            toValue: height ? height + heightOffset : 0,
             easing: animationEasing,
             duration: animationDuration
           }),
@@ -326,12 +326,10 @@ const getBaseScript = isBelowKitKat
     ${commonScript}
     var width = ${getWidth(style)};
     function updateSize() {
-      if(document.body.offsetHeight !== height || document.body.offsetWidth !== width) {
-        var size = getSize(document.body.firstChild); 
-        height = size.height;
-        width = size.width;
-        AutoHeightWebView.send(JSON.stringify({ width, height }));
-      }
+      var size = getSize(document.body.firstChild); 
+      height = size.height;
+      width = size.width;
+      AutoHeightWebView.send(JSON.stringify({ width, height }));
     }
     (function () {
       AutoHeightWebView.onMessage = updateSize;
@@ -345,12 +343,10 @@ const getBaseScript = isBelowKitKat
     ${commonScript}
     var width = ${getWidth(style)};
     function updateSize() {
-      if(document.body.offsetHeight !== height || document.body.offsetWidth !== width) {
-        var size = getSize(document.body.firstChild); 
-        height = size.height;
-        width = size.width;
-        window.postMessage(JSON.stringify({ width, height }), '*');
-      }
+      var size = getSize(document.body.firstChild); 
+      height = size.height;
+      width = size.width;
+      window.postMessage(JSON.stringify({ width, height }), '*');
     }
     (function () {
       document.addEventListener("message", updateSize);

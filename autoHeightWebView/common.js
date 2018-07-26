@@ -70,7 +70,7 @@ function getInjectedSource(html, script) {
 export function getScript(props, getBaseScript, getIframeBaseScript) {
   const { hasIframe, files, customStyle, customScript, style } = getReloadRelatedData(props);
   const baseScript = getBaseScript(style);
-  let script = hasIframe ? getIframeBaseScript(style) : baseScript;
+  let script = hasIframe && getIframeBaseScript ? getIframeBaseScript(style) : baseScript;
   script = files ? appendFilesToHead(files, baseScript) : baseScript;
   script = appendStylesToHead(customStyle, script);
   customScript && (script = customScript + script);
