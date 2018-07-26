@@ -135,3 +135,10 @@ function getSize(container) {
   };
 }
 `;
+
+export function getRenderSize(enableAnimation, height, width, heightOffset, heightValue, widthValue) {
+  return {
+    height: enableAnimation ? heightValue : height ? height + heightOffset : 0,
+    width: enableAnimation ? widthValue : width
+  }
+}

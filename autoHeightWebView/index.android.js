@@ -25,7 +25,8 @@ import {
   getWidth,
   getScript,
   domMutationObserveScript,
-  getCurrentSize
+  getCurrentSize,
+  getRenderSize
 } from './common.js';
 
 const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', AutoHeightWebView, {
@@ -47,6 +48,7 @@ const getUpdatedState = momoize(setState, isEqual);
 
 export default class AutoHeightWebView extends PureComponent {
   static propTypes = {
+    onNavigationStateChange: PropTypes.func,
     onMessage: PropTypes.func,
     scrollEnabled: PropTypes.bool,
     source: WebView.propTypes.source,
@@ -59,6 +61,7 @@ export default class AutoHeightWebView extends PureComponent {
     scalesPageToFit: PropTypes.bool,
     // only works on enable animation
     animationDuration: PropTypes.number,
+    // only on android
     animationEasing: PropTypes.func,
     // offset of rn webView margin
     heightOffset: PropTypes.number,
@@ -95,18 +98,18 @@ export default class AutoHeightWebView extends PureComponent {
     isBelowKitKat && DeviceEventEmitter.addListener('webViewBridgeMessage', this.listenWebViewBridgeMessage);
     this.finishInterval = true;
     const initWidth = getWidth(style);
-    const height = style ? (style.height ? style.height : 0) : 0;
+    const initHeight = style ? (style.height ? style.height : 0) : 0;
     let state = {
       isSizeChanged: false,
       isSizeMayChange: false,
-      height: height,
+      height: initHeight,
       width: initWidth,
       script: getScript(props, getBaseScript),
       source: enableBaseUrl ? Object.assign({}, source, { baseUrl }) : source
     };
     if (enableAnimation) {
       Object.assign(state, {
-        heightValue: new Animated.Value(height + heightOffset),
+        heightValue: new Animated.Value(initHeight + heightOffset),
         widthValue: new Animated.Value(initWidth)
       });
     }
@@ -231,8 +234,9 @@ export default class AutoHeightWebView extends PureComponent {
   };
 
   onLoadingStart = event => {
-    const { onLoadStart } = this.props;
+    const { onLoadStart, onNavigationStateChange } = this.props;
     onLoadStart && onLoadStart(event);
+    onNavigationStateChange && onNavigationStateChange(event.nativeEvent);
   };
 
   onLoadingError = event => {
@@ -243,9 +247,10 @@ export default class AutoHeightWebView extends PureComponent {
   };
 
   onLoadingFinish = event => {
-    const { onLoad, onLoadEnd } = this.props;
+    const { onLoad, onLoadEnd, onNavigationStateChange } = this.props;
     onLoad && onLoad(event);
     onLoadEnd && onLoadEnd(event);
+    onNavigationStateChange && onNavigationStateChange(event.nativeEvent);
   };
 
   stopLoading() {
@@ -265,10 +270,7 @@ export default class AutoHeightWebView extends PureComponent {
       <Animated.View
         style={[
           styles.container,
-          {
-            height: enableAnimation ? heightValue : height ? height + heightOffset : 0,
-            width: enableAnimation ? widthValue : width
-          },
+          getRenderSize(enableAnimation, height, width, heightOffset, heightValue, widthValue),
           style
         ]}
       >

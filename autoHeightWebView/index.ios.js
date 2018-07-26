@@ -2,7 +2,7 @@
 
 import React, { PureComponent } from 'react';
 
-import { Animated, StyleSheet, ViewPropTypes, WebView } from 'react-native';
+import { Animated, Easing, StyleSheet, ViewPropTypes, WebView } from 'react-native';
 
 import PropTypes from 'prop-types';
 
@@ -13,7 +13,8 @@ import {
   isSizeChanged,
   handleSizeUpdated,
   domMutationObserveScript,
-  getCurrentSize
+  getCurrentSize,
+  getRenderSize
 } from './common.js';
 
 import momoize from './momoize';
@@ -21,6 +22,7 @@ import momoize from './momoize';
 export default class AutoHeightWebView extends PureComponent {
   static propTypes = {
     hasIframe: PropTypes.bool,
+    onNavigationStateChange: PropTypes.func,
     onMessage: PropTypes.func,
     source: WebView.propTypes.source,
     customScript: PropTypes.string,
@@ -107,7 +109,9 @@ export default class AutoHeightWebView extends PureComponent {
 
   handleNavigationStateChange = navState => {
     const { title } = navState;
+    const { onNavigationStateChange } = this.props;
     if (!title) {
+      onNavigationStateChange && onNavigationStateChange();
       return;
     }
     const [heightValue, widthValue] = title.split(',');
@@ -122,6 +126,7 @@ export default class AutoHeightWebView extends PureComponent {
         width
       });
     }
+    onNavigationStateChange && onNavigationStateChange();
   };
 
   stopLoading() {
