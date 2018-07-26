@@ -23,8 +23,8 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
 `import AutoHeightWebView from 'react-native-autoheight-webview';`
 
 ## showcase
-![react-native-autoheight-webview ios](https://media.giphy.com/media/l4FGyhnvWfUgxCfe0/200w.gif)&nbsp;
-![react-native-autoheight-webview android](https://media.giphy.com/media/xUPGcIO0a1ggESelfq/200w.gif)
+![react-native-autoheight-webview ios](https://media.giphy.com/media/g01cDWsKSzqLDAK8na/giphy.gif)&nbsp;
+![react-native-autoheight-webview android](https://media.giphy.com/media/35Dmikv0e0P5zVjTUw/giphy.gif)
 
 ## usage
 
