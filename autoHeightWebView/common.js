@@ -58,25 +58,13 @@ function isChanged(newValue, oldValue) {
   return !Immutable.is(Immutable.fromJS(newValue), Immutable.fromJS(oldValue));
 }
 
-function insertStringAfterAnotherString(raw, searchValue, insertValue) {
-  const position = raw.indexOf(searchValue) + searchValue.length;
-  return [raw.slice(0, position), insertValue, raw.slice(position)].join('');
-}
-
 function getInjectedSource(html, script) {
-  const scriptString = `
-  <script>
-  ${script}
-  </script>
-  `;
-  if (html.startsWith('<html')) {
-    return insertStringAfterAnotherString(html, '>', scriptString);
-  } else {
-    return `
+  return `
     ${html}
-    ${scriptString}
+    <script>
+    ${script}
+    </script>
     `;
-  }
 }
 
 export function getScript(props, getBaseScript, getIframeBaseScript) {
@@ -139,8 +127,8 @@ observer.observe(document, {
 
 export const getCurrentSize = `
 function getSize(container) {
-  var height = container.clientHeight || document.body.offsetHeight;
-  var width = container.clientWidth || document.body.offsetWidth;
+  var height = container.offsetHeight || document.body.offsetHeight;
+  var width = container.offsetWidth || document.body.offsetWidth;
   return {
     height,
     width
