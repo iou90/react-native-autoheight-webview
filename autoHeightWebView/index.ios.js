@@ -57,7 +57,7 @@ export default class AutoHeightWebView extends PureComponent {
   static defaultProps = {
     scalesPageToFit: false,
     enableAnimation: true,
-    animationDuration: 555,
+    animationDuration: 255,
     heightOffset: 12
   };
 
