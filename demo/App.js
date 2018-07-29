@@ -102,6 +102,12 @@ export default class Explorer extends Component {
           style={{
             marginTop: 15
           }}
+          enableBaseUrl
+          files={[{
+            href: 'demo.css',
+            type: 'text/css',
+            rel: 'stylesheet'
+          }]}
           customStyle={widthStyle}
           onError={() => console.log('width on error')}
           onLoad={() => console.log('width on load')}

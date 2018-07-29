@@ -36,7 +36,7 @@ const autoWidthHtml0 = `
 <head>
   <meta name="viewport" content="target-densitydpi=device-dpi, initial-scale=1.0, user-scalable=no" />
 </head>
-<p style="display: inline;background-color: transparent !important;background-image: linear-gradient(to bottom, rgba(146, 249, 190, 1), rgba(146, 249, 190, 1));font-weight: 400;font-style: normal;zoom:1;font-size: 21px;line-height: 1.58;letter-spacing: -.003em;">hey</p>
+<p class="localStyle" style="display: inline;background-color: transparent !important;background-image: linear-gradient(to bottom, rgba(146, 249, 190, 1), rgba(146, 249, 190, 1));font-style: normal;zoom:1;font-size: 21px;line-height: 1.58;letter-spacing: -.003em;">hey</p>
 </html>
 `;
 
