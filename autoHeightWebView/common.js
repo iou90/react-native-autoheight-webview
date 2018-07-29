@@ -5,10 +5,7 @@ import { Dimensions } from 'react-native';
 import Immutable from 'immutable';
 
 function appendFilesToHead(files, script) {
-  if (!files) {
-    return script;
-  }
-  return files.reduceRight((file, combinedScript) => {
+  return files.reduceRight((combinedScript, file) => {
     const { rel, type, href } = file;
     return `
             var link  = document.createElement('link');
@@ -71,7 +68,7 @@ export function getScript(props, getBaseScript, getIframeBaseScript) {
   const { hasIframe, files, customStyle, customScript, style } = getReloadRelatedData(props);
   const baseScript = getBaseScript(style);
   let script = hasIframe && getIframeBaseScript ? getIframeBaseScript(style) : baseScript;
-  script = files ? appendFilesToHead(files, baseScript) : baseScript;
+  script = files && files.length > 0 ? appendFilesToHead(files, script) : script;
   script = appendStylesToHead(customStyle, script);
   customScript && (script = customScript + script);
   return script;
