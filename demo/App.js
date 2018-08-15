@@ -2,7 +2,7 @@
 
 import React, { Component } from 'react';
 
-import { ScrollView, StyleSheet, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, Platform } from 'react-native';
 
 import AutoHeightWebView from 'react-native-autoheight-webview';
 
@@ -99,15 +99,18 @@ export default class Explorer extends Component {
           height: {heightSize.height}, width: {heightSize.width}
         </Text>
         <AutoHeightWebView
+          baseUrl={Platform.OS === 'Android' ? 'file:///android_asset/webAssets/' : 'webAssets/'}
           style={{
             marginTop: 15
           }}
           enableBaseUrl
-          files={[{
-            href: 'demo.css',
-            type: 'text/css',
-            rel: 'stylesheet'
-          }]}
+          files={[
+            {
+              href: 'demo.css',
+              type: 'text/css',
+              rel: 'stylesheet'
+            }
+          ]}
           customStyle={widthStyle}
           onError={() => console.log('width on error')}
           onLoad={() => console.log('width on load')}

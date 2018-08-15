@@ -43,7 +43,9 @@ export default class AutoHeightWebView extends PureComponent {
     onLoadStart: PropTypes.func,
     onLoadEnd: PropTypes.func,
     onShouldStartLoadWithRequest: PropTypes.func,
-    // add web/files... to project root
+    // 'web/' by default
+    baseUrl: PropTypes.string,
+    // add baseUrl/files... to project root
     files: PropTypes.arrayOf(
       PropTypes.shape({
         href: PropTypes.string,
@@ -54,6 +56,7 @@ export default class AutoHeightWebView extends PureComponent {
   };
 
   static defaultProps = {
+    baseUrl: 'web/',
     scalesPageToFit: false,
     enableAnimation: true,
     animationDuration: 255,
@@ -147,7 +150,7 @@ export default class AutoHeightWebView extends PureComponent {
       style,
       scrollEnabled
     } = this.props;
-    const { source, script } = this.getUpdatedState(this.props, 'web/', getBaseScript, getIframeBaseScript);
+    const { source, script } = this.getUpdatedState(this.props, getBaseScript, getIframeBaseScript);
     return (
       <Animated.View
         style={[

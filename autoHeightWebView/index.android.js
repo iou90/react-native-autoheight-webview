@@ -42,8 +42,6 @@ const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', Auto
 
 import momoize from './momoize';
 
-const baseUrl = 'file:///android_asset/web/';
-
 const getUpdatedState = momoize(setState, isEqual);
 
 export default class AutoHeightWebView extends PureComponent {
@@ -65,15 +63,15 @@ export default class AutoHeightWebView extends PureComponent {
     animationEasing: PropTypes.func,
     // offset of rn webView margin
     heightOffset: PropTypes.number,
-    // baseUrl not work in android 4.3 or below version
-    enableBaseUrl: PropTypes.bool,
     style: ViewPropTypes.style,
     //  rn WebView callback
     onError: PropTypes.func,
     onLoad: PropTypes.func,
     onLoadStart: PropTypes.func,
     onLoadEnd: PropTypes.func,
-    // works if set enableBaseUrl to true; add web/files... to android/app/src/assets/
+    // 'file:///android_asset/web/' by default, and baseUrl not work in android 4.3 or below version
+    baseUrl: PropTypes.string,
+    // add baseUrl/files... to android/app/src/assets/
     files: PropTypes.arrayOf(
       PropTypes.shape({
         href: PropTypes.string,
@@ -84,8 +82,8 @@ export default class AutoHeightWebView extends PureComponent {
   };
 
   static defaultProps = {
+    baseUrl: 'file:///android_asset/web/',
     scalesPageToFit: true,
-    enableBaseUrl: false,
     enableAnimation: true,
     animationDuration: 255,
     heightOffset: 20,
@@ -94,7 +92,7 @@ export default class AutoHeightWebView extends PureComponent {
 
   constructor(props) {
     super(props);
-    const { enableAnimation, style, source, enableBaseUrl, heightOffset } = props;
+    const { baseUrl, enableAnimation, style, source, heightOffset } = props;
     isBelowKitKat && DeviceEventEmitter.addListener('webViewBridgeMessage', this.listenWebViewBridgeMessage);
     this.finishInterval = true;
     const initWidth = getWidth(style);
@@ -105,7 +103,7 @@ export default class AutoHeightWebView extends PureComponent {
       height: initHeight,
       width: initWidth,
       script: getScript(props, getBaseScript),
-      source: enableBaseUrl ? Object.assign({}, source, { baseUrl }) : source
+      source: Object.assign({}, source, { baseUrl })
     };
     if (enableAnimation) {
       Object.assign(state, {
@@ -122,8 +120,8 @@ export default class AutoHeightWebView extends PureComponent {
 
   static getDerivedStateFromProps(props, state) {
     const { height: oldHeight, width: oldWidth, source: prevSource, script: prevScript } = state;
-    const { style, enableBaseUrl } = props;
-    const { source, script } = getUpdatedState(props, enableBaseUrl ? baseUrl : null, getBaseScript);
+    const { style } = props;
+    const { source, script } = getUpdatedState(props, getBaseScript);
     const height = style ? style.height : null;
     const width = style ? style.width : null;
     if (source.html !== prevSource.html || source.uri !== prevSource.uri || script !== prevScript) {

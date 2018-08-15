@@ -82,8 +82,8 @@ export function isEqual(newProps, oldProps) {
   return isChanged(getReloadRelatedData(newProps), getReloadRelatedData(oldProps));
 }
 
-export function setState(props, baseUrl, getBaseScript, getIframeBaseScript) {
-  const { source } = props;
+export function setState(props, getBaseScript, getIframeBaseScript) {
+  const { source, baseUrl } = props;
   const script = getScript(props, getBaseScript, getIframeBaseScript);
   let state = {};
   if (source.html) {
@@ -137,5 +137,5 @@ export function getRenderSize(enableAnimation, height, width, heightOffset, heig
   return {
     height: enableAnimation ? heightValue : height ? height + heightOffset : 0,
     width: enableAnimation ? widthValue : width
-  }
+  };
 }
