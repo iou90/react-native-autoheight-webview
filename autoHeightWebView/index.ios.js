@@ -205,24 +205,26 @@ function getBaseScript(style) {
     ;
     ${getCurrentSize}
     (function () {
-        var height = 0;
-        var width = ${getWidth(style)};
-        var wrapper = document.createElement('div');
-        wrapper.id = 'rnahw-wrapper';
-        while (document.body.firstChild instanceof Node) {
-            wrapper.appendChild(document.body.firstChild);
-        }
-        document.body.appendChild(wrapper);
-        function updateSize() {
-            if(document.body.offsetHeight !== height || document.body.offsetWidth !== width) {
-                var size = getSize(wrapper);
-                height = size.height;
-                width = size.width;
-                document.title = height.toString() + ',' + width.toString();
+      if (!document.getElementById("rnahw-wrapper")) { 
+          var height = 0;
+          var width = ${getWidth(style)};
+          var wrapper = document.createElement('div');
+          wrapper.id = 'rnahw-wrapper';
+          while (document.body.firstChild instanceof Node) {
+              wrapper.appendChild(document.body.firstChild);
+          }
+          document.body.appendChild(wrapper);
+          function updateSize() {
+            if (document.body.offsetHeight !== height || document.body.offsetWidth !== width) {
+               var size = getSize(wrapper);
+               height = size.height;
+               width = size.width;
+               document.title = height.toString() + ',' + width.toString();
             }
-        }
+          }
         ${commonScript}
         ${domMutationObserveScript}
+        }
     } ());
     `;
 }
