@@ -43,8 +43,6 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
     if set to true may cause some layout issues (smaller font size) on iOS
     */
     scalesPageToFit={Platform.OS === 'Android' ? true : false}
-    // baseUrl not work in Android 4.3 or below version
-    enableBaseUrl={true}
     // offset of rn webview margin 
     heightOffset={5}
     // default width is the width of screen
@@ -58,6 +56,9 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
     animationEasing={Easing.ease()},
     // or uri
     source={{ html: `<p style="font-weight: 400;font-style: normal;font-size: 21px;line-height: 1.58;letter-spacing: -.003em;">Tags are great for describing the essence of your story in a single word or phrase, but stories are rarely about a single thing. <span style="background-color: transparent !important;background-image: linear-gradient(to bottom, rgba(146, 249, 190, 1), rgba(146, 249, 190, 1));">If I pen a story about moving across the country to start a new job in a car with my husband, two cats, a dog, and a tarantula, I wouldn’t only tag the piece with “moving”. I’d also use the tags “pets”, “marriage”, “career change”, and “travel tips”.</span></p>` }}
+    // 'web/' by default on iOS, and 'file:///android_asset/web/' on Android, and baseUrl not work in android 4.3 or below version
+    baseUrl: 'webAssets/',
+    // add baseUrl/files... to project root
     /* 
     use local or remote files
     local files only works on enable baseUrl on Android,
