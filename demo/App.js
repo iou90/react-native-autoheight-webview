@@ -99,7 +99,7 @@ export default class Explorer extends Component {
           height: {heightSize.height}, width: {heightSize.width}
         </Text>
         <AutoHeightWebView
-          baseUrl={Platform.OS === 'Android' ? 'file:///android_asset/webAssets/' : 'webAssets/'}
+          baseUrl={Platform.OS === 'android' ? 'file:///android_asset/webAssets/' : 'webAssets/'}
           style={{
             marginTop: 15
           }}
