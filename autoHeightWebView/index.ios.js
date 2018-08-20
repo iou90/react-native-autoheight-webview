@@ -113,7 +113,7 @@ export default class AutoHeightWebView extends PureComponent {
     const { title } = navState;
     const { onNavigationStateChange } = this.props;
     if (!title) {
-      onNavigationStateChange && onNavigationStateChange();
+      onNavigationStateChange && onNavigationStateChange(navState);
       return;
     }
     const [heightValue, widthValue] = title.split(',');
