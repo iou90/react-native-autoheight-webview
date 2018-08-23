@@ -2,14 +2,7 @@
 
 import React, { Component } from 'react';
 
-import {
-  ScrollView,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  Platform,
-  Linking
-} from 'react-native';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, Platform, Linking } from 'react-native';
 
 import AutoHeightWebView from 'react-native-autoheight-webview';
 
@@ -20,7 +13,6 @@ import {
   autoWidthHtml0,
   autoWidthHtml1,
   autoWidthScript,
-  autoDetectLinkHtml,
   autoDetectLinkScript,
   style0,
   inlineBodyStyle
@@ -31,7 +23,7 @@ export default class Explorer extends Component {
     super(props);
     this.state = {
       heightHtml: autoHeightHtml0,
-      heightScript: null,
+      heightScript: autoDetectLinkScript,
       heightStyle: null,
       heightSize: {
         height: 0,
@@ -49,42 +41,23 @@ export default class Explorer extends Component {
 
   changeSource = () => {
     this.setState(prevState => ({
-      widthHtml:
-        prevState.widthHtml === autoWidthHtml0
-          ? autoWidthHtml1
-          : autoWidthHtml0,
-      heightHtml:
-        prevState.heightHtml === autoHeightHtml0
-          ? autoHeightHtml1
-          : autoHeightHtml0
+      widthHtml: prevState.widthHtml === autoWidthHtml0 ? autoWidthHtml1 : autoWidthHtml0,
+      heightHtml: prevState.heightHtml === autoHeightHtml0 ? autoHeightHtml1 : autoHeightHtml0
     }));
   };
 
   changeStyle = () => {
     this.setState(prevState => ({
-      widthStyle:
-        prevState.widthStyle == inlineBodyStyle
-          ? style0 + inlineBodyStyle
-          : inlineBodyStyle,
+      widthStyle: prevState.widthStyle == inlineBodyStyle ? style0 + inlineBodyStyle : inlineBodyStyle,
       heightStyle: prevState.heightStyle == null ? style0 : null
     }));
   };
 
   changeScript = () => {
     this.setState(prevState => ({
-      widthScript:
-        prevState.widthScript !== autoWidthScript ? autoWidthScript : null,
+      widthScript: prevState.widthScript !== autoWidthScript ? autoWidthScript : null,
       heightScript:
-        prevState.heightScript !== autoHeightScript ? autoHeightScript : null
-    }));
-  };
-
-  changeTryBrowser = () => {
-    this.setState(_ => ({
-      widthHtml: autoWidthHtml0,
-      heightHtml: autoDetectLinkHtml,
-      widthScript: autoDetectLinkScript,
-      heightScript: autoDetectLinkScript
+        prevState.heightScript !== autoDetectLinkScript ? autoDetectLinkScript : autoHeightScript + autoDetectLinkScript
     }));
   };
 
@@ -108,7 +81,8 @@ export default class Explorer extends Component {
         contentContainerStyle={{
           justifyContent: 'center',
           alignItems: 'center'
-        }}>
+        }}
+      >
         <AutoHeightWebView
           customStyle={heightStyle}
           onError={() => console.log('height on error')}
@@ -124,22 +98,19 @@ export default class Explorer extends Component {
           customScript={heightScript}
           onMessage={event => {
             console.log('onMessage', event.nativeEvent.data);
-            let { data } = event.nativeEvent;
-
+            const { data } = event.nativeEvent;
+            let messageData;
             // maybe parse stringified JSON
             try {
-              data = JSON.parse(data);
+              messageData = JSON.parse(data);
             } catch (e) {
               console.log(e.message);
             }
-
-            if (typeof data === 'object') {
-              const { url } = data;
+            if (typeof messageData === 'object') {
+              const { url } = messageData;
               // check if this message concerns us
               if (url && url.startsWith('http')) {
-                Linking.openURL(url).catch(err =>
-                  console.error('An error occurred', err)
-                );
+                Linking.openURL(url).catch(error => console.error('An error occurred', error));
               }
             }
           }}
@@ -148,11 +119,7 @@ export default class Explorer extends Component {
           height: {heightSize.height}, width: {heightSize.width}
         </Text>
         <AutoHeightWebView
-          baseUrl={
-            Platform.OS === 'android'
-              ? 'file:///android_asset/webAssets/'
-              : 'webAssets/'
-          }
+          baseUrl={Platform.OS === 'android' ? 'file:///android_asset/webAssets/' : 'webAssets/'}
           style={{
             marginTop: 15
           }}
@@ -186,12 +153,7 @@ export default class Explorer extends Component {
         <TouchableOpacity onPress={this.changeStyle} style={styles.button}>
           <Text>change style</Text>
         </TouchableOpacity>
-        <TouchableOpacity onPress={this.changeTryBrowser} style={styles.button}>
-          <Text>try browser links</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={this.changeScript}
-          style={[styles.button, { marginBottom: 100 }]}>
+        <TouchableOpacity onPress={this.changeScript} style={[styles.button, { marginBottom: 100 }]}>
           <Text>change script</Text>
         </TouchableOpacity>
       </ScrollView>
