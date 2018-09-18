@@ -132,7 +132,7 @@ export default class AutoHeightWebView extends PureComponent {
   };
 
   stopLoading() {
-    this.webView.stopLoading();
+    this.webView.current.stopLoading();
   }
 
   render() {
