@@ -217,11 +217,15 @@ export default class AutoHeightWebView extends PureComponent {
     if (!e.nativeEvent) {
       return;
     }
-    
+    let data = {};
     // Sometimes the message is invalid JSON, so we ignore that case
-    try { JSON.parse(isBelowKitKat ? e.nativeEvent.message : e.nativeEvent.data) } catch(e) { return }
-
-    const { height, width } = JSON.parse(isBelowKitKat ? e.nativeEvent.message : e.nativeEvent.data);
+    try {
+      data = JSON.parse(isBelowKitKat ? e.nativeEvent.message : e.nativeEvent.data);
+    } catch (error) {
+      console.error(error);
+      return;
+    }
+    const { height, width } = data;
     const { height: oldHeight, width: oldWidth } = this.state;
     if (isSizeChanged(height, oldHeight, width, oldWidth)) {
       this.stopInterval();
