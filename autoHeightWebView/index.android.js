@@ -122,8 +122,8 @@ export default class AutoHeightWebView extends PureComponent {
     const { height: oldHeight, width: oldWidth, source: prevSource, script: prevScript } = state;
     const { style } = props;
     const { source, script } = getUpdatedState(props, getBaseScript);
-    const height = style ? style.height : null;
-    const width = style ? style.width : null;
+    const height = style && style.height ? style.height : null;
+    const width = style && style.width ? style.width : null;
     if (source.html !== prevSource.html || source.uri !== prevSource.uri || script !== prevScript) {
       return {
         source,
@@ -133,8 +133,8 @@ export default class AutoHeightWebView extends PureComponent {
     }
     if (isSizeChanged(height, oldHeight, width, oldWidth)) {
       return {
-        height,
-        width,
+        height: height ? height : oldHeight,
+        width: width ? width : oldWidth,
         isSizeChanged: true
       };
     }
