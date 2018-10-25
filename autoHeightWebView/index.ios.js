@@ -128,7 +128,7 @@ export default class AutoHeightWebView extends PureComponent {
         width
       });
     }
-    onNavigationStateChange && onNavigationStateChange();
+    onNavigationStateChange && onNavigationStateChange(navState);
   };
 
   stopLoading() {
