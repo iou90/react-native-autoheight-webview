@@ -201,16 +201,18 @@ export default class AutoHeightWebView extends PureComponent {
       return;
     }
     this.finishInterval = false;
-    this.interval = setInterval(() => {
-      if (!this.finishInterval) {
-        isBelowKitKat ? this.sendToWebView('getBodyHeight') : this.postMessage('getBodyHeight');
-      }
-    }, 205);
+    this.setState({
+      interval: setInterval(() => {
+        if (!this.finishInterval) {
+          isBelowKitKat ? this.sendToWebView('getBodyHeight') : this.postMessage('getBodyHeight');
+        }
+      }, 205)
+    });
   }
 
   stopInterval() {
     this.finishInterval = true;
-    clearInterval(this.interval);
+    clearInterval(this.state.interval);
   }
 
   onMessage = e => {
