@@ -83,8 +83,8 @@ export default class AutoHeightWebView extends PureComponent {
     const width = props.style ? props.style.width : null;
     if (isSizeChanged(height, oldHeight, width, oldWidth)) {
       return {
-        height,
-        width,
+        height: height || oldHeight,
+        width: width || oldWidth,
         isSizeChanged: true
       };
     }
