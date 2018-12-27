@@ -178,6 +178,7 @@ export default class AutoHeightWebView extends PureComponent {
           injectedJavaScript={script}
           source={source}
           onNavigationStateChange={this.handleNavigationStateChange}
+          allowsInlineMediaPlayback={true}
         />
       </Animated.View>
     );
