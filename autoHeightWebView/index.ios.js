@@ -43,6 +43,7 @@ export default class AutoHeightWebView extends PureComponent {
     onLoadStart: PropTypes.func,
     onLoadEnd: PropTypes.func,
     onShouldStartLoadWithRequest: PropTypes.func,
+    allowsInlineMediaPlayback: PropTypes.bool,
     // 'web/' by default
     baseUrl: PropTypes.string,
     // add baseUrl/files... to project root
@@ -148,7 +149,8 @@ export default class AutoHeightWebView extends PureComponent {
       enableAnimation,
       heightOffset,
       style,
-      scrollEnabled
+      scrollEnabled,
+      allowsInlineMediaPlayback
     } = this.props;
     const { source, script } = this.getUpdatedState(this.props, getBaseScript, getIframeBaseScript);
     return (
@@ -178,7 +180,7 @@ export default class AutoHeightWebView extends PureComponent {
           injectedJavaScript={script}
           source={source}
           onNavigationStateChange={this.handleNavigationStateChange}
-          allowsInlineMediaPlayback={true}
+          allowsInlineMediaPlayback={allowsInlineMediaPlayback}
         />
       </Animated.View>
     );
