@@ -2,9 +2,11 @@
 
 import React, { PureComponent } from 'react';
 
-import { Animated, StyleSheet, ViewPropTypes, WebView } from 'react-native';
+import { Animated, StyleSheet, WebView } from 'react-native';
 
 import PropTypes from 'prop-types';
+
+import { commonPropTypes } from './propTypes.js';
 
 import {
   isEqual,
@@ -20,40 +22,19 @@ import momoize from './momoize';
 
 export default class AutoHeightWebView extends PureComponent {
   static propTypes = {
+    ...commonPropTypes,
     hasIframe: PropTypes.bool,
-    onNavigationStateChange: PropTypes.func,
-    onMessage: PropTypes.func,
-    source: WebView.propTypes.source,
-    customScript: PropTypes.string,
-    customStyle: PropTypes.string,
-    enableAnimation: PropTypes.bool,
-    style: ViewPropTypes.style,
-    scrollEnabled: PropTypes.bool,
-    // either height or width updated will trigger this
-    onSizeUpdated: PropTypes.func,
-    // if set to true may cause some layout issues (smaller font size)
-    scalesPageToFit: PropTypes.bool,
     // only works on enable animation
     animationDuration: PropTypes.number,
     // offset of rn webview margin
     heightOffset: PropTypes.number,
-    //  rn WebView callback
-    onError: PropTypes.func,
-    onLoad: PropTypes.func,
-    onLoadStart: PropTypes.func,
-    onLoadEnd: PropTypes.func,
+    // webview props
+    scrollEnabled: PropTypes.bool,
     onShouldStartLoadWithRequest: PropTypes.func,
+    decelerationRate: PropTypes.number,
     allowsInlineMediaPlayback: PropTypes.bool,
-    // 'web/' by default
-    baseUrl: PropTypes.string,
-    // add baseUrl/files... to project root
-    files: PropTypes.arrayOf(
-      PropTypes.shape({
-        href: PropTypes.string,
-        type: PropTypes.string,
-        rel: PropTypes.string
-      })
-    )
+    bounces: PropTypes.bool,
+    dataDetectorTypes: PropTypes.oneOfType([PropTypes.string, PropTypes.array])
   };
 
   static defaultProps = {
@@ -139,6 +120,13 @@ export default class AutoHeightWebView extends PureComponent {
   render() {
     const { height, width } = this.state;
     const {
+      renderError,
+      originWhitelist,
+      mediaPlaybackRequiresUserAction,
+      bounces,
+      decelerationRate,
+      allowsInlineMediaPlayback,
+      dataDetectorTypes,
       onMessage,
       onError,
       onLoad,
@@ -149,8 +137,7 @@ export default class AutoHeightWebView extends PureComponent {
       enableAnimation,
       heightOffset,
       style,
-      scrollEnabled,
-      allowsInlineMediaPlayback
+      scrollEnabled
     } = this.props;
     const { source, script } = this.getUpdatedState(this.props, getBaseScript, getIframeBaseScript);
     return (
@@ -166,7 +153,13 @@ export default class AutoHeightWebView extends PureComponent {
         ]}
       >
         <WebView
-          originWhitelist={['*']}
+          renderError={renderError}
+          mediaPlaybackRequiresUserAction={mediaPlaybackRequiresUserAction}
+          bounces={bounces}
+          decelerationRate={decelerationRate}
+          allowsInlineMediaPlayback={allowsInlineMediaPlayback}
+          dataDetectorTypes={dataDetectorTypes}
+          originWhitelist={originWhitelist || ['*']}
           ref={this.webView}
           onMessage={onMessage}
           onError={onError}
@@ -180,7 +173,6 @@ export default class AutoHeightWebView extends PureComponent {
           injectedJavaScript={script}
           source={source}
           onNavigationStateChange={this.handleNavigationStateChange}
-          allowsInlineMediaPlayback={allowsInlineMediaPlayback}
         />
       </Animated.View>
     );
