@@ -64,10 +64,9 @@ function getInjectedSource(html, script) {
     `;
 }
 
-export function getScript(props, getBaseScript, getIframeBaseScript) {
-  const { hasIframe, files, customStyle, customScript, style } = getReloadRelatedData(props);
-  const baseScript = getBaseScript(style);
-  let script = hasIframe && getIframeBaseScript ? getIframeBaseScript(style) : baseScript;
+export function getScript(props, getBaseScript) {
+  const { files, customStyle, customScript, style } = getReloadRelatedData(props);
+  let script = getBaseScript(style);
   script = files && files.length > 0 ? appendFilesToHead(files, script) : script;
   script = appendStylesToHead(customStyle, script);
   customScript && (script = customScript + script);
@@ -127,15 +126,8 @@ function getSize(container) {
   var height = container.offsetHeight || document.body.offsetHeight;
   var width = container.offsetWidth || document.body.offsetWidth;
   return {
-    height,
-    width
+    height: height,
+    width: width
   };
 }
 `;
-
-export function getRenderSize(enableAnimation, height, width, heightOffset, heightValue, widthValue) {
-  return {
-    height: enableAnimation ? heightValue : height ? height + heightOffset : 0,
-    width: enableAnimation ? widthValue : width
-  };
-}
