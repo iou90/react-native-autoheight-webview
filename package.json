@@ -32,7 +32,7 @@
     "react-native": ">= 0.56.0"
   },
   "dependencies": {
-    "immutable": "^3.8.1",
+    "immutable": "^3.8.2",
     "prop-types": "^15.6.2"
   },
   "devDependencies": {
