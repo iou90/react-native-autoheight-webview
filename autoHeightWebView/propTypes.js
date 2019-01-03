@@ -4,7 +4,6 @@ import { ViewPropTypes, WebView } from 'react-native';
 
 export const commonPropTypes = {
   style: ViewPropTypes.style,
-  onNavigationStateChange: PropTypes.func,
   customScript: PropTypes.string,
   customStyle: PropTypes.string,
   enableAnimation: PropTypes.bool,
@@ -13,7 +12,7 @@ export const commonPropTypes = {
   // offset of rn webView margin
   heightOffset: PropTypes.number,
   // either height or width updated will trigger this
-  // no support auto width and height will triggered by source changing only on android 6.0 or below version
+  // no support auto width and height will triggered by source changing only on android 5.1 or below version
   onSizeUpdated: PropTypes.func,
   // 'file:///android_asset/web/' by default on android, 
   // web/' by default on iOS
@@ -37,6 +36,7 @@ export const commonPropTypes = {
   renderError: PropTypes.func,
   onError: PropTypes.func,
   onMessage: PropTypes.func,
+  onNavigationStateChange: PropTypes.func,
   onLoad: PropTypes.func,
   onLoadStart: PropTypes.func,
   onLoadEnd: PropTypes.func
