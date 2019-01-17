@@ -6,6 +6,7 @@ const autoHeightHtml1 = `Tags are great for describing the essence of your story
 
 const style0 = `
     p {
+        font-family: sans-serif;
         padding: 50px;
         box-sizing: border-box;
     }
