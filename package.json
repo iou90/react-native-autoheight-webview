@@ -29,18 +29,19 @@
   "homepage": "https://github.com/iou90/react-native-autoheight-webview#readme",
   "peerDependencies": {
     "react": "*",
-    "react-native": ">= 0.56.0"
+    "react-native": ">= 0.57.0"
   },
   "dependencies": {
     "immutable": "^3.8.2",
-    "prop-types": "^15.6.2"
+    "prop-types": "^15.7.1",
+    "react-native-webview": "^5.0.7"
   },
   "devDependencies": {
-    "babel-eslint": "^8.2.2",
+    "babel-eslint": "^8.2.6",
     "eslint": "^4.18.1",
     "eslint-plugin-jsx": "^0.0.2",
-    "eslint-plugin-jsx-a11y": "^6.0.3",
-    "eslint-plugin-react": "^7.7.0",
-    "eslint-plugin-react-native": "^3.2.1"
+    "eslint-plugin-jsx-a11y": "^6.2.1",
+    "eslint-plugin-react": "^7.12.4",
+    "eslint-plugin-react-native": "^3.6.0"
   }
 }

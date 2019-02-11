@@ -2,11 +2,13 @@
 
 import React, { PureComponent } from 'react';
 
-import { Animated, StyleSheet, WebView } from 'react-native';
+import { Animated, StyleSheet } from 'react-native';
 
 import PropTypes from 'prop-types';
 
 import { commonPropTypes } from './propTypes.js';
+
+import { WebView } from 'react-native-webview';
 
 import {
   isEqual,
@@ -39,7 +41,6 @@ export default class AutoHeightWebView extends PureComponent {
 
   static defaultProps = {
     baseUrl: 'web/',
-    scalesPageToFit: false,
     enableAnimation: true,
     animationDuration: 255,
     heightOffset: 12
@@ -133,7 +134,6 @@ export default class AutoHeightWebView extends PureComponent {
       onLoadStart,
       onLoadEnd,
       onShouldStartLoadWithRequest,
-      scalesPageToFit,
       enableAnimation,
       heightOffset,
       style,
@@ -169,7 +169,6 @@ export default class AutoHeightWebView extends PureComponent {
           onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
           style={styles.webView}
           scrollEnabled={!!scrollEnabled}
-          scalesPageToFit={scalesPageToFit}
           injectedJavaScript={script}
           source={source}
           onNavigationStateChange={this.handleNavigationStateChange}
@@ -184,12 +183,16 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent'
   },
   webView: {
-    flex: 1,
-    backgroundColor: 'transparent'
+    backgroundColor: 'transparent',
+    flex: 1
   }
 });
 
+// add viewport setting to meta for WKWebView
 const commonScript = `
+    var meta = document.createElement('meta'); 
+    meta.setAttribute('name', 'viewport'); 
+    meta.setAttribute('content', 'width=device-width'); document.getElementsByTagName('head')[0].appendChild(meta);
     updateSize();
     window.addEventListener('load', updateSize);
     window.addEventListener('resize', updateSize);
