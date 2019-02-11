@@ -20,11 +20,15 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
 `npm install react-native-autoheight-webview@0.2.3 --save` (rn < 0.44)
 
 ## Android
-`react-native link react-native-autoheight-webview` (version 0.10.6 and below)
+`react-native link react-native-autoheight-webview` (version <= 0.10.6)
+
+`react-native link react-native-webview` (version >= 1.0.0)
 
 `import AutoHeightWebView from 'react-native-autoheight-webview';`
 
 ## iOS
+`react-native link react-native-webview` (version >= 1.0.0)
+
 `import AutoHeightWebView from 'react-native-autoheight-webview';`
 
 ## showcase
@@ -106,4 +110,4 @@ Cause of moving View.propTypes to ViewPropTypes in React Naitve 0.44 (https://gi
 ```
 
 ## demo
-You may have to copy autoHeightWebView, node_modules folders and index.js to 'demo/node_modules/react-native-autoheight-webview/', cause of installing a local package with npm will create symlink, but there is no supporting of React Native to symlink (https://github.com/facebook/watchman/issues/105).
+You may have to use yarn to install the dependencies of the demo and remove demo folder from demo/node_modules/react-native-autoheight-webview, cause of installing a local package with npm will create symlink, but there is no supporting of React Native to symlink (https://github.com/facebook/watchman/issues/105).
