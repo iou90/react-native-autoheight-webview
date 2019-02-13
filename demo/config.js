@@ -28,12 +28,12 @@ const inlineBodyStyle = `
 
 //https://medium.com/@elhardoum/opening-external-links-in-browser-in-react-native-webview-18fe6a66312a
 const autoDetectLinkScript = `
-!function(){
+(function(){
   function isUrl(str){
     return str.startsWith('http');
   }
   var e=function(e,n,t){if(n=n.replace(/^on/g,""),"addEventListener"in window)e.addEventListener(n,t,!1);else if("attachEvent"in window)e.attachEvent("on"+n,t);else{var o=e["on"+n];e["on"+n]=o?function(e){o(e),t(e)}:t}return e},n=document.querySelectorAll("a[href]");if(n)for(var t in n)n.hasOwnProperty(t)&&e(n[t],"onclick",function(e){!isUrl(this.href)||(e.preventDefault(),window.postMessage(JSON.stringify({url:this.href})))})
-}();
+}());
 `;
 
 const autoHeightScript = `

@@ -109,7 +109,10 @@ export function handleSizeUpdated(height, width, onSizeUpdated) {
 }
 
 export function isSizeChanged(height, oldHeight, width, oldWidth) {
-  return (height && height !== oldHeight) || (width && width !== oldWidth);
+  if (height == null || width == null) {
+    return false;
+  }
+  return height !== oldHeight || width !== oldWidth;
 }
 
 export const domMutationObserveScript = `
@@ -121,13 +124,32 @@ observer.observe(document, {
 });
 `;
 
-export const getCurrentSize = `
-function getSize(container) {
-  var height = container.offsetHeight || document.body.offsetHeight;
-  var width = container.offsetWidth || document.body.offsetWidth;
-  return {
-    height: height,
-    width: width
-  };
+export function updateSizeWithMessage(element) {
+  return `
+  var updateSizeInterval = null;
+  var height = 0;
+  function updateSize() {
+    if (!window.hasOwnProperty('ReactNativeWebView') || !window.ReactNativeWebView.hasOwnProperty('postMessage')) {
+      !updateSizeInterval && (updateSizeInterval = setInterval(updateSize, 200));
+      return;
+    }
+    height = ${element}.offsetHeight || window.innerHeight,
+    width = ${element}.offsetWidth || window.innerWidth;
+    window.ReactNativeWebView.postMessage(JSON.stringify({ width: width, height: height }));
+  }
+  `;
 }
-`;
+
+export function getStateFromProps(props, state) {
+  const { height: oldHeight, width: oldWidth } = state;
+  const height = props.style ? props.style.height : null;
+  const width = props.style ? props.style.width : null;
+  if (isSizeChanged(height, oldHeight, width, oldWidth)) {
+    return {
+      height: height || oldHeight,
+      width: width || oldWidth,
+      isSizeChanged: true
+    };
+  }
+  return null;
+}

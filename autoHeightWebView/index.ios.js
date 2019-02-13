@@ -17,7 +17,8 @@ import {
   isSizeChanged,
   handleSizeUpdated,
   domMutationObserveScript,
-  getCurrentSize
+  getStateFromProps,
+  updateSizeWithMessage
 } from './common.js';
 
 import momoize from './momoize';
@@ -61,17 +62,7 @@ export default class AutoHeightWebView extends PureComponent {
   getUpdatedState = momoize(setState, isEqual);
 
   static getDerivedStateFromProps(props, state) {
-    const { height: oldHeight, width: oldWidth } = state;
-    const height = props.style ? props.style.height : null;
-    const width = props.style ? props.style.width : null;
-    if (isSizeChanged(height, oldHeight, width, oldWidth)) {
-      return {
-        height: height || oldHeight,
-        width: width || oldWidth,
-        isSizeChanged: true
-      };
-    }
-    return null;
+    return getStateFromProps(props, state);
   }
 
   componentDidUpdate() {
@@ -92,16 +83,19 @@ export default class AutoHeightWebView extends PureComponent {
     }
   }
 
-  handleNavigationStateChange = navState => {
-    const { title } = navState;
-    const { onNavigationStateChange } = this.props;
-    if (!title) {
-      onNavigationStateChange && onNavigationStateChange(navState);
+  onMessage = event => {
+    if (!event.nativeEvent) {
       return;
     }
-    const [heightValue, widthValue] = title.split(',');
-    const width = Number(widthValue);
-    const height = Number(heightValue);
+    let data = {};
+    // Sometimes the message is invalid JSON, so we ignore that case
+    try {
+      data = JSON.parse(event.nativeEvent.data);
+    } catch (error) {
+      console.error(error);
+      return;
+    }
+    const { height, width } = data;
     const { height: oldHeight, width: oldWidth } = this.state;
     if (isSizeChanged(height, oldHeight, width, oldWidth)) {
       this.props.enableAnimation && this.opacityAnimatedValue.setValue(0);
@@ -111,7 +105,8 @@ export default class AutoHeightWebView extends PureComponent {
         width
       });
     }
-    onNavigationStateChange && onNavigationStateChange(navState);
+    const { onMessage } = this.props;
+    onMessage && onMessage(event);
   };
 
   stopLoading() {
@@ -128,7 +123,7 @@ export default class AutoHeightWebView extends PureComponent {
       decelerationRate,
       allowsInlineMediaPlayback,
       dataDetectorTypes,
-      onMessage,
+      onNavigationStateChange,
       onError,
       onLoad,
       onLoadStart,
@@ -161,7 +156,7 @@ export default class AutoHeightWebView extends PureComponent {
           dataDetectorTypes={dataDetectorTypes}
           originWhitelist={originWhitelist || ['*']}
           ref={this.webView}
-          onMessage={onMessage}
+          onMessage={this.onMessage}
           onError={onError}
           onLoad={onLoad}
           onLoadStart={onLoadStart}
@@ -171,7 +166,7 @@ export default class AutoHeightWebView extends PureComponent {
           scrollEnabled={!!scrollEnabled}
           injectedJavaScript={script}
           source={source}
-          onNavigationStateChange={this.handleNavigationStateChange}
+          onNavigationStateChange={onNavigationStateChange}
         />
       </Animated.View>
     );
@@ -190,60 +185,40 @@ const styles = StyleSheet.create({
 
 // add viewport setting to meta for WKWebView
 const commonScript = `
-    var meta = document.createElement('meta'); 
-    meta.setAttribute('name', 'viewport'); 
-    meta.setAttribute('content', 'width=device-width'); document.getElementsByTagName('head')[0].appendChild(meta);
-    updateSize();
-    window.addEventListener('load', updateSize);
-    window.addEventListener('resize', updateSize);
-    `;
+var meta = document.createElement('meta'); 
+meta.setAttribute('name', 'viewport'); 
+meta.setAttribute('content', 'width=device-width'); document.getElementsByTagName('head')[0].appendChild(meta);
+updateSize();
+window.addEventListener('load', updateSize);
+window.addEventListener('resize', updateSize);
+`;
 
 function getBaseScript(style) {
   return `
-    ;
-    ${getCurrentSize}
-    (function () {
-      if (!document.getElementById("rnahw-wrapper")) { 
-          var height = 0;
-          var width = ${getWidth(style)};
-          var wrapper = document.createElement('div');
-          wrapper.id = 'rnahw-wrapper';
-          while (document.body.firstChild instanceof Node) {
-              wrapper.appendChild(document.body.firstChild);
-          }
-          document.body.appendChild(wrapper);
-          function updateSize() {
-            if (document.body.offsetHeight !== height || document.body.offsetWidth !== width) {
-               var size = getSize(wrapper);
-               height = size.height;
-               width = size.width;
-               document.title = height.toString() + ',' + width.toString();
-            }
-          }
-        ${commonScript}
-        ${domMutationObserveScript}
-        }
-    } ());
-    `;
+  ;
+  (function () {
+    if (!document.getElementById("rnahw-wrapper")) {
+      var wrapper = document.createElement('div');
+      wrapper.id = 'rnahw-wrapper';
+      wrapper.appendChild(document.body.firstChild);
+      document.body.appendChild(wrapper);
+    }
+    var width = ${getWidth(style)};
+    ${updateSizeWithMessage('wrapper')}
+    ${commonScript}
+    ${domMutationObserveScript}
+  } ());
+  `;
 }
 
 function getIframeBaseScript(style) {
   return `
-    ;
-    ${getCurrentSize}
-    (function () {
-        var height = 0;
-        var width = ${getWidth(style)};
-        function updateSize() {
-            if(document.body.offsetHeight !== height || document.body.offsetWidth !== width) {
-                var size = getSize(document.body.firstChild);
-                height = size.height;
-                width = size.width;
-                document.title = height.toString() + ',' + width.toString();
-            }
-        }
-        ${commonScript}
-        ${domMutationObserveScript}
-    } ());
-    `;
+  ;
+  (function () {
+    var width = ${getWidth(style)};
+    ${updateSizeWithMessage('document.body.firstChild')}
+    ${commonScript}
+    ${domMutationObserveScript}
+  } ());
+  `;
 }
