@@ -95,7 +95,6 @@ export default class Explorer extends Component {
           source={{ html: heightHtml }}
           customScript={heightScript}
           onMessage={event => {
-            console.log('onMessage', event.nativeEvent.data);
             const { data } = event.nativeEvent;
             let messageData;
             // maybe parse stringified JSON

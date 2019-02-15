@@ -25,22 +25,24 @@ const inlineBodyStyle = `
     }
 `;
 
-
-//https://medium.com/@elhardoum/opening-external-links-in-browser-in-react-native-webview-18fe6a66312a
+// https://medium.com/@elhardoum/opening-external-links-in-browser-in-react-native-webview-18fe6a66312a
 const autoDetectLinkScript = `
-(function(){
-  function isUrl(str){
-    return str.startsWith('http');
+(function() {
+  var links = document.querySelectorAll('a[href]');
+  if (links) {
+    for (var index = 0; index < links.length; index++) {
+      links[index].addEventListener('click', function(event) {
+        event.preventDefault();
+        window.ReactNativeWebView.postMessage(JSON.stringify({ url: this.href }));
+      });
+    }
   }
-  var e=function(e,n,t){if(n=n.replace(/^on/g,""),"addEventListener"in window)e.addEventListener(n,t,!1);else if("attachEvent"in window)e.attachEvent("on"+n,t);else{var o=e["on"+n];e["on"+n]=o?function(e){o(e),t(e)}:t}return e},n=document.querySelectorAll("a[href]");if(n)for(var t in n)n.hasOwnProperty(t)&&e(n[t],"onclick",function(e){!isUrl(this.href)||(e.preventDefault(),window.postMessage(JSON.stringify({url:this.href})))})
-}());
+})();
 `;
 
 const autoHeightScript = `
 var styleElement = document.createElement('style');
-styleElement.innerHTML = '${style1
-  .replace(/\'/g, "\\'")
-  .replace(/\n/g, '\\n')}';
+styleElement.innerHTML = '${style1.replace(/\'/g, "\\'").replace(/\n/g, '\\n')}';
 document.head.appendChild(styleElement);
 document.body.style.background = 'cornflowerblue';
 `;
@@ -50,7 +52,7 @@ const autoWidthHtml0 = `
 <head>
   <meta name="viewport" content="target-densitydpi=device-dpi, initial-scale=1.0, user-scalable=no" />
 </head>
-<p class="localStyle" style="display: inline;background-color: transparent !important;background-image: linear-gradient(to bottom, rgba(146, 249, 190, 1), rgba(146, 249, 190, 1));font-style: normal;zoom:1;font-size: 21px;line-height: 1.58;letter-spacing: -.003em;padding-top:0;padding-bottom:0;">hey</p>
+<p class="localStyle" style="display: inline;background-color: transparent !important;background-image: linear-gradient(to bottom, rgba(146, 249, 190, 1), rgba(146, 249, 190, 1));font-style: normal;font-size: 21px;line-height: 1.58;letter-spacing: -.003em;padding-top:0;padding-bottom:0;">hey</p>
 </html>
 `;
 
@@ -60,9 +62,7 @@ const autoWidthHtml1 = `
 
 const autoWidthScript = `
 var styleElement = document.createElement('style');
-styleElement.innerHTML = '${style1
-  .replace(/\'/g, "\\'")
-  .replace(/\n/g, '\\n')}';
+styleElement.innerHTML = '${style1.replace(/\'/g, "\\'").replace(/\n/g, '\\n')}';
 document.head.appendChild(styleElement);
 `;
 
