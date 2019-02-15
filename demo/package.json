@@ -9,7 +9,8 @@
   "dependencies": {
     "react": "16.6.3",
     "react-native": "0.58.4",
-    "react-native-autoheight-webview": "../"
+    "react-native-autoheight-webview": "../",
+    "react-native-webview": "^5.2.1"
   },
   "devDependencies": {
     "babel-core": "^7.0.0-bridge.0",

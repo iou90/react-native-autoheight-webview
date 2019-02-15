@@ -4571,7 +4571,6 @@ react-native-autoheight-webview@../:
   dependencies:
     immutable "^3.8.2"
     prop-types "^15.7.2"
-    react-native-webview "^5.2.1"
 
 react-native-webview@^5.2.1:
   version "5.2.1"
