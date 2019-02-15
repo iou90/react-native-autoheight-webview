@@ -1,6 +1,6 @@
 'use strict';
 
-import { Dimensions } from 'react-native';
+import { Dimensions, Platform } from 'react-native';
 
 import Immutable from 'immutable';
 
@@ -40,10 +40,9 @@ function appendStylesToHead(styles, script) {
 }
 
 function getReloadRelatedData(props) {
-  const { hasIframe, files, customStyle, customScript, style, source } = props;
+  const { files, customStyle, customScript, style, source } = props;
   return {
     source,
-    hasIframe,
     files,
     customStyle,
     customScript,
@@ -64,9 +63,9 @@ function getInjectedSource(html, script) {
     `;
 }
 
-export function getScript(props, getBaseScript) {
+function getScript(props, getScript) {
   const { files, customStyle, customScript, style } = getReloadRelatedData(props);
-  let script = getBaseScript(style);
+  let script = getScript(style);
   script = files && files.length > 0 ? appendFilesToHead(files, script) : script;
   script = appendStylesToHead(customStyle, script);
   customScript && (script = customScript + script);
@@ -81,9 +80,9 @@ export function isEqual(newProps, oldProps) {
   return isChanged(getReloadRelatedData(newProps), getReloadRelatedData(oldProps));
 }
 
-export function setState(props, getBaseScript, getIframeBaseScript) {
+export function setState(props, getBaseScript) {
   const { source, baseUrl } = props;
-  const script = getScript(props, getBaseScript, getIframeBaseScript);
+  const script = getScript(props, getBaseScript);
   let state = {};
   if (source.html) {
     let currentSource = { html: getInjectedSource(source.html, script) };
@@ -109,8 +108,8 @@ export function handleSizeUpdated(height, width, onSizeUpdated) {
 }
 
 export function isSizeChanged(height, oldHeight, width, oldWidth) {
-  if (height == null || width == null) {
-    return false;
+  if (!height || !width) {
+    return;
   }
   return height !== oldHeight || width !== oldWidth;
 }
@@ -128,14 +127,15 @@ export function updateSizeWithMessage(element) {
   return `
   var updateSizeInterval = null;
   var height = 0;
-  function updateSize() {
+  function updateSize(event) {
     if (!window.hasOwnProperty('ReactNativeWebView') || !window.ReactNativeWebView.hasOwnProperty('postMessage')) {
       !updateSizeInterval && (updateSizeInterval = setInterval(updateSize, 200));
       return;
     }
-    height = ${element}.offsetHeight || window.innerHeight,
+    clearInterval(updateSizeInterval)
+    height = ${element}.offsetHeight || window.innerHeight;
     width = ${element}.offsetWidth || window.innerWidth;
-    window.ReactNativeWebView.postMessage(JSON.stringify({ width: width, height: height }));
+    window.ReactNativeWebView.postMessage(JSON.stringify({ width: width, height: height, event: event }));
   }
   `;
 }
@@ -152,4 +152,32 @@ export function getStateFromProps(props, state) {
     };
   }
   return null;
+}
+
+// add viewport setting to meta for WKWebView
+const makeScalePageToFit = `
+var meta = document.createElement('meta'); 
+meta.setAttribute('name', 'viewport'); 
+meta.setAttribute('content', 'width=device-width'); document.getElementsByTagName('head')[0].appendChild(meta);
+`;
+
+export function getBaseScript(style) {
+  return `
+  ;
+  if (!document.getElementById("rnahw-wrapper")) {
+    var wrapper = document.createElement('div');
+    wrapper.id = 'rnahw-wrapper';
+    while (document.body.firstChild instanceof Node) {
+      wrapper.appendChild(document.body.firstChild);
+    }
+    document.body.appendChild(wrapper);
+  }
+  var width = ${getWidth(style)};
+  ${updateSizeWithMessage('wrapper')}
+  window.addEventListener('load', updateSize);
+  window.addEventListener('resize', updateSize);
+  ${domMutationObserveScript}
+  ${Platform.OS === 'ios' ? makeScalePageToFit : ''}
+  updateSize();
+  `;
 }

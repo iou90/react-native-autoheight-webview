@@ -1,3 +1,3 @@
-var ReactNative = require('react-native')
-module.exports = ReactNative.NativeModules.AutoHeightWebView
+import AutoHeightWebView from './autoHeightWebView/AutoHeightWebView';
 
+export default AutoHeightWebView;
