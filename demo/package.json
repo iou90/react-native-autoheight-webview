@@ -8,7 +8,7 @@
   },
   "dependencies": {
     "react": "16.6.3",
-    "react-native": "0.58.4",
+    "react-native": "0.58.5",
     "react-native-autoheight-webview": "../",
     "react-native-webview": "^5.2.1"
   },

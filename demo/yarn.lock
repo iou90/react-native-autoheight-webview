@@ -4567,7 +4567,7 @@ react-is@^16.8.1:
   integrity sha512-D+NxhSR2HUCjYky1q1DwpNUD44cDpUXzSmmFyC3ug1bClcU/iDNy0YNn1iwme28fn+NFhpA13IndOd42CrFb+Q==
 
 react-native-autoheight-webview@../:
-  version "0.11.0"
+  version "1.0.1"
   dependencies:
     immutable "^3.8.2"
     prop-types "^15.7.2"
@@ -4580,10 +4580,10 @@ react-native-webview@^5.2.1:
     escape-string-regexp "^1.0.5"
     fbjs "^0.8.17"
 
-react-native@0.58.4:
-  version "0.58.4"
-  resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.58.4.tgz#bb1392727712787ba84983104c4920c0f4082677"
-  integrity sha512-vJlku+vRgiip9i2/NvYHYvMnHPZftROOnHdbeFCkxNpb90oot+VrocbkXe7qhVKCBKZTQrRNb5P+m0Gtv59Zcg==
+react-native@0.58.5:
+  version "0.58.5"
+  resolved "https://registry.yarnpkg.com/react-native/-/react-native-0.58.5.tgz#672709bafd845e35ab4dd32b8ccccae32d54d552"
+  integrity sha512-wCWjUAtvRK7A1YxnCANAW8/3+x3gh2WUifYqdvKSAJ6wGsftLgvj1JxIaUMQ3mKi0aUeAlHnz0cO21ZPCLgd+g==
   dependencies:
     "@babel/runtime" "^7.0.0"
     absolute-path "^0.0.0"

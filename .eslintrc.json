@@ -22,6 +22,7 @@
         "no-unreachable": "warn",
         "constructor-super": "warn",
         "valid-typeof": "warn",
+        "react-native/sort-styles": "off",
         "react-native/no-unused-styles": "warn",
         "react-native/split-platform-components": "warn",
         "react-native/no-inline-styles": "off",
