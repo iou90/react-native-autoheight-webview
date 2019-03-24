@@ -7,13 +7,13 @@
     "test": "jest"
   },
   "dependencies": {
-    "react": "16.6.3",
-    "react-native": "0.58.5",
+    "react": "^16.8.3",
+    "react-native": "^0.59.1",
     "react-native-autoheight-webview": "../",
-    "react-native-webview": "^5.2.1"
+    "react-native-webview": "^5.4.2"
   },
   "devDependencies": {
-    "babel-core": "^7.0.0-bridge.0",
+    "@babel/core": "*",
     "babel-jest": "24.0.0",
     "jest": "24.0.0",
     "metro-react-native-babel-preset": "0.51.1",
