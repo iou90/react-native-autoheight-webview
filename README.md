@@ -1,9 +1,13 @@
 # react-native-autoheight-webview
 An auto height webview for React Native, even auto width for inline html.
 
+[![NPM Version](http://img.shields.io/npm/v/react-native-autoheight-webview.svg?style=flat-square)](https://www.npmjs.com/package/react-native-autoheight-webview)
+[![NPM Downloads](https://img.shields.io/npm/dt/react-native-autoheight-webview.svg?style=flat-square)](https://www.npmjs.com/package/react-native-autoheight-webview)
+
 ## versioning
 
 `npm install react-native-autoheight-webview --save` (rn >= 0.59, be capable of Hooks)
+
 `npm install react-native-autoheight-webview@1.0.1 --save` (0.57 <= rn < 0.59)
 
 Read [README_old](./README_old.md) for earlier version guide.
