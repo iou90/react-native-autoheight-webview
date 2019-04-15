@@ -3456,18 +3456,18 @@ react-native-autoheight-webview@../:
   dependencies:
     prop-types "^15.7.2"
 
-react-native-webview@^5.5.0:
-  version "5.5.0"
-  resolved "https://registry.npmjs.org/react-native-webview/-/react-native-webview-5.5.0.tgz#fd2f2999d3c1628d9d22a018189e943718410e82"
-  integrity sha512-+rxAqREYW2L/Hpv9lNyPZQWO0FHO0ehKPSlOrjWZc8MNVt8Pr6ms/rNKzM3m3QBWRd/lw3QaYGX4Yv0fZrOjmQ==
+react-native-webview@5.6.2:
+  version "5.6.2"
+  resolved "https://nexus.bybutter.com/repository/npm-group/react-native-webview/-/react-native-webview-5.6.2.tgz#aa257f01d0038c514874d1c41d99528f83274d8c"
+  integrity sha1-qiV/AdADjFFIdNHEHZlSj4MnTYw=
   dependencies:
     escape-string-regexp "1.0.5"
     invariant "2.2.4"
 
-react-native@0.59.2:
-  version "0.59.2"
-  resolved "https://registry.npmjs.org/react-native/-/react-native-0.59.2.tgz#c2e2d9e185b04e54948f170841d97c24661a0fa9"
-  integrity sha512-gIygrCr42rGEQnfjcAZdCOqgjC0oZtTIp+mdbUW+yqHpNUU1PbYKzUkLlvSFGeN+IUcL8WTaC1JtJvghKhaLmA==
+react-native@0.59.4:
+  version "0.59.4"
+  resolved "https://nexus.bybutter.com/repository/npm-group/react-native/-/react-native-0.59.4.tgz#c0725e2e8efdea135533794ce95fea2289fe619a"
+  integrity sha1-wHJeLo796hNVM3lM6V/qIon+YZo=
   dependencies:
     "@babel/runtime" "^7.0.0"
     "@react-native-community/cli" "^1.2.1"
