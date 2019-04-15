@@ -13,13 +13,17 @@ import { getMemoInputProps, getMemoResult, getWidth, isSizeChanged } from './uti
 const AutoHeightWebView = forwardRef((props, ref) => {
   let webView = useRef();
   useImperativeHandle(ref, () => ({
-    stopLoading: () => webView.current.stopLoading()
+    stopLoading: () => webView.current.stopLoading(),
+    goForward: () => webView.current.goForward(),
+    goBack: () => webView.current.goBack(),
+    reload: () => webView.current.reload(),
+    injectJavaScript: script => webView.current.injectJavaScript(script)
   }));
 
   const { style, onMessage, onSizeUpdated } = props;
 
   const [size, setSize] = useState(() => ({
-    height: style && style.height ? style.height : 1,
+    height: style && style.height ? style.height : 0,
     width: getWidth(style)
   }));
   const hanldeMessage = event => {
@@ -98,6 +102,8 @@ AutoHeightWebView.propTypes = {
 };
 
 let defaultProps = {
+  showsVerticalScrollIndicator: false,
+  showsHorizontalScrollIndicator: false,
   originWhitelist: ['*'],
   baseUrl: 'web/'
 };
