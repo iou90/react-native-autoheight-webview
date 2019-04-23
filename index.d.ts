@@ -26,4 +26,4 @@ export interface AutoHeightWebViewProps extends WebViewProps {
     customStyle: string;
 }
 
-export class AutoHeightWebView extends Component<Partial<AutoHeightWebViewProps>> {}
+export default class AutoHeightWebView extends Component<Partial<AutoHeightWebViewProps>> {}
