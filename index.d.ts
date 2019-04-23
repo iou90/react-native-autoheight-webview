@@ -6,7 +6,7 @@ import { Component } from "react";
 import { WebViewProps } from "react-native-webview";
 import {ViewStyle} from "react-native";
 
-export interface StylesFiles {
+export interface StylesFile {
     href: string;
     type: string;
     rel: string;
@@ -20,7 +20,7 @@ export interface SizeUpdate {
 export interface AutoHeightWebViewProps extends WebViewProps {
     onSizeUpdated: (size: SizeUpdate)=>void;
     baseUrl: string;
-    files: StylesFiles[];
+    files: StylesFile[];
     style: ViewStyle;
     customScript: string;
     customStyle: string;
