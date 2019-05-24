@@ -12,7 +12,8 @@ import {
   Platform,
   UIManager,
   ViewPropTypes,
-  WebView
+  WebView,
+  Linking
 } from 'react-native';
 
 import PropTypes from 'prop-types';
@@ -20,6 +21,24 @@ import PropTypes from 'prop-types';
 import Immutable from 'immutable';
 
 import { getScript, onHeightUpdated, domMutationObserveScript, getHeight } from './common.js';
+
+const FILE_EXTENSIONS = [
+  '.pdf',
+  '.jpg',
+  '.jpeg',
+  '.png',
+  '.gif',
+  '.doc',
+  '.docx',
+  '.txt',
+  '.xls',
+  '.xlsx',
+  '.ppt',
+  '.pptx',
+  '.zip',
+  '.mp4',
+  '.m4a',
+];
 
 const RCTAutoHeightWebView = requireNativeComponent('RCTAutoHeightWebView', AutoHeightWebView, {
   nativeOnly: {
@@ -170,8 +189,14 @@ export default class AutoHeightWebView extends PureComponent {
   };
 
   onLoadingStart = event => {
-    const { onLoadStart } = this.props;
-    onLoadStart && onLoadStart(event);
+    const url = event.nativeEvent.url;
+    if (url && FILE_EXTENSIONS.find((extension) => url.search(extension) > -1)) {
+      this.stopLoading();
+      Linking.openURL(event.nativeEvent.url).catch(err => console.log('An error occurred', err));
+    } else {
+      const { onLoadStart } = this.props;
+      onLoadStart && onLoadStart(event);
+    }
   };
 
   onLoadingError = event => {
