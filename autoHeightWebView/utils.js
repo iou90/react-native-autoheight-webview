@@ -28,13 +28,13 @@ const updateSizeWithMessage = element =>
   `;
 
 // add viewport setting to meta for WKWebView
-const makeScalePageToFit = `
+const makeScalePageToFit = zoomable => `
 var meta = document.createElement('meta'); 
 meta.setAttribute('name', 'viewport'); 
-meta.setAttribute('content', 'width=device-width'); document.getElementsByTagName('head')[0].appendChild(meta);
+meta.setAttribute('content', 'width=device-width, user-scalable=${zoomable ? 'yes' : 'no'}'); document.getElementsByTagName('head')[0].appendChild(meta);
 `;
 
-const getBaseScript = style =>
+const getBaseScript = props =>
   `
   ;
   if (!document.getElementById("rnahw-wrapper")) {
@@ -45,12 +45,12 @@ const getBaseScript = style =>
     }
     document.body.appendChild(wrapper);
   }
-  var width = ${getWidth(style)};
+  var width = ${getWidth(props.style)};
   ${updateSizeWithMessage('wrapper')}
   window.addEventListener('load', updateSize);
   window.addEventListener('resize', updateSize);
   ${domMutationObserveScript}
-  ${Platform.OS === 'ios' ? makeScalePageToFit : ''}
+  ${Platform.OS === 'ios' ? makeScalePageToFit(props.zoomable) : ''}
   updateSize();
   `;
 
@@ -96,8 +96,8 @@ ${script}
 `;
 
 const getScript = props => {
-  const { files, customStyle, customScript, style } = props;
-  let script = getBaseScript(style);
+  const { files, customStyle, customScript } = props;
+  let script = getBaseScript(props);
   script = files && files.length > 0 ? appendFilesToHead({ files, script }) : script;
   script = appendStylesToHead({ style: customStyle, script });
   customScript && (script = customScript + script);

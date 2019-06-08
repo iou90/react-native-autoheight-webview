@@ -24,6 +24,7 @@ export interface AutoHeightWebViewProps extends WebViewProps {
     style: ViewStyle;
     customScript: string;
     customStyle: string;
+    zoomable: boolean;
 }
 
 export default class AutoHeightWebView extends Component<Partial<AutoHeightWebViewProps>> {}
