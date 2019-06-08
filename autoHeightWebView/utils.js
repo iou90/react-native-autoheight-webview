@@ -34,7 +34,7 @@ meta.setAttribute('name', 'viewport');
 meta.setAttribute('content', 'width=device-width, user-scalable=${zoomable ? 'yes' : 'no'}'); document.getElementsByTagName('head')[0].appendChild(meta);
 `;
 
-const getBaseScript = props =>
+const getBaseScript = ({style, zoomable}) =>
   `
   ;
   if (!document.getElementById("rnahw-wrapper")) {
@@ -45,12 +45,12 @@ const getBaseScript = props =>
     }
     document.body.appendChild(wrapper);
   }
-  var width = ${getWidth(props.style)};
+  var width = ${getWidth(style)};
   ${updateSizeWithMessage('wrapper')}
   window.addEventListener('load', updateSize);
   window.addEventListener('resize', updateSize);
   ${domMutationObserveScript}
-  ${Platform.OS === 'ios' ? makeScalePageToFit(props.zoomable) : ''}
+  ${Platform.OS === 'ios' ? makeScalePageToFit(zoomable) : ''}
   updateSize();
   `;
 
@@ -96,8 +96,8 @@ ${script}
 `;
 
 const getScript = props => {
-  const { files, customStyle, customScript } = props;
-  let script = getBaseScript(props);
+  const { files, customStyle, customScript, style, zoomable } = props;
+  let script = getBaseScript({style, zoomable});
   script = files && files.length > 0 ? appendFilesToHead({ files, script }) : script;
   script = appendStylesToHead({ style: customStyle, script });
   customScript && (script = customScript + script);
