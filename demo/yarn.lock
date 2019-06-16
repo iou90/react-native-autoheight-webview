@@ -3461,10 +3461,10 @@ react-native-webview@^5.11.0:
     escape-string-regexp "1.0.5"
     invariant "2.2.4"
 
-react-native@0.59.8:
-  version "0.59.8"
-  resolved "https://nexus.bybutter.com/repository/npm-group/react-native/-/react-native-0.59.8.tgz#ade4141c777c60f5ec4889d9811d0f80a9d56547"
-  integrity sha1-reQUHHd8YPXsSInZgR0PgKnVZUc=
+react-native@0.59.9:
+  version "0.59.9"
+  resolved "https://nexus.bybutter.com/repository/npm-group/react-native/-/react-native-0.59.9.tgz#c94ee4fa35121720c05235a2dd6cdd2784bf5177"
+  integrity sha1-yU7k+jUSFyDAUjWi3WzdJ4S/UXc=
   dependencies:
     "@babel/runtime" "^7.0.0"
     "@react-native-community/cli" "^1.2.1"
