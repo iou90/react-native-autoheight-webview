@@ -28,8 +28,8 @@
   "homepage": "https://github.com/iou90/react-native-autoheight-webview#readme",
   "peerDependencies": {
     "react": "*",
-    "react-native": ">= 0.59.0",
-    "react-native-webview": "^5.4.0"
+    "react-native": ">= 0.57.5",
+    "react-native-webview": "^6.0.0"
   },
   "dependencies": {
     "prop-types": "^15.7.2"
