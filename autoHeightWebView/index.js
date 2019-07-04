@@ -8,7 +8,7 @@ import PropTypes from 'prop-types';
 
 import { WebView } from 'react-native-webview';
 
-import { getMemoInputProps, getMemoResult, getWidth, isSizeChanged } from './utils';
+import { getMemoResult, getWidth, isSizeChanged } from './utils';
 
 const AutoHeightWebView = forwardRef((props, ref) => {
   let webView = useRef();
@@ -20,7 +20,7 @@ const AutoHeightWebView = forwardRef((props, ref) => {
     injectJavaScript: script => webView.current.injectJavaScript(script)
   }));
 
-  const { style, onMessage, onSizeUpdated } = props;
+  const { style, onMessage, onSizeUpdated, source, baseUrl, files, customStyle, customScript, zoomable } = props;
 
   const [size, setSize] = useState(() => ({
     height: style && style.height ? style.height : 0,
@@ -48,7 +48,10 @@ const AutoHeightWebView = forwardRef((props, ref) => {
     onMessage && onMessage(event);
   };
 
-  const { source, script } = useMemo(() => getMemoResult(props), [getMemoInputProps(props)]);
+  const { currentSource, script } = useMemo(
+    () => getMemoResult({ source, baseUrl, files, customStyle, customScript, zoomable }),
+    [source, baseUrl, files, customStyle, customScript, zoomable]
+  );
 
   const { width, height } = size;
   useEffect(
@@ -58,8 +61,9 @@ const AutoHeightWebView = forwardRef((props, ref) => {
         height,
         width
       }),
-    [width, height]
+    [width, height, onSizeUpdated]
   );
+
   return (
     <WebView
       {...props}
@@ -74,7 +78,7 @@ const AutoHeightWebView = forwardRef((props, ref) => {
         style
       ]}
       injectedJavaScript={script}
-      source={source}
+      source={currentSource}
     />
   );
 });
@@ -96,10 +100,11 @@ AutoHeightWebView.propTypes = {
   style: ViewPropTypes.style,
   customScript: PropTypes.string,
   customStyle: PropTypes.string,
+  zoomable: PropTypes.bool,
   // webview props
   originWhitelist: PropTypes.arrayOf(PropTypes.string),
   onMessage: PropTypes.func,
-  zoomable: PropTypes.bool,
+  source: PropTypes.object
 };
 
 let defaultProps = {
@@ -107,7 +112,7 @@ let defaultProps = {
   showsHorizontalScrollIndicator: false,
   originWhitelist: ['*'],
   baseUrl: 'web/',
-  zoomable: true,
+  zoomable: true
 };
 
 Platform.OS === 'android' &&

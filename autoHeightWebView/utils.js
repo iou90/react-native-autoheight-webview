@@ -31,10 +31,12 @@ const updateSizeWithMessage = element =>
 const makeScalePageToFit = zoomable => `
 var meta = document.createElement('meta'); 
 meta.setAttribute('name', 'viewport'); 
-meta.setAttribute('content', 'width=device-width, user-scalable=${zoomable ? 'yes' : 'no'}'); document.getElementsByTagName('head')[0].appendChild(meta);
+meta.setAttribute('content', 'width=device-width, user-scalable=${
+  zoomable ? 'yes' : 'no'
+}'); document.getElementsByTagName('head')[0].appendChild(meta);
 `;
 
-const getBaseScript = ({style, zoomable}) =>
+const getBaseScript = ({ style, zoomable }) =>
   `
   ;
   if (!document.getElementById("rnahw-wrapper")) {
@@ -95,9 +97,8 @@ ${script}
 </script>
 `;
 
-const getScript = props => {
-  const { files, customStyle, customScript, style, zoomable } = props;
-  let script = getBaseScript({style, zoomable});
+const getScript = ({ files, customStyle, customScript, style, zoomable }) => {
+  let script = getBaseScript({ style, zoomable });
   script = files && files.length > 0 ? appendFilesToHead({ files, script }) : script;
   script = appendStylesToHead({ style: customStyle, script });
   customScript && (script = customScript + script);
@@ -113,25 +114,19 @@ export const isSizeChanged = ({ height, previousHeight, width, previousWidth }) 
     return;
   }
   return height !== previousHeight || width !== previousWidth;
-}
-
-export const getMemoInputProps = props => {
-  const { files, customStyle, customScript, style, source, baseUrl } = props;
-  return [files, customStyle, customScript, style, source, baseUrl];
 };
 
 export const getMemoResult = props => {
   const { source, baseUrl } = props;
   const script = getScript(props);
+  let currentSource = baseUrl ? { baseUrl } : {};
   if (source.html) {
-    let currentSource = { html: getInjectedSource({ html: source.html, script }) };
-    baseUrl && Object.assign(currentSource, { baseUrl });
-    return { source: currentSource };
+    Object.assign(currentSource, { html: getInjectedSource({ html: source.html, script }) });
+    return { currentSource };
   } else {
-    let currentSource = Object.assign({}, source);
-    baseUrl && Object.assign(currentSource, { baseUrl });
+    Object.assign(currentSource, source);
     return {
-      source: currentSource,
+      currentSource,
       script
     };
   }
