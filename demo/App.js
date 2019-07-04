@@ -72,7 +72,7 @@ const Explorer = () => {
           console.log(result);
           return true;
         }}
-        onSizeUpdated={heightSize => setHeightSize(heightSize)}
+        onSizeUpdated={setHeightSize}
         source={{ html: heightHtml }}
         customScript={heightScript}
         onMessage={event => {
@@ -118,7 +118,7 @@ const Explorer = () => {
           console.log(result);
           return true;
         }}
-        onSizeUpdated={widthSize => setWidthSize(widthSize)}
+        onSizeUpdated={setWidthSize}
         source={{ html: widthHtml }}
         customScript={widthScript}
       />
