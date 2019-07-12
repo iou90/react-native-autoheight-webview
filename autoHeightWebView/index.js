@@ -27,6 +27,7 @@ const AutoHeightWebView = forwardRef((props, ref) => {
     width: getWidth(style)
   }));
   const hanldeMessage = event => {
+    onMessage && onMessage(event);
     if (!event.nativeEvent) {
       return;
     }
@@ -45,7 +46,6 @@ const AutoHeightWebView = forwardRef((props, ref) => {
         height,
         width
       });
-    onMessage && onMessage(event);
   };
 
   const { currentSource, script } = useMemo(

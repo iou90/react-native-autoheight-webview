@@ -23,7 +23,7 @@ const updateSizeWithMessage = element =>
     clearInterval(updateSizeInterval)
     height = ${element}.offsetHeight || window.innerHeight;
     width = ${element}.offsetWidth || window.innerWidth;
-    window.ReactNativeWebView.postMessage(JSON.stringify({ width: width, height: height, event: event }));
+    window.ReactNativeWebView.postMessage(JSON.stringify({ width: width, height: height }));
   }
   `;
 
