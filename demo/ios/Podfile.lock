@@ -57,7 +57,7 @@ PODS:
     - React-cxxreact (= 0.60.0)
     - React-jsi (= 0.60.0)
   - React-jsinspector (0.60.0)
-  - react-native-webview (6.3.1):
+  - react-native-webview (6.9.0):
     - React
   - React-RCTActionSheet (0.60.0):
     - React-Core (= 0.60.0)
@@ -175,7 +175,7 @@ SPEC CHECKSUMS:
   React-jsi: 8e128c4d0d8febc2977ef617d1c09bb54326069c
   React-jsiexecutor: 7a3554f703a58963ec80b860144ea0f0e9b910e1
   React-jsinspector: d4ed52225912efe0019bb7f1a225aec20f23049a
-  react-native-webview: 830d41c90141f3e997ddb271fa93c19f3a619ccc
+  react-native-webview: 2d8de2be422f0f8b9ba38db3f013f9ebfdb9b78f
   React-RCTActionSheet: b27ff3cf3a68f917c46d2b94abf938b625b96570
   React-RCTAnimation: 9e4708e5bd65fca8285ce7c0aa076f3f4fa5c2f8
   React-RCTBlob: 6eafcc3a24f33785692a7be24918ade607bc8719
@@ -190,4 +190,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 03c5e59e8f81b8809e805efc7c17e30906e3d940
 
-COCOAPODS: 1.7.3
+COCOAPODS: 1.7.5
