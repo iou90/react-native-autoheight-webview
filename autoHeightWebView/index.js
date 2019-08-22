@@ -1,6 +1,6 @@
 'use strict';
 
-import React, { useState, useEffect, useMemo, useRef, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
 
 import { StyleSheet, Platform, ViewPropTypes } from 'react-native';
 
@@ -8,80 +8,80 @@ import PropTypes from 'prop-types';
 
 import { WebView } from 'react-native-webview';
 
-import { getMemoResult, getWidth, isSizeChanged } from './utils';
+import { reduceData, getWidth, isSizeChanged, shouldUpdate } from './utils';
 
-const AutoHeightWebView = forwardRef((props, ref) => {
-  let webView = useRef();
-  useImperativeHandle(ref, () => ({
-    stopLoading: () => webView.current.stopLoading(),
-    goForward: () => webView.current.goForward(),
-    goBack: () => webView.current.goBack(),
-    reload: () => webView.current.reload(),
-    injectJavaScript: script => webView.current.injectJavaScript(script)
-  }));
+const AutoHeightWebView = React.memo(
+  forwardRef((props, ref) => {
+    let webView = useRef();
+    useImperativeHandle(ref, () => ({
+      stopLoading: () => webView.current.stopLoading(),
+      goForward: () => webView.current.goForward(),
+      goBack: () => webView.current.goBack(),
+      reload: () => webView.current.reload(),
+      injectJavaScript: script => webView.current.injectJavaScript(script)
+    }));
 
-  const { style, onMessage, onSizeUpdated, source, baseUrl, files, customStyle, customScript, zoomable } = props;
+    const { style, onMessage, onSizeUpdated, source, baseUrl, files, customStyle, customScript, zoomable } = props;
 
-  const [size, setSize] = useState(() => ({
-    height: style && style.height ? style.height : 0,
-    width: getWidth(style)
-  }));
-  const hanldeMessage = event => {
-    onMessage && onMessage(event);
-    if (!event.nativeEvent) {
-      return;
-    }
-    let data = {};
-    // Sometimes the message is invalid JSON, so we ignore that case
-    try {
-      data = JSON.parse(event.nativeEvent.data);
-    } catch (error) {
-      console.error(error);
-      return;
-    }
-    const { height, width } = data;
-    const { height: previousHeight, width: previousWidth } = size;
-    isSizeChanged({ height, previousHeight, width, previousWidth }) &&
-      setSize({
-        height,
-        width
-      });
-  };
+    const [size, setSize] = useState(() => ({
+      height: style && style.height ? style.height : 0,
+      width: getWidth(style)
+    }));
+    const hanldeMessage = event => {
+      onMessage && onMessage(event);
+      if (!event.nativeEvent) {
+        return;
+      }
+      let data = {};
+      // Sometimes the message is invalid JSON, so we ignore that case
+      try {
+        data = JSON.parse(event.nativeEvent.data);
+      } catch (error) {
+        console.error(error);
+        return;
+      }
+      const { height, width } = data;
+      const { height: previousHeight, width: previousWidth } = size;
+      isSizeChanged({ height, previousHeight, width, previousWidth }) &&
+        setSize({
+          height,
+          width
+        });
+    };
 
-  const { currentSource, script } = useMemo(
-    () => getMemoResult({ source, baseUrl, files, customStyle, customScript, zoomable }),
-    [source, baseUrl, files, customStyle, customScript, zoomable]
-  );
+    const { currentSource, script } = reduceData({ source, baseUrl, files, customStyle, customScript, zoomable });
 
-  const { width, height } = size;
-  useEffect(
-    () =>
-      onSizeUpdated &&
-      onSizeUpdated({
-        height,
-        width
-      }),
-    [width, height, onSizeUpdated]
-  );
+    const { width, height } = size;
+    useEffect(
+      () =>
+        onSizeUpdated &&
+        onSizeUpdated({
+          height,
+          width
+        }),
+      [width, height, onSizeUpdated]
+    );
 
-  return (
-    <WebView
-      {...props}
-      ref={webView}
-      onMessage={hanldeMessage}
-      style={[
-        styles.webView,
-        {
-          width,
-          height
-        },
-        style
-      ]}
-      injectedJavaScript={script}
-      source={currentSource}
-    />
-  );
-});
+    return (
+      <WebView
+        {...props}
+        ref={webView}
+        onMessage={hanldeMessage}
+        style={[
+          styles.webView,
+          {
+            width,
+            height
+          },
+          style
+        ]}
+        injectedJavaScript={script}
+        source={currentSource}
+      />
+    );
+  }),
+  (prevProps, nextProps) => !shouldUpdate({ prevProps, nextProps })
+);
 
 AutoHeightWebView.propTypes = {
   onSizeUpdated: PropTypes.func,

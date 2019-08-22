@@ -116,7 +116,7 @@ export const isSizeChanged = ({ height, previousHeight, width, previousWidth }) 
   return height !== previousHeight || width !== previousWidth;
 };
 
-export const getMemoResult = props => {
+export const reduceData = props => {
   const { source, baseUrl } = props;
   const script = getScript(props);
   let currentSource = baseUrl ? { baseUrl } : {};
@@ -130,4 +130,22 @@ export const getMemoResult = props => {
       script
     };
   }
+};
+
+export const shouldUpdate = ({ prevProps, nextProps }) => {
+  if (!(prevProps && nextProps)) {
+    return true;
+  }
+  for (const prop in nextProps) {
+    if (nextProps[prop] !== prevProps[prop]) {
+      if (typeof nextProps[prop] === 'object' && typeof prevProps[prop] === 'object') {
+        if (shouldUpdate({ prevProps: prevProps[prop], nextProps: nextProps[prop] })) {
+          return true;
+        }
+      } else {
+        return true;
+      }
+    }
+  }
+  return false;
 };
