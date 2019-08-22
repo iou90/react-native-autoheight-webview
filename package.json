@@ -31,7 +31,7 @@
   "peerDependencies": {
     "react": "*",
     "react-native": ">= 0.59.0",
-    "react-native-webview": "^5.4.0"
+    "react-native-webview": ">= 5.4.0"
   },
   "dependencies": {
     "prop-types": "^15.7.2"
