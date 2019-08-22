@@ -6,6 +6,7 @@ module.exports = {
       {
         singleQuote: true
       }
-    ]
+    ],
+    'comma-dangle': 'off'
   }
 };

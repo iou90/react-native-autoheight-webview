@@ -16,6 +16,43 @@ import {
   inlineBodyStyle
 } from './config';
 
+const onShouldStartLoadWithRequest = result => {
+  console.log(result);
+  return true;
+};
+
+const onError = ({ nativeEvent }) => console.error('WebView error: ', nativeEvent);
+
+const onMessage = event => {
+  const { data } = event.nativeEvent;
+  let messageData;
+  // maybe parse stringified JSON
+  try {
+    messageData = JSON.parse(data);
+  } catch (e) {
+    console.log(e.message);
+  }
+  if (typeof messageData === 'object') {
+    const { url } = messageData;
+    // check if this message concerns us
+    if (url && url.startsWith('http')) {
+      Linking.openURL(url).catch(error => console.error('An error occurred', error));
+    }
+  }
+};
+
+const onHeightLoadStart = () => console.log('height on load start');
+
+const onHeightLoad = () => console.log('height on load');
+
+const onHeightLoadEnd = () => console.log('height on load end');
+
+const onWidthLoadStart = () => console.log('width on load start');
+
+const onWidthLoad = () => console.log('width on load');
+
+const onWidthLoadEnd = () => console.log('width on load end');
+
 const Explorer = () => {
   const [{ widthHtml, heightHtml }, setHtml] = useState(() => ({
     widthHtml: autoWidthHtml0,
@@ -64,34 +101,15 @@ const Explorer = () => {
     >
       <AutoHeightWebView
         customStyle={heightStyle}
-        onError={() => console.log('height on error')}
-        onLoad={() => console.log('height on load')}
-        onLoadStart={() => console.log('height on load start')}
-        onLoadEnd={() => console.log('height on load end')}
-        onShouldStartLoadWithRequest={result => {
-          console.log(result);
-          return true;
-        }}
+        onError={onError}
+        onLoad={onHeightLoad}
+        onLoadStart={onHeightLoadStart}
+        onLoadEnd={onHeightLoadEnd}
+        onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
         onSizeUpdated={setHeightSize}
         source={{ html: heightHtml }}
         customScript={heightScript}
-        onMessage={event => {
-          const { data } = event.nativeEvent;
-          let messageData;
-          // maybe parse stringified JSON
-          try {
-            messageData = JSON.parse(data);
-          } catch (e) {
-            console.log(e.message);
-          }
-          if (typeof messageData === 'object') {
-            const { url } = messageData;
-            // check if this message concerns us
-            if (url && url.startsWith('http')) {
-              Linking.openURL(url).catch(error => console.error('An error occurred', error));
-            }
-          }
-        }}
+        onMessage={onMessage}
       />
       <Text style={{ padding: 5 }}>
         height: {heightSize.height}, width: {heightSize.width}
@@ -110,14 +128,11 @@ const Explorer = () => {
           }
         ]}
         customStyle={widthStyle}
-        onError={() => console.log('width on error')}
-        onLoad={() => console.log('width on load')}
-        onLoadStart={() => console.log('width on load start')}
-        onLoadEnd={() => console.log('width on load end')}
-        onShouldStartLoadWithRequest={result => {
-          console.log(result);
-          return true;
-        }}
+        onError={onError}
+        onLoad={onWidthLoad}
+        onLoadStart={onWidthLoadStart}
+        onLoadEnd={onWidthLoadEnd}
+        onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
         onSizeUpdated={setWidthSize}
         source={{ html: widthHtml }}
         customScript={widthScript}
