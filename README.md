@@ -65,4 +65,5 @@ import AutoHeightWebView from 'react-native-autoheight-webview'
 ![react-native-autoheight-webview Android](https://media.giphy.com/media/9JyX1wZshYIxuPklHK/giphy.gif)
 
 ## demo
-You may have to use yarn to install the dependencies of the demo and remove demo/node_modules/react-native-autoheight-webview/demo manually, cause of installing a local package with npm will create symlink, but there is no supporting of React Native to symlink (https://github.com/facebook/watchman/issues/105).
+You may have to use yarn to install the dependencies of the demo and remove "demo/node_modules/react-native-autoheight-webview/demo" manually, cause of installing a local package with npm will create symlink, but there is no supporting of React Native to symlink (https://github.com/facebook/watchman/issues/105).
+For android, you may have to copy the "C:\Users\UserName\.android\debug.keystore" to "demo/android/app/".
