@@ -54,39 +54,39 @@ const onWidthLoad = () => console.log('width on load');
 const onWidthLoadEnd = () => console.log('width on load end');
 
 const Explorer = () => {
-  const [{ widthHtml, heightHtml }, setHtml] = useState(() => ({
+  const [{ widthHtml, heightHtml }, setHtml] = useState({
     widthHtml: autoWidthHtml0,
     heightHtml: autoHeightHtml0
-  }));
+  });
   const changeSource = () =>
     setHtml({
       widthHtml: widthHtml === autoWidthHtml0 ? autoWidthHtml1 : autoWidthHtml0,
       heightHtml: heightHtml === autoHeightHtml0 ? autoHeightHtml1 : autoHeightHtml0
     });
 
-  const [{ widthStyle, heightStyle }, setStyle] = useState(() => ({
+  const [{ widthStyle, heightStyle }, setStyle] = useState({
     heightStyle: null,
     widthStyle: inlineBodyStyle
-  }));
+  });
   const changeStyle = () =>
     setStyle({
-      widthStyle: widthStyle == inlineBodyStyle ? style0 + inlineBodyStyle : inlineBodyStyle,
-      heightStyle: heightStyle == null ? style0 : null
+      widthStyle: widthStyle === inlineBodyStyle ? style0 + inlineBodyStyle : inlineBodyStyle,
+      heightStyle: heightStyle === null ? style0 : null
     });
 
-  const [{ widthScript, heightScript }, setScript] = useState(() => ({
+  const [{ widthScript, heightScript }, setScript] = useState({
     heightScript: autoDetectLinkScript,
     widthScript: null
-  }));
+  });
   const changeScript = () =>
     setScript({
-      widthScript: widthScript !== autoWidthScript ? autoWidthScript : null,
+      widthScript: widthScript == autoWidthScript ? autoWidthScript : null,
       heightScript:
         heightScript !== autoDetectLinkScript ? autoDetectLinkScript : autoHeightScript + autoDetectLinkScript
     });
 
-  const [heightSize, setHeightSize] = useState(() => ({ height: 0, width: 0 }));
-  const [widthSize, setWidthSize] = useState(() => ({ height: 0, width: 0 }));
+  const [heightSize, setHeightSize] = useState({ height: 0, width: 0 });
+  const [widthSize, setWidthSize] = useState({ height: 0, width: 0 });
 
   return (
     <ScrollView
