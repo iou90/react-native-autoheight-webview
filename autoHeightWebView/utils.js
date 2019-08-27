@@ -119,8 +119,9 @@ export const isSizeChanged = ({ height, previousHeight, width, previousWidth }) 
 export const reduceData = props => {
   const { source } = props;
   const script = getScript(props);
-  if (source.html) {
-    return { currentSource: { html: getInjectedSource({ html: source.html, script }) } };
+  const { html, baseUrl } = source;
+  if (html) {
+    return { currentSource: { baseUrl, html: getInjectedSource({ html, script }) } };
   } else {
     return {
       currentSource: source,
