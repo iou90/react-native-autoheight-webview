@@ -12,6 +12,12 @@ import { reduceData, getWidth, isSizeChanged, shouldUpdate } from './utils';
 
 const AutoHeightWebView = React.memo(
   forwardRef((props, ref) => {
+    const { style, onMessage, onSizeUpdated, source } = props;
+
+    if (!source) {
+      return null;
+    }
+
     let webView = useRef();
     useImperativeHandle(ref, () => ({
       stopLoading: () => webView.current.stopLoading(),
@@ -21,13 +27,11 @@ const AutoHeightWebView = React.memo(
       injectJavaScript: script => webView.current.injectJavaScript(script)
     }));
 
-    const { style, onMessage, onSizeUpdated, source, baseUrl, files, customStyle, customScript, zoomable } = props;
-
-    const [size, setSize] = useState(() => ({
+    const [size, setSize] = useState({
       height: style && style.height ? style.height : 0,
       width: getWidth(style)
-    }));
-    const hanldeMessage = event => {
+    });
+    const handleMessage = event => {
       onMessage && onMessage(event);
       if (!event.nativeEvent) {
         return;
@@ -49,7 +53,7 @@ const AutoHeightWebView = React.memo(
         });
     };
 
-    const { currentSource, script } = reduceData({ source, baseUrl, files, customStyle, customScript, zoomable });
+    const { currentSource, script } = reduceData(props);
 
     const { width, height } = size;
     useEffect(
@@ -66,7 +70,7 @@ const AutoHeightWebView = React.memo(
       <WebView
         {...props}
         ref={webView}
-        onMessage={hanldeMessage}
+        onMessage={handleMessage}
         style={[
           styles.webView,
           {
@@ -85,9 +89,6 @@ const AutoHeightWebView = React.memo(
 
 AutoHeightWebView.propTypes = {
   onSizeUpdated: PropTypes.func,
-  // 'web/' by default on iOS
-  // 'file:///android_asset/web/' by default on Android
-  baseUrl: PropTypes.string,
   // add baseUrl/files... to android/app/src/assets/ on android
   // add baseUrl/files... to project root on iOS
   files: PropTypes.arrayOf(
@@ -104,6 +105,9 @@ AutoHeightWebView.propTypes = {
   // webview props
   originWhitelist: PropTypes.arrayOf(PropTypes.string),
   onMessage: PropTypes.func,
+  // baseUrl now contained by source
+  // 'web/' by default on iOS
+  // 'file:///android_asset/web/' by default on Android
   source: PropTypes.object
 };
 
@@ -111,13 +115,11 @@ let defaultProps = {
   showsVerticalScrollIndicator: false,
   showsHorizontalScrollIndicator: false,
   originWhitelist: ['*'],
-  baseUrl: 'web/',
   zoomable: true
 };
 
 Platform.OS === 'android' &&
   Object.assign(defaultProps, {
-    baseUrl: 'file:///android_asset/web/',
     // if set to true may cause some layout issues (width of container will be than width of screen) on android
     scalesPageToFit: false
   });
