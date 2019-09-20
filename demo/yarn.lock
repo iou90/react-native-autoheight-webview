@@ -2172,7 +2172,12 @@ escape-html@~1.0.3:
   resolved "https://registry.npm.taobao.org/escape-html/download/escape-html-1.0.3.tgz#0258eae4d3d0c0974de1c169188ef0051d1d1988"
   integrity sha1-Aljq5NPQwJdN4cFpGI7wBR0dGYg=
 
-escape-string-regexp@1.0.5, escape-string-regexp@^1.0.5:
+escape-string-regexp@2.0.0:
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/escape-string-regexp/-/escape-string-regexp-2.0.0.tgz#a30304e99daa32e23b2fd20f51babd07cffca344"
+  integrity sha512-UpzcLCXolUWcNu5HtVMHYdXJjArjsF9C0aNnquZYY4uW/Vu0miy5YoWvbV345HauVvcAUnpRuhMMcqTcGOY2+w==
+
+escape-string-regexp@^1.0.5:
   version "1.0.5"
   resolved "https://registry.npm.taobao.org/escape-string-regexp/download/escape-string-regexp-1.0.5.tgz#1b61c0562190a8dff6ae3bb2cf0200ca130b86d4"
   integrity sha1-G2HAViGQqN/2rjuyzwIAyhMLhtQ=
@@ -5127,16 +5132,16 @@ react-is@^16.8.1, react-is@^16.8.4, react-is@^16.8.6:
   integrity sha1-IcqVYTmarQ/xp3AcAWg+jKmB7cs=
 
 react-native-autoheight-webview@../:
-  version "1.1.6"
+  version "1.2.2"
   dependencies:
     prop-types "^15.7.2"
 
-react-native-webview@^6.9.0:
-  version "6.9.0"
-  resolved "https://registry.npm.taobao.org/react-native-webview/download/react-native-webview-6.9.0.tgz#d637618fe65ddc9972a55a1d181fd6879a2fcebd"
-  integrity sha1-1jdhj+Zd3JlypVodGB/Wh5ovzr0=
+react-native-webview@^7.0.7:
+  version "7.0.7"
+  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-7.0.7.tgz#38915091b012de63e625d455bbf074f7dd89efad"
+  integrity sha512-vfL4n5Od4bE0AdDAc8wHVkaxjPzI92y2URYs6cnvib9jU+lhc6AGSoLPsT1J9E4+8oojEvpsetUOrJGXmY/F6g==
   dependencies:
-    escape-string-regexp "1.0.5"
+    escape-string-regexp "2.0.0"
     invariant "2.2.4"
 
 react-native@0.60.0:
