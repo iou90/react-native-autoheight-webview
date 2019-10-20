@@ -56,6 +56,15 @@ const AutoHeightWebView = React.memo(
     const { currentSource, script } = reduceData(props);
 
     const { width, height } = size;
+
+    const dimentions = {
+      height
+    };
+  
+    if (!props.fluidWidth) {
+      dimentions.width = width;
+    }
+    
     useEffect(
       () =>
         onSizeUpdated &&
@@ -73,10 +82,7 @@ const AutoHeightWebView = React.memo(
         onMessage={handleMessage}
         style={[
           styles.webView,
-          {
-            width,
-            height
-          },
+          dimentions,
           style
         ]}
         injectedJavaScript={script}
@@ -102,6 +108,7 @@ AutoHeightWebView.propTypes = {
   customScript: PropTypes.string,
   customStyle: PropTypes.string,
   zoomable: PropTypes.bool,
+  fluidWidth: PropTypes.bool,
   // webview props
   originWhitelist: PropTypes.arrayOf(PropTypes.string),
   onMessage: PropTypes.func,

@@ -1,31 +1,39 @@
 'use strict';
 
-import { Dimensions, Platform } from 'react-native';
+import { Dimensions } from 'react-native';
 
-const domMutationObserveScript = `
-var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
-var observer = new MutationObserver(updateSize);
-observer.observe(document, {
-    subtree: true,
-    attributes: true
-});
-`;
-
-const updateSizeWithMessage = element =>
-  `
-  var updateSizeInterval = null;
-  var height = 0;
-  function updateSize(event) {
-    if (!window.hasOwnProperty('ReactNativeWebView') || !window.ReactNativeWebView.hasOwnProperty('postMessage')) {
-      !updateSizeInterval && (updateSizeInterval = setInterval(updateSize, 200));
-      return;
-    }
-    clearInterval(updateSizeInterval)
-    height = ${element}.offsetHeight || window.innerHeight;
-    width = ${element}.offsetWidth || window.innerWidth;
-    window.ReactNativeWebView.postMessage(JSON.stringify({ width: width, height: height }));
+function updateSize() {
+  if (!window.hasOwnProperty('ReactNativeWebView') || !window.ReactNativeWebView.hasOwnProperty('postMessage')) {
+    setTimeout(updateSize, 200);
+    return;
   }
-  `;
+
+  // we use body dimentions because window is stretched to size of WebView
+  const height = document.body.offsetHeight;
+  const width = document.body.offsetWidth;
+  
+  window.ReactNativeWebView.postMessage(
+    JSON.stringify({ 
+      width, height
+    })
+  );
+}
+
+function addResizeObserverWithFallback () {
+  const isResizeObserverSupported = 'ResizeObserver' in window;
+
+  if (isResizeObserverSupported) {
+    const observer = new ResizeObserver(updateSize);
+
+    observer.observe(document.body);
+  } else {
+    // if old webview and doesn't support ResizeObserver
+    // use old behaviour, there still can be some additional spacing
+    // but at least nothing will be cropped
+    window.addEventListener('load', updateSize);
+    window.addEventListener('resize', updateSize);
+  }
+}
 
 // add viewport setting to meta for WKWebView
 const makeScalePageToFit = zoomable => `
@@ -33,28 +41,18 @@ var meta = document.createElement('meta');
 meta.setAttribute('name', 'viewport'); 
 meta.setAttribute('content', 'width=device-width, user-scalable=${
   zoomable ? 'yes' : 'no'
-}'); document.getElementsByTagName('head')[0].appendChild(meta);
+}');
+document.getElementsByTagName('head')[0].appendChild(meta);
 `;
 
-const getBaseScript = ({ style, zoomable }) =>
-  `
+const getBaseScript = ({zoomable}) => `
   ;
-  if (!document.getElementById("rnahw-wrapper")) {
-    var wrapper = document.createElement('div');
-    wrapper.id = 'rnahw-wrapper';
-    while (document.body.firstChild instanceof Node) {
-      wrapper.appendChild(document.body.firstChild);
-    }
-    document.body.appendChild(wrapper);
-  }
-  var width = ${getWidth(style)};
-  ${updateSizeWithMessage('wrapper')}
-  window.addEventListener('load', updateSize);
-  window.addEventListener('resize', updateSize);
-  ${domMutationObserveScript}
-  ${Platform.OS === 'ios' ? makeScalePageToFit(zoomable) : ''}
+  ${updateSize.toString()}
+  ${addResizeObserverWithFallback.toString()}
+  addResizeObserverWithFallback();
   updateSize();
-  `;
+  ${makeScalePageToFit(zoomable)}
+`;
 
 const appendFilesToHead = ({ files, script }) =>
   files.reduceRight((combinedScript, file) => {
@@ -83,17 +81,20 @@ const appendStylesToHead = ({ style, script }) => {
   // Escape any single quotes or newlines in the CSS with .replace()
   const escaped = currentStyles.replace(/\'/g, "\\'").replace(/\n/g, '\\n');
   return `
-          var styleElement = document.createElement('style');
-          styleElement.innerHTML = '${escaped}';
-          document.head.appendChild(styleElement);
-          ${script}
-        `;
+    var styleElement = document.createElement('style');
+    styleElement.innerHTML = '${escaped}';
+    document.head.appendChild(styleElement);
+    ${script}
+  `;
 };
 
+// we use IIFE to create local variables scope
 const getInjectedSource = ({ html, script }) => `
 ${html}
 <script>
+(() => {
 ${script}
+})();
 </script>
 `;
 
