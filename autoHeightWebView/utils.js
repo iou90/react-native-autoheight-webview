@@ -2,7 +2,7 @@
 
 import { Dimensions } from 'react-native';
 
-function updateSize() {
+const updateSizeFn = `function updateSize() {
   if (!window.hasOwnProperty('ReactNativeWebView') || !window.ReactNativeWebView.hasOwnProperty('postMessage')) {
     setTimeout(updateSize, 200);
     return;
@@ -17,9 +17,9 @@ function updateSize() {
       width, height
     })
   );
-}
+}`;
 
-function addResizeObserverWithFallback () {
+const addResizeObserverWithFallbackFn = `function addResizeObserverWithFallback () {
   const isResizeObserverSupported = 'ResizeObserver' in window;
 
   if (isResizeObserverSupported) {
@@ -33,7 +33,7 @@ function addResizeObserverWithFallback () {
     window.addEventListener('load', updateSize);
     window.addEventListener('resize', updateSize);
   }
-}
+}`;
 
 // add viewport setting to meta for WKWebView
 const makeScalePageToFit = zoomable => `
@@ -47,8 +47,8 @@ document.getElementsByTagName('head')[0].appendChild(meta);
 
 const getBaseScript = ({zoomable}) => `
   ;
-  ${updateSize.toString()}
-  ${addResizeObserverWithFallback.toString()}
+  ${updateSizeFn}
+  ${addResizeObserverWithFallbackFn}
   addResizeObserverWithFallback();
   updateSize();
   ${makeScalePageToFit(zoomable)}
