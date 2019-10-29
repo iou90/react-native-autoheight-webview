@@ -15,6 +15,13 @@ const updateSizeWithMessage = element =>
   `
   var updateSizeInterval = null;
   var height = 0;
+
+  var lastHeight = 0;
+  var heightTheSameTimes = 0;
+  var maxHeightTheSameTimes = 5;
+  var forceRefreshDelay = 1000;
+  var forceRefreshTimeout;
+
   function updateSize(event) {
     if (!window.hasOwnProperty('ReactNativeWebView') || !window.ReactNativeWebView.hasOwnProperty('postMessage')) {
       !updateSizeInterval && (updateSizeInterval = setInterval(updateSize, 200));
@@ -24,6 +31,23 @@ const updateSizeWithMessage = element =>
     height = ${element}.offsetHeight || window.innerHeight;
     width = ${element}.offsetWidth || window.innerWidth;
     window.ReactNativeWebView.postMessage(JSON.stringify({ width: width, height: height }));
+
+    // Make additional height checks (required to fix issues wit twitter embeds)
+    clearTimeout(forceRefreshTimeout);
+    if (lastHeight !== height) {
+      heightTheSameTimes = 1;
+    } else {
+      heightTheSameTimes++;
+    }
+
+    lastHeight = height;
+
+    if (heightTheSameTimes <= maxHeightTheSameTimes) {
+      forceRefreshTimeout = setTimeout(
+        updateSize,
+        heightTheSameTimes * forceRefreshDelay
+      );
+    }
   }
   `;
 
