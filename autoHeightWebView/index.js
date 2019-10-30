@@ -120,6 +120,7 @@ let defaultProps = {
 
 Platform.OS === 'android' &&
   Object.assign(defaultProps, {
+    zoomable: false,
     // if set to true may cause some layout issues (width of container will be than width of screen) on android
     scalesPageToFit: false
   });
