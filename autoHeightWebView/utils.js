@@ -50,7 +50,7 @@ const updateSizeWithMessage = element =>
   }
   `;
 
-// add viewport setting to meta for WKWebView
+// add viewport setting to meta
 const makeScalePageToFit = zoomable => `
 var meta = document.createElement('meta'); 
 meta.setAttribute('name', 'viewport'); 
