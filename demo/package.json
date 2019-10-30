@@ -3,25 +3,26 @@
   "version": "0.0.1",
   "private": true,
   "scripts": {
+    "android": "react-native run-android",
+    "ios": "react-native run-ios",
     "start": "react-native start",
-    "test": "jest",
-    "lint": "eslint ."
+    "test": "jest"
   },
   "dependencies": {
-    "react": "16.8.6",
-    "react-native": "0.60.0",
+    "react": "16.9.0",
+    "react-native": "0.61.2",
     "react-native-autoheight-webview": "../",
-    "react-native-webview": "^7.0.7"
+    "react-native-webview": "^7.4.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.4.5",
-    "@babel/runtime": "^7.4.5",
-    "@react-native-community/eslint-config": "^0.0.5",
-    "babel-jest": "^24.8.0",
-    "eslint": "^6.0.1",
-    "jest": "^24.8.0",
-    "metro-react-native-babel-preset": "^0.54.1",
-    "react-test-renderer": "16.8.6"
+    "@babel/core": "^7.5.0",
+    "@babel/runtime": "^7.5.0",
+    "@react-native-community/eslint-config": "^0.0.3",
+    "babel-jest": "^24.1.0",
+    "eslint": "5.16.0",
+    "jest": "^24.1.0",
+    "metro-react-native-babel-preset": "^0.51.1",
+    "react-test-renderer": "16.8.1"
   },
   "jest": {
     "preset": "react-native"
