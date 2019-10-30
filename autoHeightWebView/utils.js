@@ -27,10 +27,8 @@ const updateSizeWithMessage = element =>
       setTimeout(updateSize, 200);
       return;
     }
-    
-    var height = ${element}.offsetHeight || window.innerHeight;
-    var width = ${element}.offsetWidth || window.innerWidth;
-
+    height = ${element}.offsetHeight || document.documentElement.offsetHeight;
+    width = ${element}.offsetWidth || document.documentElement.offsetWidth;
     window.ReactNativeWebView.postMessage(JSON.stringify({ width: width, height: height }));
 
     // Make additional height checks (required to fix issues wit twitter embeds)
@@ -76,7 +74,7 @@ const getBaseScript = ({ style, zoomable }) =>
   window.addEventListener('load', updateSize);
   window.addEventListener('resize', updateSize);
   ${domMutationObserveScript}
-  ${Platform.OS === 'ios' ? makeScalePageToFit(zoomable) : ''}
+  ${makeScalePageToFit(zoomable)}
   updateSize();
   `;
 
