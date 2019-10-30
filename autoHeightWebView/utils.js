@@ -13,17 +13,40 @@ observer.observe(document, {
 
 const updateSizeWithMessage = element =>
   `
-  var updateSizeInterval = null;
-  var height = 0;
+  var lastHeight = 0;
+  var heightTheSameTimes = 0;
+  var maxHeightTheSameTimes = 5;
+  var forceRefreshDelay = 1000;
+  var forceRefreshTimeout;
+
   function updateSize(event) {
-    if (!window.hasOwnProperty('ReactNativeWebView') || !window.ReactNativeWebView.hasOwnProperty('postMessage')) {
-      !updateSizeInterval && (updateSizeInterval = setInterval(updateSize, 200));
+    if (
+      !window.hasOwnProperty('ReactNativeWebView') || 
+      !window.ReactNativeWebView.hasOwnProperty('postMessage')
+    ) {
+      setTimeout(updateSize, 200);
       return;
     }
-    clearInterval(updateSizeInterval)
     height = ${element}.offsetHeight || document.documentElement.offsetHeight;
     width = ${element}.offsetWidth || document.documentElement.offsetWidth;
     window.ReactNativeWebView.postMessage(JSON.stringify({ width: width, height: height }));
+
+    // Make additional height checks (required to fix issues wit twitter embeds)
+    clearTimeout(forceRefreshTimeout);
+    if (lastHeight !== height) {
+      heightTheSameTimes = 1;
+    } else {
+      heightTheSameTimes++;
+    }
+
+    lastHeight = height;
+
+    if (heightTheSameTimes <= maxHeightTheSameTimes) {
+      forceRefreshTimeout = setTimeout(
+        updateSize,
+        heightTheSameTimes * forceRefreshDelay
+      );
+    }
   }
   `;
 
@@ -47,7 +70,6 @@ const getBaseScript = ({ style, zoomable }) =>
     }
     document.body.appendChild(wrapper);
   }
-  var width = ${getWidth(style)};
   ${updateSizeWithMessage('wrapper')}
   window.addEventListener('load', updateSize);
   window.addEventListener('resize', updateSize);
@@ -60,13 +82,13 @@ const appendFilesToHead = ({ files, script }) =>
   files.reduceRight((combinedScript, file) => {
     const { rel, type, href } = file;
     return `
-          var link  = document.createElement('link');
-          link.rel  = '${rel}';
-          link.type = '${type}';
-          link.href = '${href}';
-          document.head.appendChild(link);
-          ${combinedScript}
-        `;
+      var link  = document.createElement('link');
+      link.rel  = '${rel}';
+      link.type = '${type}';
+      link.href = '${href}';
+      document.head.appendChild(link);
+      ${combinedScript}
+    `;
   }, script);
 
 const screenWidth = Dimensions.get('window').width;
@@ -83,17 +105,20 @@ const appendStylesToHead = ({ style, script }) => {
   // Escape any single quotes or newlines in the CSS with .replace()
   const escaped = currentStyles.replace(/\'/g, "\\'").replace(/\n/g, '\\n');
   return `
-          var styleElement = document.createElement('style');
-          styleElement.innerHTML = '${escaped}';
-          document.head.appendChild(styleElement);
-          ${script}
-        `;
+    var styleElement = document.createElement('style');
+    styleElement.innerHTML = '${escaped}';
+    document.head.appendChild(styleElement);
+    ${script}
+  `;
 };
 
 const getInjectedSource = ({ html, script }) => `
 ${html}
 <script>
-${script}
+// prevents code colissions with global scope
+(() => {
+  ${script}
+})();
 </script>
 `;
 
