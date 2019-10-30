@@ -21,8 +21,8 @@ const updateSizeWithMessage = element =>
       return;
     }
     clearInterval(updateSizeInterval)
-    height = ${element}.offsetHeight || window.innerHeight;
-    width = ${element}.offsetWidth || window.innerWidth;
+    height = ${element}.offsetHeight || document.documentElement.offsetHeight;
+    width = ${element}.offsetWidth || document.documentElement.offsetWidth;
     window.ReactNativeWebView.postMessage(JSON.stringify({ width: width, height: height }));
   }
   `;
@@ -52,7 +52,7 @@ const getBaseScript = ({ style, zoomable }) =>
   window.addEventListener('load', updateSize);
   window.addEventListener('resize', updateSize);
   ${domMutationObserveScript}
-  ${Platform.OS === 'ios' ? makeScalePageToFit(zoomable) : ''}
+  ${makeScalePageToFit(zoomable)}
   updateSize();
   `;
 
