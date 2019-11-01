@@ -24,6 +24,7 @@ const AutoHeightWebView = React.memo(
       goForward: () => webView.current.goForward(),
       goBack: () => webView.current.goBack(),
       reload: () => webView.current.reload(),
+      postMessage: e => webView.current.postMessage(e),
       injectJavaScript: script => webView.current.injectJavaScript(script)
     }));
 
