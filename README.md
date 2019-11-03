@@ -19,6 +19,7 @@ Read [README_old](./README_old.md) for earlier version guide.
 
 ```javascript
 import AutoHeightWebView from 'react-native-autoheight-webview'
+import { Dimensions } from 'react-native'
 
 <AutoHeightWebView
     // default width is the width of screen
