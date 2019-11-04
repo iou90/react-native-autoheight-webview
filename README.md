@@ -15,14 +15,13 @@ Read [README_old](./README_old.md) for earlier version guide.
 
 ## usage
 
-`react-native link react-native-webview`
-
 ```javascript
 import AutoHeightWebView from 'react-native-autoheight-webview'
+
 import { Dimensions } from 'react-native'
 
 <AutoHeightWebView
-    // default width is the width of screen
+    // default by screen width,
     // if there are some text selection issues on iOS, the width should be reduced more than 15 and the marginTop should be added more than 35
     style={{ width: Dimensions.get('window').width - 15, marginTop: 35 }}
     customScript={`document.body.style.background = 'lightyellow';`}
@@ -35,10 +34,10 @@ import { Dimensions } from 'react-native'
         font-size: 16px;
       }
     `}
-    // either height or width updated will trigger this
+    // either height or width updated will trigger onSizeUpdated
     onSizeUpdated={({size => console.log(size.height)})},
     /*
-    use local or remote files
+    using local or remote files
     to add local files:
     add baseUrl/files... to android/app/src/assets/ on android
     add baseUrl/files... to project root on iOS
@@ -68,5 +67,5 @@ import { Dimensions } from 'react-native'
 
 ## demo
 
-You may have to use yarn to install the dependencies of the demo and remove "demo/node_modules/react-native-autoheight-webview/demo" manually, cause of installing a local package with npm will create symlink, but there is no supporting of React Native to symlink (https://github.com/facebook/watchman/issues/105).
-For android, you may have to copy the "C:\Users\UserName\.android\debug.keystore" to "demo/android/app/".
+You may have to use yarn to install the dependencies of the demo and remove "demo/node_modules/react-native-autoheight-webview/demo" manually, cause of installing a local package with npm will create symlink, but there is no supporting of React Native to symlink (https://github.com/facebook/watchman/issues/105) and "yarn install" ignores "files" from local dependencies (https://github.com/yarnpkg/yarn/issues/2822).
+For android, you may have to copy the "Users\UserName\.android\debug.keystore" to "demo/android/app/".
