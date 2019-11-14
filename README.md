@@ -52,7 +52,11 @@ import { Dimensions } from 'react-native'
     // 'file:///android_asset/web/' by default on Android
     // or uri
     source={{ html: `<p style="font-weight: 400;font-style: normal;font-size: 21px;line-height: 1.58;letter-spacing: -.003em;">Tags are great for describing the essence of your story in a single word or phrase, but stories are rarely about a single thing. <span style="background-color: transparent !important;background-image: linear-gradient(to bottom, rgba(146, 249, 190, 1), rgba(146, 249, 190, 1));">If I pen a story about moving across the country to start a new job in a car with my husband, two cats, a dog, and a tarantula, I wouldn’t only tag the piece with “moving”. I’d also use the tags “pets”, “marriage”, “career change”, and “travel tips”.</span></p>` }}
-    // disables zoom (true by default on iOS, false by default on android)
+    // false by default on Android (different from react-native-webview),
+    // when scalesPageToFit was assigned to true, it will apply page scale to size directly instead of using viewport meta script 
+    scalesPageToFit={true}
+    // only works on iOS when scalesPageToFit was false,
+    // in other conditions, you can use your own custom scripts to create viewport meta to disable zooming
     zoomable={false}
     /*
     other react-native-webview props
