@@ -5163,10 +5163,10 @@ react-native-autoheight-webview@../:
   dependencies:
     prop-types "^15.7.2"
 
-react-native-webview@^7.4.2:
-  version "7.5.0"
-  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-7.5.0.tgz#6ef3eb9a1e82056e4208e5aaee8673cdc2942d1f"
-  integrity sha512-aMw15ExeEljOno9JfRWwU5+eTVw2AKFuWK7aHwc67cOq/ERRI6QtM148FPQA1yBegpUd0vwVpr1WdOI1PM+pdw==
+react-native-webview@7.5.1:
+  version "7.5.1"
+  resolved "https://registry.yarnpkg.com/react-native-webview/-/react-native-webview-7.5.1.tgz#01b026c1110d7548123460cc640fb1d4227a0f54"
+  integrity sha512-lFpa4m8CMapk6vbZf2GiQDGxsQSRrKoVElTFCkDI5BEl5/a14ClASnJdIyr6U6uYj7ZjcAYsaqNtz86BJqyRVQ==
   dependencies:
     escape-string-regexp "2.0.0"
     invariant "2.2.4"
