@@ -3,16 +3,18 @@
 import { Dimensions, Platform } from 'react-native';
 
 const domMutationObserveScript = `
-var MutationObserver = window.MutationObserver || window.WebKitMutationObserver;
-var observer = new MutationObserver(updateSize);
-observer.observe(document, {
+  var MutationObserver =
+    window.MutationObserver || window.WebKitMutationObserver;
+  var observer = new MutationObserver(updateSize);
+  observer.observe(document, {
     subtree: true,
     attributes: true
-});
+  });
 `;
 
-const updateSizeWithMessage = element =>
+const updateSizeWithMessage = (element, scalesPageToFit) =>
   `
+  var scale = ${scalesPageToFit ? 'screen.width / window.innerWidth' : '1'};
   var lastHeight = 0;
   var heightTheSameTimes = 0;
   var maxHeightTheSameTimes = 5;
@@ -29,7 +31,8 @@ const updateSizeWithMessage = element =>
     }
     height = ${element}.offsetHeight || document.documentElement.offsetHeight;
     width = ${element}.offsetWidth || document.documentElement.offsetWidth;
-    window.ReactNativeWebView.postMessage(JSON.stringify({ width: width, height: height }));
+    var needScale = width > screen.width;
+    window.ReactNativeWebView.postMessage(JSON.stringify({ width: needScale ? width * scale : width, height: needScale ? height * scale : height }));
 
     // Make additional height checks (required to fix issues wit twitter embeds)
     clearTimeout(forceRefreshTimeout);
@@ -51,15 +54,17 @@ const updateSizeWithMessage = element =>
   `;
 
 // add viewport setting to meta
-const makeScalePageToFit = zoomable => `
-var meta = document.createElement('meta'); 
-meta.setAttribute('name', 'viewport'); 
-meta.setAttribute('content', 'width=device-width, user-scalable=${
-  zoomable ? 'yes' : 'no'
-}'); document.getElementsByTagName('head')[0].appendChild(meta);
+const makeScalePageToFit = (zoomable, scalesPageToFit) =>
+  scalesPageToFit || Platform.OS === 'android'
+    ? ''
+    : `
+  var meta = document.createElement("meta");
+  meta.setAttribute("name", "viewport");
+  meta.setAttribute("content", "width=device-width, user-scalable=${zoomable ? 'yes' : 'no'}");
+  document.getElementsByTagName("head")[0].appendChild(meta);
 `;
 
-const getBaseScript = ({ style, zoomable }) =>
+const getBaseScript = ({ style, zoomable, scalesPageToFit }) =>
   `
   ;
   if (!document.getElementById("rnahw-wrapper")) {
@@ -70,11 +75,11 @@ const getBaseScript = ({ style, zoomable }) =>
     }
     document.body.appendChild(wrapper);
   }
-  ${updateSizeWithMessage('wrapper')}
+  ${updateSizeWithMessage('wrapper', scalesPageToFit)}
   window.addEventListener('load', updateSize);
   window.addEventListener('resize', updateSize);
   ${domMutationObserveScript}
-  ${makeScalePageToFit(zoomable)}
+  ${makeScalePageToFit(zoomable, scalesPageToFit)}
   updateSize();
   `;
 
@@ -122,8 +127,8 @@ ${html}
 </script>
 `;
 
-const getScript = ({ files, customStyle, customScript, style, zoomable }) => {
-  let script = getBaseScript({ style, zoomable });
+const getScript = ({ files, customStyle, customScript, style, zoomable, scalesPageToFit }) => {
+  let script = getBaseScript({ style, zoomable, scalesPageToFit });
   script = files && files.length > 0 ? appendFilesToHead({ files, script }) : script;
   script = appendStylesToHead({ style: customStyle, script });
   customScript && (script = customScript + script);
@@ -146,7 +151,9 @@ export const reduceData = props => {
   const script = getScript(props);
   const { html, baseUrl } = source;
   if (html) {
-    return { currentSource: { baseUrl, html: getInjectedSource({ html, script }) } };
+    return {
+      currentSource: { baseUrl, html: getInjectedSource({ html, script }) }
+    };
   } else {
     return {
       currentSource: source,
@@ -162,7 +169,12 @@ export const shouldUpdate = ({ prevProps, nextProps }) => {
   for (const prop in nextProps) {
     if (nextProps[prop] !== prevProps[prop]) {
       if (typeof nextProps[prop] === 'object' && typeof prevProps[prop] === 'object') {
-        if (shouldUpdate({ prevProps: prevProps[prop], nextProps: nextProps[prop] })) {
+        if (
+          shouldUpdate({
+            prevProps: prevProps[prop],
+            nextProps: nextProps[prop]
+          })
+        ) {
           return true;
         }
       } else {
