@@ -20,15 +20,17 @@ const updateSizeWithMessage = (element, scalesPageToFit) =>
   var maxHeightTheSameTimes = 5;
   var forceRefreshDelay = 1000;
   var forceRefreshTimeout;
+  var checkPostMessageTimeout;
 
   function updateSize(event) {
     if (
       !window.hasOwnProperty('ReactNativeWebView') || 
       !window.ReactNativeWebView.hasOwnProperty('postMessage')
     ) {
-      setTimeout(updateSize, 200);
+      checkPostMessageTimeout = setTimeout(updateSize, 200);
       return;
     }
+    clearTimeout(checkPostMessageTimeout);
     height = ${element}.offsetHeight || document.documentElement.offsetHeight;
     width = ${element}.offsetWidth || document.documentElement.offsetWidth;
     var needScale = width > screen.width;
@@ -121,7 +123,7 @@ const getInjectedSource = ({ html, script }) => `
 ${html}
 <script>
 // prevents code colissions with global scope
-(() => {
+(function() {
   ${script}
 })();
 </script>
