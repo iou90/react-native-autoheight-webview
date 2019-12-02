@@ -49,7 +49,7 @@ import { Dimensions } from 'react-native'
     }]}
     // baseUrl now contained by source
     // 'web/' by default on iOS
-    // 'file:///android_asset/web/' by default on Android
+    // 'file:///android_asset/' by default on Android
     // or uri
     source={{ html: `<p style="font-weight: 400;font-style: normal;font-size: 21px;line-height: 1.58;letter-spacing: -.003em;">Tags are great for describing the essence of your story in a single word or phrase, but stories are rarely about a single thing. <span style="background-color: transparent !important;background-image: linear-gradient(to bottom, rgba(146, 249, 190, 1), rgba(146, 249, 190, 1));">If I pen a story about moving across the country to start a new job in a car with my husband, two cats, a dog, and a tarantula, I wouldn’t only tag the piece with “moving”. I’d also use the tags “pets”, “marriage”, “career change”, and “travel tips”.</span></p>` }}
     // false by default on iOS & Android (different from react-native-webview which true by default on Android),
