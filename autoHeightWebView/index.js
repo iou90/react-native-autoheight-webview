@@ -89,8 +89,8 @@ const AutoHeightWebView = React.memo(
 
 AutoHeightWebView.propTypes = {
   onSizeUpdated: PropTypes.func,
-  // add baseUrl/files... to android/app/src/assets/ on android
-  // add baseUrl/files... to project root on iOS
+  // add files to android/app/src/main/assets/ (depends on baseUrl) on android
+  // add files to web/ (depends on baseUrl) on iOS
   files: PropTypes.arrayOf(
     PropTypes.shape({
       href: PropTypes.string,
@@ -107,7 +107,7 @@ AutoHeightWebView.propTypes = {
   onMessage: PropTypes.func,
   // baseUrl now contained by source
   // 'web/' by default on iOS
-  // 'file:///android_asset/web/' by default on Android
+  // 'file:///android_asset/' by default on Android
   source: PropTypes.object
 };
 
