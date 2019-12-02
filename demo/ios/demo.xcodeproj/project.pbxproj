@@ -19,6 +19,7 @@
 		428E7C00A1DF1C1A2C1140EE /* libPods-demoTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 34E943675B55A190041D9BC6 /* libPods-demoTests.a */; };
 		5D9570ED1A0B682B5FF5E421 /* libPods-demo-tvOSTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 821EC82BD30472D6D387B788 /* libPods-demo-tvOSTests.a */; };
 		A50903E452D634CE572F43CD /* libPods-demo.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 8486CCD792395AAD80956F45 /* libPods-demo.a */; };
+		B7C1B3872394B353001240AA /* ae_AlArabiya.ttf in Resources */ = {isa = PBXBuildFile; fileRef = B7C1B3862394B353001240AA /* ae_AlArabiya.ttf */; };
 		EFB606294F69E6FA304BD500 /* libPods-demo-tvOS.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9D8370FC4C13D1AE1CC8852B /* libPods-demo-tvOS.a */; };
 /* End PBXBuildFile section */
 
@@ -62,6 +63,7 @@
 		914896C0CEFDAA592DADF952 /* Pods-demo.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo.release.xcconfig"; path = "Target Support Files/Pods-demo/Pods-demo.release.xcconfig"; sourceTree = "<group>"; };
 		9D8370FC4C13D1AE1CC8852B /* libPods-demo-tvOS.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-demo-tvOS.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		A74FCF62A73172586BCD1E8C /* Pods-demo-tvOS.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo-tvOS.release.xcconfig"; path = "Target Support Files/Pods-demo-tvOS/Pods-demo-tvOS.release.xcconfig"; sourceTree = "<group>"; };
+		B7C1B3862394B353001240AA /* ae_AlArabiya.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ae_AlArabiya.ttf; sourceTree = "<group>"; };
 		B932E4CF7C7ADA47E0C72933 /* Pods-demo-tvOSTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo-tvOSTests.debug.xcconfig"; path = "Target Support Files/Pods-demo-tvOSTests/Pods-demo-tvOSTests.debug.xcconfig"; sourceTree = "<group>"; };
 		BB1DF6C3AB03F9FA00E48CAE /* Pods-demo-tvOS.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-demo-tvOS.debug.xcconfig"; path = "Target Support Files/Pods-demo-tvOS/Pods-demo-tvOS.debug.xcconfig"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
@@ -148,7 +150,6 @@
 				43307E7576B385875B79FCDF /* Pods-demoTests.debug.xcconfig */,
 				150E6CAFA5EF11AE47ED825C /* Pods-demoTests.release.xcconfig */,
 			);
-			name = Pods;
 			path = Pods;
 			sourceTree = "<group>";
 		};
@@ -175,6 +176,7 @@
 		83CBB9F61A601CBA00E9B192 = {
 			isa = PBXGroup;
 			children = (
+				B7C1B3852394B30A001240AA /* web */,
 				13B07FAE1A68108700A75B9A /* demo */,
 				832341AE1AAA6A7D00B99B32 /* Libraries */,
 				00E356EF1AD99517003FC87E /* demoTests */,
@@ -196,6 +198,14 @@
 				2D02E4901E0B4A5D006451C7 /* demo-tvOSTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B7C1B3852394B30A001240AA /* web */ = {
+			isa = PBXGroup;
+			children = (
+				B7C1B3862394B353001240AA /* ae_AlArabiya.ttf */,
+			);
+			path = web;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -308,6 +318,7 @@
 			developmentRegion = English;
 			hasScannedForEncodings = 0;
 			knownRegions = (
+				English,
 				en,
 				Base,
 			);
@@ -338,6 +349,7 @@
 			files = (
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
+				B7C1B3872394B353001240AA /* ae_AlArabiya.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

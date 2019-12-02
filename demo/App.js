@@ -1,6 +1,13 @@
-import React, { useState } from 'react';
+import React, {useState} from 'react';
 
-import { ScrollView, StyleSheet, Text, TouchableOpacity, Platform, Linking } from 'react-native';
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  TouchableOpacity,
+  Platform,
+  Linking,
+} from 'react-native';
 
 import AutoHeightWebView from 'react-native-autoheight-webview';
 
@@ -13,7 +20,7 @@ import {
   autoWidthScript,
   autoDetectLinkScript,
   style0,
-  inlineBodyStyle
+  inlineBodyStyle,
 } from './config';
 
 const onShouldStartLoadWithRequest = result => {
@@ -21,10 +28,11 @@ const onShouldStartLoadWithRequest = result => {
   return true;
 };
 
-const onError = ({ nativeEvent }) => console.error('WebView error: ', nativeEvent);
+const onError = ({nativeEvent}) =>
+  console.error('WebView error: ', nativeEvent);
 
 const onMessage = event => {
-  const { data } = event.nativeEvent;
+  const {data} = event.nativeEvent;
   let messageData;
   // maybe parse stringified JSON
   try {
@@ -33,10 +41,12 @@ const onMessage = event => {
     console.log(e.message);
   }
   if (typeof messageData === 'object') {
-    const { url } = messageData;
+    const {url} = messageData;
     // check if this message concerns us
     if (url && url.startsWith('http')) {
-      Linking.openURL(url).catch(error => console.error('An error occurred', error));
+      Linking.openURL(url).catch(error =>
+        console.error('An error occurred', error),
+      );
     }
   }
 };
@@ -54,51 +64,56 @@ const onWidthLoad = () => console.log('width on load');
 const onWidthLoadEnd = () => console.log('width on load end');
 
 const Explorer = () => {
-  const [{ widthHtml, heightHtml }, setHtml] = useState({
+  const [{widthHtml, heightHtml}, setHtml] = useState({
     widthHtml: autoWidthHtml0,
-    heightHtml: autoHeightHtml0
+    heightHtml: autoHeightHtml0,
   });
   const changeSource = () =>
     setHtml({
       widthHtml: widthHtml === autoWidthHtml0 ? autoWidthHtml1 : autoWidthHtml0,
-      heightHtml: heightHtml === autoHeightHtml0 ? autoHeightHtml1 : autoHeightHtml0
+      heightHtml:
+        heightHtml === autoHeightHtml0 ? autoHeightHtml1 : autoHeightHtml0,
     });
 
-  const [{ widthStyle, heightStyle }, setStyle] = useState({
+  const [{widthStyle, heightStyle}, setStyle] = useState({
     heightStyle: null,
-    widthStyle: inlineBodyStyle
+    widthStyle: inlineBodyStyle,
   });
   const changeStyle = () =>
     setStyle({
-      widthStyle: widthStyle === inlineBodyStyle ? style0 + inlineBodyStyle : inlineBodyStyle,
-      heightStyle: heightStyle === null ? style0 : null
+      widthStyle:
+        widthStyle === inlineBodyStyle
+          ? style0 + inlineBodyStyle
+          : inlineBodyStyle,
+      heightStyle: heightStyle === null ? style0 : null,
     });
 
-  const [{ widthScript, heightScript }, setScript] = useState({
+  const [{widthScript, heightScript}, setScript] = useState({
     heightScript: autoDetectLinkScript,
-    widthScript: null
+    widthScript: null,
   });
   const changeScript = () =>
     setScript({
       widthScript: widthScript == autoWidthScript ? autoWidthScript : null,
       heightScript:
-        heightScript !== autoDetectLinkScript ? autoDetectLinkScript : autoHeightScript + autoDetectLinkScript
+        heightScript !== autoDetectLinkScript
+          ? autoDetectLinkScript
+          : autoHeightScript + autoDetectLinkScript,
     });
 
-  const [heightSize, setHeightSize] = useState({ height: 0, width: 0 });
-  const [widthSize, setWidthSize] = useState({ height: 0, width: 0 });
+  const [heightSize, setHeightSize] = useState({height: 0, width: 0});
+  const [widthSize, setWidthSize] = useState({height: 0, width: 0});
 
   return (
     <ScrollView
       style={{
         paddingTop: 45,
-        backgroundColor: 'lightyellow'
+        backgroundColor: 'lightyellow',
       }}
       contentContainerStyle={{
         justifyContent: 'center',
-        alignItems: 'center'
-      }}
-    >
+        alignItems: 'center',
+      }}>
       <AutoHeightWebView
         customStyle={heightStyle}
         onError={onError}
@@ -107,26 +122,18 @@ const Explorer = () => {
         onLoadEnd={onHeightLoadEnd}
         onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
         onSizeUpdated={setHeightSize}
-        source={{ html: heightHtml }}
+        source={{html: heightHtml}}
         customScript={heightScript}
         onMessage={onMessage}
       />
-      <Text style={{ padding: 5 }}>
+      <Text style={{padding: 5}}>
         height: {heightSize.height}, width: {heightSize.width}
       </Text>
       <AutoHeightWebView
-        baseUrl={Platform.OS === 'android' ? 'file:///android_asset/webAssets/' : 'webAssets/'}
         style={{
-          marginTop: 15
+          marginTop: 15,
         }}
         enableBaseUrl
-        files={[
-          {
-            href: 'demo.css',
-            type: 'text/css',
-            rel: 'stylesheet'
-          }
-        ]}
         customStyle={widthStyle}
         onError={onError}
         onLoad={onWidthLoad}
@@ -134,10 +141,16 @@ const Explorer = () => {
         onLoadEnd={onWidthLoadEnd}
         onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
         onSizeUpdated={setWidthSize}
-        source={{ html: widthHtml }}
+        allowFileAccessFromFileURLs={true}
+        allowUniversalAccessFromFileURLs={true}
+        source={{
+          html: widthHtml,
+          baseUrl:
+            Platform.OS === 'android' ? 'file:///android_asset/' : 'web/',
+        }}
         customScript={widthScript}
       />
-      <Text style={{ padding: 5 }}>
+      <Text style={{padding: 5}}>
         height: {widthSize.height}, width: {widthSize.width}
       </Text>
       <TouchableOpacity onPress={changeSource} style={styles.button}>
@@ -146,7 +159,9 @@ const Explorer = () => {
       <TouchableOpacity onPress={changeStyle} style={styles.button}>
         <Text>change style</Text>
       </TouchableOpacity>
-      <TouchableOpacity onPress={changeScript} style={[styles.button, { marginBottom: 100 }]}>
+      <TouchableOpacity
+        onPress={changeScript}
+        style={[styles.button, {marginBottom: 100}]}>
         <Text>change script</Text>
       </TouchableOpacity>
     </ScrollView>
@@ -158,8 +173,8 @@ const styles = StyleSheet.create({
     marginTop: 15,
     backgroundColor: 'aliceblue',
     borderRadius: 5,
-    padding: 5
-  }
+    padding: 5,
+  },
 });
 
 export default Explorer;

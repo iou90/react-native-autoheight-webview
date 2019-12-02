@@ -20,7 +20,13 @@ const style1 = `
 `;
 
 const inlineBodyStyle = `
+    @font-face {
+      font-family: ae_AlArabiya;
+      src:url("ae_AlArabiya.ttf");
+    }
+
     body {
+        font-family: ae_AlArabiya;
         display: inline-block;
     }
 `;
@@ -50,7 +56,7 @@ document.body.style.background = 'cornflowerblue';
 const autoWidthHtml0 = `
 <html>
 <head>
-  <meta name="viewport" content="target-densitydpi=device-dpi, initial-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
 </head>
 <p class="localStyle" style="display: inline;background-color: transparent !important;background-image: linear-gradient(to bottom, rgba(146, 249, 190, 1), rgba(146, 249, 190, 1));font-style: normal;font-size: 21px;line-height: 1.58;letter-spacing: -.003em;padding-top:0;padding-bottom:0;">hey</p>
 </html>
