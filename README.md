@@ -75,3 +75,9 @@ npx react-native run-ios/anroid
 
 You may have to use yarn to install the dependencies of the demo and remove "demo/node_modules/react-native-autoheight-webview/demo" manually, cause of installing a local package with npm will create symlink, but there is no supporting of React Native to symlink (https://github.com/facebook/watchman/issues/105) and "yarn install" ignores "files" from local dependencies (https://github.com/yarnpkg/yarn/issues/2822).
 For android, you may have to copy the "Users\UserName\.android\debug.keystore" to "demo/android/app/".
+
+## supporting rnaw
+
+One-time donation via PayPal:
+
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.me/iou90)
