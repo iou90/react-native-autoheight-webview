@@ -346,7 +346,7 @@ export default `<!doctype html>
 		}
 
 }</style></head>
-    <body style="background:#ffffff none no-repeat center/cover;height: 100%;margin: 0 30px;padding: 0;width: 100%;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #ffffff;background-image: none;background-repeat: no-repeat;background-position: center;background-size: cover;">
+    <body style="background:#ffffff none no-repeat center/cover;height: 100%;padding: 0;width: 100%;-ms-text-size-adjust: 100%;-webkit-text-size-adjust: 100%;background-color: #ffffff;background-image: none;background-repeat: no-repeat;background-position: center;background-size: cover;">
         <!--
 -->
         <!--[if !gte mso 9]><!----><span class="mcnPreviewText" style="display:none; font-size:0px; line-height:0px; max-height:0px; max-width:0px; opacity:0; overflow:hidden; visibility:hidden; mso-hide:all;">Our upstream provider AWS is deprecating support for Node.js 8. As a result, you need to switch to a more recent Node.js version.</span><!--<![endif]-->
