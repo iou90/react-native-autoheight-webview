@@ -115,6 +115,8 @@ const Explorer = () => {
         alignItems: 'center',
       }}>
       <AutoHeightWebView
+        scrollableWhenZoomin
+        scrollEnabled={false}
         customStyle={
           `
           #rnahw-wrapper {
