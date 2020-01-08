@@ -71,7 +71,7 @@ import { Dimensions } from 'react-native'
 ## demo
 
 ```
-npx react-native run-ios/anroid
+npx react-native run-ios/android
 ```
 
 You may have to use yarn to install the dependencies of the demo and remove "demo/node_modules/react-native-autoheight-webview/demo" manually, cause of installing a local package with npm will create symlink, but there is no supporting of React Native to symlink (https://github.com/facebook/watchman/issues/105) and "yarn install" ignores "files" from local dependencies (https://github.com/yarnpkg/yarn/issues/2822).
