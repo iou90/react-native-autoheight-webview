@@ -91,7 +91,7 @@ const detectZoomChanged = `
   });
 `
 
-const getBaseScript = ({ style, zoomable, scalesPageToFit, scrollableWhenZoomin }) =>
+const getBaseScript = ({ style, zoomable, scalesPageToFit, scrollEnabledWithZoomedin }) =>
   `
   ;
   if (!document.getElementById("rnahw-wrapper")) {
@@ -107,7 +107,7 @@ const getBaseScript = ({ style, zoomable, scalesPageToFit, scrollableWhenZoomin 
   window.addEventListener('resize', updateSize);
   ${domMutationObserveScript}
   ${makeScalePageToFit(zoomable, scalesPageToFit)}
-  ${scrollableWhenZoomin ? detectZoomChanged : ''}
+  ${scrollEnabledWithZoomedin ? detectZoomChanged : ''}
   updateSize();
   `;
 
@@ -155,8 +155,8 @@ const getInjectedSource = ({ html, script }) => `
   </script>
 `;
 
-const getScript = ({ files, customStyle, customScript, style, zoomable, scalesPageToFit, scrollableWhenZoomin }) => {
-  let script = getBaseScript({ style, zoomable, scalesPageToFit, scrollableWhenZoomin });
+const getScript = ({ files, customStyle, customScript, style, zoomable, scalesPageToFit, scrollEnabledWithZoomedin }) => {
+  let script = getBaseScript({ style, zoomable, scalesPageToFit, scrollEnabledWithZoomedin });
   script = files && files.length > 0 ? appendFilesToHead({ files, script }) : script;
   script = appendStylesToHead({ style: customStyle, script });
   customScript && (script = customScript + script);
