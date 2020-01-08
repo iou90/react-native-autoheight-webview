@@ -12,7 +12,7 @@ import { reduceData, getWidth, isSizeChanged, shouldUpdate } from './utils';
 
 const AutoHeightWebView = React.memo(
   forwardRef((props, ref) => {
-    const { style, onMessage, onSizeUpdated, source } = props;
+    const { style, onMessage, onSizeUpdated, scrollEnabledWithZoomedin, scrollEnabled, source } = props;
 
     if (!source) {
       return null;
@@ -31,6 +31,7 @@ const AutoHeightWebView = React.memo(
       height: style && style.height ? style.height : 0,
       width: getWidth(style)
     });
+    const [scrollable, setScrollable] = useState(false);
     const handleMessage = event => {
       onMessage && onMessage(event);
       if (!event.nativeEvent) {
@@ -44,7 +45,8 @@ const AutoHeightWebView = React.memo(
         console.error(error);
         return;
       }
-      const { height, width } = data;
+      const { height, width, zoomin } = data;
+      !scrollEnabled && scrollEnabledWithZoomedin && setScrollable(zoomin);
       const { height: previousHeight, width: previousWidth } = size;
       isSizeChanged({ height, previousHeight, width, previousWidth }) &&
         setSize({
@@ -52,6 +54,8 @@ const AutoHeightWebView = React.memo(
           width
         });
     };
+
+    const currentScrollEnabled = scrollEnabled === false && scrollEnabledWithZoomedin ? scrollable : scrollEnabled;
 
     const { currentSource, script } = reduceData(props);
 
@@ -81,6 +85,7 @@ const AutoHeightWebView = React.memo(
         ]}
         injectedJavaScript={script}
         source={currentSource}
+        scrollEnabled={currentScrollEnabled}
       />
     );
   }),
@@ -89,8 +94,6 @@ const AutoHeightWebView = React.memo(
 
 AutoHeightWebView.propTypes = {
   onSizeUpdated: PropTypes.func,
-  // add files to android/app/src/main/assets/ (depends on baseUrl) on android
-  // add files to web/ (depends on baseUrl) on iOS
   files: PropTypes.arrayOf(
     PropTypes.shape({
       href: PropTypes.string,
@@ -102,12 +105,11 @@ AutoHeightWebView.propTypes = {
   customScript: PropTypes.string,
   customStyle: PropTypes.string,
   zoomable: PropTypes.bool,
+  scrollEnabledWithZoomedin: PropTypes.bool,
   // webview props
   originWhitelist: PropTypes.arrayOf(PropTypes.string),
   onMessage: PropTypes.func,
-  // baseUrl now contained by source
-  // 'web/' by default on iOS
-  // 'file:///android_asset/' by default on Android
+  scalesPageToFit: PropTypes.bool,
   source: PropTypes.object
 };
 

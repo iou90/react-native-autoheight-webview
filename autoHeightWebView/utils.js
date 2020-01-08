@@ -65,7 +65,33 @@ const makeScalePageToFit = (zoomable, scalesPageToFit) =>
   document.getElementsByTagName("head")[0].appendChild(meta);
 `;
 
-const getBaseScript = ({ style, zoomable, scalesPageToFit }) =>
+const detectZoomChanged = `
+  var zoomin = false;
+  var latestTapStamp = 0;
+  var lastScale = false;
+  var doubleTapDelay = 400;
+  function detectZoomChanged() {
+    var tempZoomin = (screen.width / window.innerWidth) > 1;
+    tempZoomin !== zoomin && window.ReactNativeWebView.postMessage(JSON.stringify({ zoomin: tempZoomin }));
+    zoomin = tempZoomin;
+  }
+  window.addEventListener('touchend', event => {
+    var tempScale = event.scale; 
+    tempScale !== lastScale && detectZoomChanged();
+    lastScale = tempScale;
+    var timeSince = new Date().getTime() - latestTapStamp;
+    // double tap   
+    if(timeSince < 600 && timeSince > 0) {
+      zoominTimeOut = setTimeout(() => {
+        clearTimeout(zoominTimeOut);
+        detectZoomChanged();
+      }, doubleTapDelay);
+    }
+    latestTapStamp = new Date().getTime();
+  });
+`
+
+const getBaseScript = ({ style, zoomable, scalesPageToFit, scrollEnabledWithZoomedin }) =>
   `
   ;
   if (!document.getElementById("rnahw-wrapper")) {
@@ -81,6 +107,7 @@ const getBaseScript = ({ style, zoomable, scalesPageToFit }) =>
   window.addEventListener('resize', updateSize);
   ${domMutationObserveScript}
   ${makeScalePageToFit(zoomable, scalesPageToFit)}
+  ${scrollEnabledWithZoomedin ? detectZoomChanged : ''}
   updateSize();
   `;
 
@@ -100,10 +127,10 @@ const appendFilesToHead = ({ files, script }) =>
 const screenWidth = Dimensions.get('window').width;
 
 const bodyStyle = `
-body {
-  margin: 0;
-  padding: 0;
-}
+  body {
+    margin: 0;
+    padding: 0;
+  }
 `;
 
 const appendStylesToHead = ({ style, script }) => {
@@ -119,17 +146,17 @@ const appendStylesToHead = ({ style, script }) => {
 };
 
 const getInjectedSource = ({ html, script }) => `
-${html}
-<script>
-// prevents code colissions with global scope
-(function() {
-  ${script}
-})();
-</script>
+  ${html}
+  <script>
+  // prevents code colissions with global scope
+  (function() {
+    ${script}
+  })();
+  </script>
 `;
 
-const getScript = ({ files, customStyle, customScript, style, zoomable, scalesPageToFit }) => {
-  let script = getBaseScript({ style, zoomable, scalesPageToFit });
+const getScript = ({ files, customStyle, customScript, style, zoomable, scalesPageToFit, scrollEnabledWithZoomedin }) => {
+  let script = getBaseScript({ style, zoomable, scalesPageToFit, scrollEnabledWithZoomedin });
   script = files && files.length > 0 ? appendFilesToHead({ files, script }) : script;
   script = appendStylesToHead({ style: customStyle, script });
   customScript && (script = customScript + script);
