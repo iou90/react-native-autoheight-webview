@@ -116,14 +116,13 @@ const Explorer = () => {
       }}>
       <AutoHeightWebView
         scalesPageToFit
-        scrollableWhenZoomin
-        scrollEnabled={false}
         customStyle={
           `
           #rnahw-wrapper {
-            padding: 0 30px;
+            padding: 0 15px;
             width: 100vw;
             box-sizing: border-box;
+            background-color: white;
           }
           `
         }

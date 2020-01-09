@@ -7,7 +7,7 @@ export default `
     <meta name="viewport" content="width=device-width">
   </head>
   <body style="background-color: rgb(206, 206, 206);margin: 0; width:100%;">
-    <div id="doc" style="font-family:Arial,sans-serif;font-size:12px;height:100%; min-width:500px; max-width: 944px; background: #fff; margin: 0; color:#333333">
+    <div id="doc" style="font-family:Arial,sans-serif;font-size:12px;height:100%; max-width: 944px; background: #fff; margin: 0; color:#333333">
       <table style="width: 100%;">
         <tr style="height: 48px;">
           <td style="vertical-align:bottom;padding-left:24px;">
