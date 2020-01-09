@@ -54,9 +54,9 @@ const AutoHeightWebView = React.memo(
           width
         });
     };
-
+    
     const currentScrollEnabled = scrollEnabled === false && scrollEnabledWithZoomedin ? scrollable : scrollEnabled;
-
+    
     const { currentSource, script } = reduceData(props);
 
     const { width, height } = size;
