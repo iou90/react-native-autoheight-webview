@@ -62,7 +62,7 @@ import { Dimensions } from 'react-native'
 | files                        |    -    | `PropTypes.arrayOf(PropTypes.shape({ href: PropTypes.string, type: PropTypes.string, rel: PropTypes.string }))` | Using local or remote files. To add local files: Add files to android/app/src/main/assets/ (depends on baseUrl) on android; add files to web/ (depends on baseUrl) on iOS.                                   |
 | source                       |    -    |                                               `PropTypes.object`                                                | BaseUrl now contained by source. 'web/' by default on iOS; 'file:///android_asset/' by default on Android or uri.                                                                                            |
 | scalesPageToFit              |  false  |                                                `PropTypes.bool`                                                 | False by default (different from react-native-webview which true by default on Android). When scalesPageToFit was enabled, it will apply the scale of the page directly instead of using viewport meta script.    |
-| scrollableWhenZoomin                     |  false   |                                                `PropTypes.bool`                                                 | Making the webview scrollable on iOS when zoomed in even if scrollEnabled is false.                                                                        |
+| scrollEnabledWithZoomedin                     |  false   |                                                `PropTypes.bool`                                                 | Making the webview scrollable on iOS when zoomed in even if scrollEnabled is false.                                                                        |
 | zoomable                     |  true   |                                                `PropTypes.bool`                                                 | Only works on iOS when disable scalesPageToFit, in other conditions, using custom scripts to create viewport meta to disable zooming.                                                                        |
 | showsVerticalScrollIndicator |  false  |                                                `PropTypes.bool`                                                 | False by default (different from react-native-webview).                                                                                                                                                      |
 | showsVerticalScrollIndicator |  false  |                                                `PropTypes.bool`                                                 | False by default (different from react-native-webview).                                                                                                                                                      |
@@ -71,7 +71,7 @@ import { Dimensions } from 'react-native'
 ## demo
 
 ```
-npx react-native run-ios/anroid
+npx react-native run-ios/android
 ```
 
 You may have to use yarn to install the dependencies of the demo and remove "demo/node_modules/react-native-autoheight-webview/demo" manually, cause of installing a local package with npm will create symlink, but there is no supporting of React Native to symlink (https://github.com/facebook/watchman/issues/105) and "yarn install" ignores "files" from local dependencies (https://github.com/yarnpkg/yarn/issues/2822).

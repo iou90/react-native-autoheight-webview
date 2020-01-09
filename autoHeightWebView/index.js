@@ -12,7 +12,7 @@ import { reduceData, getWidth, isSizeChanged, shouldUpdate } from './utils';
 
 const AutoHeightWebView = React.memo(
   forwardRef((props, ref) => {
-    const { style, onMessage, onSizeUpdated, scrollableWhenZoomin, scrollEnabled, source } = props;
+    const { style, onMessage, onSizeUpdated, scrollEnabledWithZoomedin, scrollEnabled, source } = props;
 
     if (!source) {
       return null;
@@ -46,7 +46,7 @@ const AutoHeightWebView = React.memo(
         return;
       }
       const { height, width, zoomin } = data;
-      !scrollEnabled && scrollableWhenZoomin && setScrollable(zoomin);
+      !scrollEnabled && scrollEnabledWithZoomedin && setScrollable(zoomin);
       const { height: previousHeight, width: previousWidth } = size;
       isSizeChanged({ height, previousHeight, width, previousWidth }) &&
         setSize({
@@ -54,9 +54,9 @@ const AutoHeightWebView = React.memo(
           width
         });
     };
-
-    const currentScrollEnabled = scrollEnabled === false && scrollableWhenZoomin ? scrollable : scrollEnabled;
-
+    
+    const currentScrollEnabled = scrollEnabled === false && scrollEnabledWithZoomedin ? scrollable : scrollEnabled;
+    
     const { currentSource, script } = reduceData(props);
 
     const { width, height } = size;
@@ -105,7 +105,7 @@ AutoHeightWebView.propTypes = {
   customScript: PropTypes.string,
   customStyle: PropTypes.string,
   zoomable: PropTypes.bool,
-  scrollableWhenZoomin: PropTypes.bool,
+  scrollEnabledWithZoomedin: PropTypes.bool,
   // webview props
   originWhitelist: PropTypes.arrayOf(PropTypes.string),
   onMessage: PropTypes.func,
