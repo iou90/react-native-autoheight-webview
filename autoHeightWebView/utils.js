@@ -54,12 +54,17 @@ const updateSizeWithMessage = (element, scalesPageToFit) =>
   }
   `;
 
-const disableZoom = `
-  var meta = document.createElement("meta");
-  meta.setAttribute("name", "viewport");
-  meta.setAttribute("content", "width=device-width, user-scalable=no");
-  document.getElementsByTagName("head")[0].appendChild(meta);
-`;
+const setViewportContent = content => {
+  if (!content) {
+    return '';
+  }
+  return `
+    var meta = document.createElement("meta");
+    meta.setAttribute("name", "viewport");
+    meta.setAttribute("content", "${content}");
+    document.getElementsByTagName("head")[0].appendChild(meta);
+  `;
+};
 
 const detectZoomChanged = `
   var zoomedin = false;
@@ -87,7 +92,7 @@ const detectZoomChanged = `
   });
 `;
 
-const getBaseScript = ({ style, zoomDisabled, scalesPageToFit, scrollEnabledWithZoomedin }) =>
+const getBaseScript = ({ style, viewportContent, scalesPageToFit, scrollEnabledWithZoomedin }) =>
   `
   ;
   if (!document.getElementById("rnahw-wrapper")) {
@@ -102,8 +107,8 @@ const getBaseScript = ({ style, zoomDisabled, scalesPageToFit, scrollEnabledWith
   window.addEventListener('load', updateSize);
   window.addEventListener('resize', updateSize);
   ${domMutationObserveScript}
-  ${zoomDisabled ? disableZoom : ''}
-  ${!zoomDisabled && scrollEnabledWithZoomedin ? detectZoomChanged : ''}
+  ${setViewportContent(viewportContent)}
+  ${scrollEnabledWithZoomedin ? detectZoomChanged : ''}
   updateSize();
   `;
 
@@ -156,11 +161,11 @@ const getScript = ({
   customStyle,
   customScript,
   style,
-  zoomDisabled,
+  viewportContent,
   scalesPageToFit,
   scrollEnabledWithZoomedin
 }) => {
-  let script = getBaseScript({ style, zoomDisabled, scalesPageToFit, scrollEnabledWithZoomedin });
+  let script = getBaseScript({ style, viewportContent, scalesPageToFit, scrollEnabledWithZoomedin });
   script = files && files.length > 0 ? appendFilesToHead({ files, script }) : script;
   script = appendStylesToHead({ style: customStyle, script });
   customScript && (script = customScript + script);

@@ -11,7 +11,7 @@ assignees: iou90
 
 **To Reproduce:**
 
-**Source (raw html or url):**
+**Source (static HTML or url):**
 
 **Expected behavior:**
 
