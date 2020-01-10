@@ -104,7 +104,7 @@ AutoHeightWebView.propTypes = {
   style: ViewPropTypes.style,
   customScript: PropTypes.string,
   customStyle: PropTypes.string,
-  zoomable: PropTypes.bool,
+  zoomDisabled: PropTypes.bool,
   scrollEnabledWithZoomedin: PropTypes.bool,
   // webview props
   originWhitelist: PropTypes.arrayOf(PropTypes.string),
@@ -116,8 +116,7 @@ AutoHeightWebView.propTypes = {
 let defaultProps = {
   showsVerticalScrollIndicator: false,
   showsHorizontalScrollIndicator: false,
-  originWhitelist: ['*'],
-  zoomable: true
+  originWhitelist: ['*']
 };
 
 Platform.OS === 'android' &&
