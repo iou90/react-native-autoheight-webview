@@ -104,7 +104,7 @@ AutoHeightWebView.propTypes = {
   style: ViewPropTypes.style,
   customScript: PropTypes.string,
   customStyle: PropTypes.string,
-  zoomDisabled: PropTypes.bool,
+  viewportContent: PropTypes.string,
   scrollEnabledWithZoomedin: PropTypes.bool,
   // webview props
   originWhitelist: PropTypes.arrayOf(PropTypes.string),
@@ -122,6 +122,11 @@ let defaultProps = {
 Platform.OS === 'android' &&
   Object.assign(defaultProps, {
     scalesPageToFit: false
+  });
+
+Platform.OS === 'ios' &&
+  Object.assign(defaultProps, {
+    viewportContent: 'width=device-width'
   });
 
 AutoHeightWebView.defaultProps = defaultProps;
