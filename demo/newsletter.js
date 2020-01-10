@@ -3,7 +3,7 @@ export default `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3
   <head>
     <title>DB BAHN - Current information about your connection:</title>
     <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
-    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=315">
   </head>
   <body style="background-color: rgb(206, 206, 206);margin: 0; width:100%;">
     <div id="doc" style="font-family:Arial,sans-serif;font-size:12px;height:100%; min-width: 500px; max-width: 944px; background: #fff; margin: 0; color:#333333">
