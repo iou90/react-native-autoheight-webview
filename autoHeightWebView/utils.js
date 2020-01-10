@@ -54,26 +54,22 @@ const updateSizeWithMessage = (element, scalesPageToFit) =>
   }
   `;
 
-// add viewport setting to meta
-const makeScalePageToFit = (zoomable, scalesPageToFit) =>
-  scalesPageToFit || Platform.OS === 'android'
-    ? ''
-    : `
+const disableZoom = `
   var meta = document.createElement("meta");
   meta.setAttribute("name", "viewport");
-  meta.setAttribute("content", "width=device-width, user-scalable=${zoomable ? 'yes' : 'no'}");
+  meta.setAttribute("content", "width=device-width, user-scalable=no");
   document.getElementsByTagName("head")[0].appendChild(meta);
 `;
 
 const detectZoomChanged = `
-  var zoomin = false;
+  var zoomedin = false;
   var latestTapStamp = 0;
   var lastScale = false;
   var doubleTapDelay = 400;
   function detectZoomChanged() {
-    var tempZoomin = (screen.width / window.innerWidth) > 1;
-    tempZoomin !== zoomin && window.ReactNativeWebView.postMessage(JSON.stringify({ zoomin: tempZoomin }));
-    zoomin = tempZoomin;
+    var tempZoomedin = (screen.width / window.innerWidth) > 1;
+    tempZoomedin !== zoomedin && window.ReactNativeWebView.postMessage(JSON.stringify({ zoomedin: tempZoomedin }));
+    zoomedin = tempZoomedin;
   }
   window.addEventListener('touchend', event => {
     var tempScale = event.scale; 
@@ -82,16 +78,16 @@ const detectZoomChanged = `
     var timeSince = new Date().getTime() - latestTapStamp;
     // double tap   
     if(timeSince < 600 && timeSince > 0) {
-      zoominTimeOut = setTimeout(() => {
-        clearTimeout(zoominTimeOut);
+      zoomedinTimeOut = setTimeout(() => {
+        clearTimeout(zoomedinTimeOut);
         detectZoomChanged();
       }, doubleTapDelay);
     }
     latestTapStamp = new Date().getTime();
   });
-`
+`;
 
-const getBaseScript = ({ style, zoomable, scalesPageToFit, scrollEnabledWithZoomedin }) =>
+const getBaseScript = ({ style, zoomDisabled, scalesPageToFit, scrollEnabledWithZoomedin }) =>
   `
   ;
   if (!document.getElementById("rnahw-wrapper")) {
@@ -106,8 +102,8 @@ const getBaseScript = ({ style, zoomable, scalesPageToFit, scrollEnabledWithZoom
   window.addEventListener('load', updateSize);
   window.addEventListener('resize', updateSize);
   ${domMutationObserveScript}
-  ${makeScalePageToFit(zoomable, scalesPageToFit)}
-  ${scrollEnabledWithZoomedin ? detectZoomChanged : ''}
+  ${zoomDisabled ? disableZoom : ''}
+  ${!zoomDisabled && scrollEnabledWithZoomedin ? detectZoomChanged : ''}
   updateSize();
   `;
 
@@ -155,8 +151,16 @@ const getInjectedSource = ({ html, script }) => `
   </script>
 `;
 
-const getScript = ({ files, customStyle, customScript, style, zoomable, scalesPageToFit, scrollEnabledWithZoomedin }) => {
-  let script = getBaseScript({ style, zoomable, scalesPageToFit, scrollEnabledWithZoomedin });
+const getScript = ({
+  files,
+  customStyle,
+  customScript,
+  style,
+  zoomDisabled,
+  scalesPageToFit,
+  scrollEnabledWithZoomedin
+}) => {
+  let script = getBaseScript({ style, zoomDisabled, scalesPageToFit, scrollEnabledWithZoomedin });
   script = files && files.length > 0 ? appendFilesToHead({ files, script }) : script;
   script = appendStylesToHead({ style: customStyle, script });
   customScript && (script = customScript + script);
