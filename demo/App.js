@@ -106,15 +106,6 @@ const Explorer = () => {
   const [heightSize, setHeightSize] = useState({height: 0, width: 0});
   const [widthSize, setWidthSize] = useState({height: 0, width: 0});
 
-  // set spacing on left/right
-  const spacing = 30;
-
-  // calculate new width of *real* content
-  const screenWidth = Math.round(Dimensions.get('window').width) - 2 * spacing;
-  // For example on iPhone 8, screenWidth will be 315
-
-  // I temporarily hard-coded the width into the newsletter.js its viewport tag
-
   return (
     <ScrollView
       style={{
@@ -130,11 +121,17 @@ const Explorer = () => {
         scrollEnabled={false}
         scrollEnabledWithZoomedin={true}
         customStyle={`
-          ${heightStyle}
+          body {
+            background-color: lightyellow !important;
+          }
           #rnahw-wrapper {
-            padding: 0 ${spacing}px;
-            width: ${screenWidth};
+            padding: 0 30px;
+            width: 100vw;
             box-sizing: border-box;
+            background-color: lightyellow;
+          }     
+          #doc {
+            min-width: unset !important;
           }
         `}
         onError={onError}
@@ -143,7 +140,7 @@ const Explorer = () => {
         onLoadEnd={onHeightLoadEnd}
         onShouldStartLoadWithRequest={onShouldStartLoadWithRequest}
         onSizeUpdated={setHeightSize}
-        source={{html: heightHtml}}
+        source={{html: autoHeightHtml1}}
         customScript={heightScript}
         onMessage={onMessage}
       />
