@@ -7,6 +7,8 @@ import {
   TouchableOpacity,
   Platform,
   Linking,
+  Dimensions,
+  View,
 } from 'react-native';
 
 import AutoHeightWebView from 'react-native-autoheight-webview';
@@ -104,6 +106,15 @@ const Explorer = () => {
   const [heightSize, setHeightSize] = useState({height: 0, width: 0});
   const [widthSize, setWidthSize] = useState({height: 0, width: 0});
 
+  // set spacing on left/right
+  const spacing = 30;
+
+  // calculate new width of *real* content
+  const screenWidth = Math.round(Dimensions.get('window').width) - 2 * spacing;
+  // For example on iPhone 8, screenWidth will be 315
+
+  // I temporarily hard-coded the width into the newsletter.js its viewport tag
+
   return (
     <ScrollView
       style={{
@@ -115,7 +126,17 @@ const Explorer = () => {
         alignItems: 'center',
       }}>
       <AutoHeightWebView
-        customStyle={heightStyle}
+        scalesPageToFit
+        scrollEnabled={false}
+        scrollEnabledWithZoomedin={true}
+        customStyle={`
+          ${heightStyle}
+          #rnahw-wrapper {
+            padding: 0 ${spacing}px;
+            width: ${screenWidth};
+            box-sizing: border-box;
+          }
+        `}
         onError={onError}
         onLoad={onHeightLoad}
         onLoadStart={onHeightLoadStart}
