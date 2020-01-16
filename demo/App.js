@@ -134,6 +134,7 @@ const Explorer = () => {
             min-width: unset !important;
           }
         `}
+        viewportContent={`initial-scale=${Dimensions.get('window').width / 500}`}
         onError={onError}
         onLoad={onHeightLoad}
         onLoadStart={onHeightLoadStart}
