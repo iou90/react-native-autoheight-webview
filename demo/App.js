@@ -134,6 +134,7 @@ const Explorer = () => {
             min-width: unset !important;
           }
         `}
+        // 500 -> min-width of #doc in newsletter
         viewportContent={`initial-scale=${Dimensions.get('window').width / 500}`}
         onError={onError}
         onLoad={onHeightLoad}
