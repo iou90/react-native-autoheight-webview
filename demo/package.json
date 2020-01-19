@@ -12,7 +12,7 @@
     "react": "16.9.0",
     "react-native": "0.61.5",
     "react-native-autoheight-webview": "../",
-    "react-native-webview": "^8.0.2"
+    "react-native-webview": "^8.0.3"
   },
   "devDependencies": {
     "@babel/core": "^7.5.0",
