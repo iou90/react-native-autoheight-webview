@@ -14,6 +14,8 @@ const domMutationObserveScript = `
 
 const updateSizeWithMessage = (element, scalesPageToFit) =>
   `
+  var scaling = false;
+  var zoomedin = false;
   var lastHeight = 0;
   var heightTheSameTimes = 0;
   var maxHeightTheSameTimes = 5;
@@ -70,10 +72,8 @@ const setViewportContent = content => {
 };
 
 const detectZoomChanged = `
-  var zoomedin = false;
   var latestTapStamp = 0;
   var lastScale = 1.0;
-  var scaling = false;
   var doubleTapDelay = 400;
   function detectZoomChanged() {
     var tempZoomedin = (screen.width / window.innerWidth) > 1;
