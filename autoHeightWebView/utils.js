@@ -1,6 +1,6 @@
 'use strict';
 
-import { Dimensions, Platform } from 'react-native';
+import { Dimensions } from 'react-native';
 
 const domMutationObserveScript = `
   var MutationObserver =
@@ -22,6 +22,9 @@ const updateSizeWithMessage = (element, scalesPageToFit) =>
   var checkPostMessageTimeout;
 
   function updateSize(event) {
+    if (zoomedin || scaling) {
+      return;
+    }
     if (
       !window.hasOwnProperty('ReactNativeWebView') || 
       !window.ReactNativeWebView.hasOwnProperty('postMessage')
@@ -69,14 +72,23 @@ const setViewportContent = content => {
 const detectZoomChanged = `
   var zoomedin = false;
   var latestTapStamp = 0;
-  var lastScale = false;
+  var lastScale = 1.0;
+  var scaling = false;
   var doubleTapDelay = 400;
   function detectZoomChanged() {
     var tempZoomedin = (screen.width / window.innerWidth) > 1;
     tempZoomedin !== zoomedin && window.ReactNativeWebView.postMessage(JSON.stringify({ zoomedin: tempZoomedin }));
     zoomedin = tempZoomedin;
   }
+  window.addEventListener('ontouchstart', event => {
+    if (event.touches.length === 2) {
+      scaling = true;
+    }
+  })
   window.addEventListener('touchend', event => {
+    if(scaling) {
+      scaleing = false;
+    }
     var tempScale = event.scale; 
     tempScale !== lastScale && detectZoomChanged();
     lastScale = tempScale;
