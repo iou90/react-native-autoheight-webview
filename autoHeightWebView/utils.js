@@ -1,6 +1,6 @@
 'use strict';
 
-import { Dimensions, Platform } from 'react-native';
+import { Dimensions } from 'react-native';
 
 const domMutationObserveScript = `
   var MutationObserver =
@@ -14,6 +14,9 @@ const domMutationObserveScript = `
 
 const updateSizeWithMessage = (element, scalesPageToFit) =>
   `
+  var usingScale = 0;
+  var scaling = false;
+  var zoomedin = false;
   var lastHeight = 0;
   var heightTheSameTimes = 0;
   var maxHeightTheSameTimes = 5;
@@ -21,7 +24,10 @@ const updateSizeWithMessage = (element, scalesPageToFit) =>
   var forceRefreshTimeout;
   var checkPostMessageTimeout;
 
-  function updateSize(event) {
+  function updateSize() {
+    if (zoomedin || scaling) {
+      return;
+    }
     if (
       !window.hasOwnProperty('ReactNativeWebView') || 
       !window.ReactNativeWebView.hasOwnProperty('postMessage')
@@ -29,14 +35,20 @@ const updateSizeWithMessage = (element, scalesPageToFit) =>
       checkPostMessageTimeout = setTimeout(updateSize, 200);
       return;
     }
+
     clearTimeout(checkPostMessageTimeout);
     height = ${element}.offsetHeight || document.documentElement.offsetHeight;
     width = ${element}.offsetWidth || document.documentElement.offsetWidth;
-    var scale = ${scalesPageToFit ? 'screen.width / window.innerWidth' : '1'};
-    window.ReactNativeWebView.postMessage(JSON.stringify({ width: Math.min(width, screen.width), height: height * scale }));
+
+    if(!usingScale && window.innerWidth) {
+      usingScale = ${scalesPageToFit ? 'screen.width / window.innerWidth' : '1'};
+    }
+
+    window.ReactNativeWebView.postMessage(JSON.stringify({ width: Math.min(width, screen.width), height: height * usingScale }));
 
     // Make additional height checks (required to fix issues wit twitter embeds)
     clearTimeout(forceRefreshTimeout);
+
     if (lastHeight !== height) {
       heightTheSameTimes = 1;
     } else {
@@ -67,20 +79,29 @@ const setViewportContent = content => {
 };
 
 const detectZoomChanged = `
-  var zoomedin = false;
   var latestTapStamp = 0;
-  var lastScale = false;
+  var lastScale = 1.0;
   var doubleTapDelay = 400;
   function detectZoomChanged() {
-    var tempZoomedin = (screen.width / window.innerWidth) > 1;
+    var tempZoomedin = (screen.width / window.innerWidth) > (usingScale || 1);
     tempZoomedin !== zoomedin && window.ReactNativeWebView.postMessage(JSON.stringify({ zoomedin: tempZoomedin }));
     zoomedin = tempZoomedin;
   }
+  window.addEventListener('ontouchstart', event => {
+    if (event.touches.length === 2) {
+      scaling = true;
+    }
+  })
   window.addEventListener('touchend', event => {
+    if(scaling) {
+      scaleing = false;
+    }
+
     var tempScale = event.scale; 
     tempScale !== lastScale && detectZoomChanged();
     lastScale = tempScale;
     var timeSince = new Date().getTime() - latestTapStamp;
+
     // double tap   
     if(timeSince < 600 && timeSince > 0) {
       zoomedinTimeOut = setTimeout(() => {
@@ -88,11 +109,12 @@ const detectZoomChanged = `
         detectZoomChanged();
       }, doubleTapDelay);
     }
+
     latestTapStamp = new Date().getTime();
   });
 `;
 
-const getBaseScript = ({ style, viewportContent, scalesPageToFit, scrollEnabledWithZoomedin }) =>
+const getBaseScript = ({ viewportContent, scalesPageToFit, scrollEnabledWithZoomedin }) =>
   `
   ;
   if (!document.getElementById("rnahw-wrapper")) {
@@ -165,7 +187,7 @@ const getScript = ({
   scalesPageToFit,
   scrollEnabledWithZoomedin
 }) => {
-  let script = getBaseScript({ style, viewportContent, scalesPageToFit, scrollEnabledWithZoomedin });
+  let script = getBaseScript({ viewportContent, scalesPageToFit, scrollEnabledWithZoomedin });
   script = files && files.length > 0 ? appendFilesToHead({ files, script }) : script;
   script = appendStylesToHead({ style: customStyle, script });
   customScript && (script = customScript + script);
