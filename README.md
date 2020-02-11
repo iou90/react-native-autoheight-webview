@@ -20,6 +20,11 @@ Read [README_old](./README_old.md) for earlier version guide and please note tha
 
 ## usage
 
+react-native-webview is a peer dependency and must be installed along this lib.
+```
+npm install react-native-autoheight-webview react-native-webview
+```
+
 ```javascript
 import AutoHeightWebView from 'react-native-autoheight-webview'
 
