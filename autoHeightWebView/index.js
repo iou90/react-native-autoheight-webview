@@ -12,11 +12,7 @@ import { reduceData, getWidth, isSizeChanged, shouldUpdate } from './utils';
 
 const AutoHeightWebView = React.memo(
   forwardRef((props, ref) => {
-    const { style, onMessage, onSizeUpdated, scrollEnabledWithZoomedin, scrollEnabled, source } = props;
-
-    if (!source) {
-      return null;
-    }
+    const { style, onMessage, onSizeUpdated, scrollEnabledWithZoomedin, scrollEnabled } = props;
 
     let webView = useRef();
     useImperativeHandle(ref, () => ({
