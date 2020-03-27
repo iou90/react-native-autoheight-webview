@@ -42,7 +42,7 @@
     "eslint": "^6.8.0",
     "eslint-plugin-jsx": "^0.1.0",
     "eslint-plugin-react": "^7.19.0",
-    "eslint-plugin-react-hooks": "^2.5.0",
+    "eslint-plugin-react-hooks": "^3.0.0",
     "eslint-plugin-react-native": "^3.8.1"
   }
 }
