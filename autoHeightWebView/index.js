@@ -1,6 +1,6 @@
 'use strict';
 
-import React, { useState, useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import React, { useState, useEffect, forwardRef } from 'react';
 
 import { StyleSheet, Platform, ViewPropTypes } from 'react-native';
 
@@ -13,15 +13,6 @@ import { reduceData, getWidth, isSizeChanged, shouldUpdate } from './utils';
 const AutoHeightWebView = React.memo(
   forwardRef((props, ref) => {
     const { style, onMessage, onSizeUpdated, scrollEnabledWithZoomedin, scrollEnabled } = props;
-
-    let webView = useRef();
-    useImperativeHandle(ref, () => ({
-      stopLoading: () => webView.current.stopLoading(),
-      goForward: () => webView.current.goForward(),
-      goBack: () => webView.current.goBack(),
-      reload: () => webView.current.reload(),
-      injectJavaScript: script => webView.current.injectJavaScript(script)
-    }));
 
     const [size, setSize] = useState({
       height: style && style.height ? style.height : 0,
@@ -69,7 +60,7 @@ const AutoHeightWebView = React.memo(
     return (
       <WebView
         {...props}
-        ref={webView}
+        ref={ref}
         onMessage={handleMessage}
         style={[
           styles.webView,
