@@ -37,7 +37,7 @@
     "prop-types": "^15.7.2"
   },
   "devDependencies": {
-    "@react-native-community/eslint-config": "^0.0.7",
+    "@react-native-community/eslint-config": "^1.1.0",
     "babel-eslint": "^10.1.0",
     "eslint": "^6.8.0",
     "eslint-plugin-jsx": "^0.1.0",
