@@ -26,6 +26,7 @@ export interface AutoHeightWebViewProps extends WebViewProps {
   customScript: string;
   customStyle: string;
   viewportContent: string;
+  scalesPageToFit: boolean;
   scrollEnabledWithZoomedin: boolean;
 }
 
