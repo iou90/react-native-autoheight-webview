@@ -41,7 +41,7 @@ import { Dimensions } from 'react-native'
         font-size: 16px;
       }
     `}
-    onSizeUpdated={({size => console.log(size.height)})},
+    onSizeUpdated={size => console.log(size.height)}
     files={[{
         href: 'cssfileaddress',
         type: 'text/css',
