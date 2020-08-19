@@ -25,7 +25,7 @@ const updateSizeWithMessage = (element, scalesPageToFit) =>
   var checkPostMessageTimeout;
 
   function updateSize() {
-    if (zoomedin || scaling) {
+    if (zoomedin || scaling || document.fullscreenElement) {
       return;
     }
     if (
