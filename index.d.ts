@@ -1,10 +1,9 @@
 // Type definitions for react-native-autoheight-webview 1.x
 // Project: https://github.com/iou90/react-native-autoheight-webview
 // Definitions by: Naveen Ithappu <https://github.com/naveen-ithappu>
-// TypeScript Version: 2.8
-import { Component } from 'react';
+// TypeScript Version: ^3.9.7
 
-import { WebViewProps } from 'react-native-webview';
+import WebView, { WebViewProps } from 'react-native-webview';
 
 import { StyleProp, ViewStyle } from 'react-native';
 
@@ -30,4 +29,4 @@ export interface AutoHeightWebViewProps extends WebViewProps {
   scrollEnabledWithZoomedin: boolean;
 }
 
-export default class AutoHeightWebView extends Component<Partial<AutoHeightWebViewProps>> { }
+export default class AutoHeightWebView extends WebView<Partial<AutoHeightWebViewProps>> {}
