@@ -23,7 +23,7 @@ import {
   inlineBodyStyle,
 } from './config';
 
-const onShouldStartLoadWithRequest = result => {
+const onShouldStartLoadWithRequest = (result) => {
   console.log(result);
   return true;
 };
@@ -31,7 +31,7 @@ const onShouldStartLoadWithRequest = result => {
 const onError = ({nativeEvent}) =>
   console.error('WebView error: ', nativeEvent);
 
-const onMessage = event => {
+const onMessage = (event) => {
   const {data} = event.nativeEvent;
   let messageData;
   // maybe parse stringified JSON
@@ -44,7 +44,7 @@ const onMessage = event => {
     const {url} = messageData;
     // check if this message concerns us
     if (url && url.startsWith('http')) {
-      Linking.openURL(url).catch(error =>
+      Linking.openURL(url).catch((error) =>
         console.error('An error occurred', error),
       );
     }
