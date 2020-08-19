@@ -1,6 +1,6 @@
 'use strict';
 
-import { Dimensions } from 'react-native';
+import {Dimensions} from 'react-native';
 
 const domMutationObserveScript = `
   var MutationObserver =
@@ -62,7 +62,7 @@ const updateSizeWithMessage = (element, scalesPageToFit) =>
   }
   `;
 
-const setViewportContent = content => {
+const setViewportContent = (content) => {
   if (!content) {
     return '';
   }
@@ -110,7 +110,11 @@ const detectZoomChanged = `
   });
 `;
 
-const getBaseScript = ({ viewportContent, scalesPageToFit, scrollEnabledWithZoomedin }) =>
+const getBaseScript = ({
+  viewportContent,
+  scalesPageToFit,
+  scrollEnabledWithZoomedin,
+}) =>
   `
   ;
   if (!document.getElementById("rnahw-wrapper")) {
@@ -130,9 +134,9 @@ const getBaseScript = ({ viewportContent, scalesPageToFit, scrollEnabledWithZoom
   updateSize();
   `;
 
-const appendFilesToHead = ({ files, script }) =>
+const appendFilesToHead = ({files, script}) =>
   files.reduceRight((combinedScript, file) => {
-    const { rel, type, href } = file;
+    const {rel, type, href} = file;
     return `
       var link  = document.createElement('link');
       link.rel  = '${rel}';
@@ -152,7 +156,7 @@ const bodyStyle = `
   }
 `;
 
-const appendStylesToHead = ({ style, script }) => {
+const appendStylesToHead = ({style, script}) => {
   const currentStyles = style ? bodyStyle + style : bodyStyle;
   // Escape any single quotes or newlines in the CSS with .replace()
   const escaped = currentStyles.replace(/\'/g, "\\'").replace(/\n/g, '\\n');
@@ -164,7 +168,7 @@ const appendStylesToHead = ({ style, script }) => {
   `;
 };
 
-const getInjectedSource = ({ html, script }) => `
+const getInjectedSource = ({html, script}) => `
   ${html}
   <script>
   // prevents code colissions with global scope
@@ -181,53 +185,66 @@ const getScript = ({
   style,
   viewportContent,
   scalesPageToFit,
-  scrollEnabledWithZoomedin
+  scrollEnabledWithZoomedin,
 }) => {
-  let script = getBaseScript({ viewportContent, scalesPageToFit, scrollEnabledWithZoomedin });
-  script = files && files.length > 0 ? appendFilesToHead({ files, script }) : script;
-  script = appendStylesToHead({ style: customStyle, script });
+  let script = getBaseScript({
+    viewportContent,
+    scalesPageToFit,
+    scrollEnabledWithZoomedin,
+  });
+  script =
+    files && files.length > 0 ? appendFilesToHead({files, script}) : script;
+  script = appendStylesToHead({style: customStyle, script});
   customScript && (script = customScript + script);
   return script;
 };
 
-export const getWidth = style => {
+export const getWidth = (style) => {
   return style && style.width ? style.width : screenWidth;
 };
 
-export const isSizeChanged = ({ height, previousHeight, width, previousWidth }) => {
+export const isSizeChanged = ({
+  height,
+  previousHeight,
+  width,
+  previousWidth,
+}) => {
   if (!height || !width) {
     return;
   }
   return height !== previousHeight || width !== previousWidth;
 };
 
-export const reduceData = props => {
-  const { source } = props;
+export const reduceData = (props) => {
+  const {source} = props;
   const script = getScript(props);
-  const { html, baseUrl } = source;
+  const {html, baseUrl} = source;
   if (html) {
     return {
-      currentSource: { baseUrl, html: getInjectedSource({ html, script }) }
+      currentSource: {baseUrl, html: getInjectedSource({html, script})},
     };
   } else {
     return {
       currentSource: source,
-      script
+      script,
     };
   }
 };
 
-export const shouldUpdate = ({ prevProps, nextProps }) => {
+export const shouldUpdate = ({prevProps, nextProps}) => {
   if (!(prevProps && nextProps)) {
     return true;
   }
   for (const prop in nextProps) {
     if (nextProps[prop] !== prevProps[prop]) {
-      if (typeof nextProps[prop] === 'object' && typeof prevProps[prop] === 'object') {
+      if (
+        typeof nextProps[prop] === 'object' &&
+        typeof prevProps[prop] === 'object'
+      ) {
         if (
           shouldUpdate({
             prevProps: prevProps[prop],
-            nextProps: nextProps[prop]
+            nextProps: nextProps[prop],
           })
         ) {
           return true;

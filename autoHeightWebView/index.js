@@ -1,25 +1,31 @@
 'use strict';
 
-import React, { useState, useEffect, forwardRef } from 'react';
+import React, {useState, useEffect, forwardRef} from 'react';
 
-import { StyleSheet, Platform, ViewPropTypes } from 'react-native';
+import {StyleSheet, Platform, ViewPropTypes} from 'react-native';
 
 import PropTypes from 'prop-types';
 
-import { WebView } from 'react-native-webview';
+import {WebView} from 'react-native-webview';
 
-import { reduceData, getWidth, isSizeChanged, shouldUpdate } from './utils';
+import {reduceData, getWidth, isSizeChanged, shouldUpdate} from './utils';
 
 const AutoHeightWebView = React.memo(
   forwardRef((props, ref) => {
-    const { style, onMessage, onSizeUpdated, scrollEnabledWithZoomedin, scrollEnabled } = props;
+    const {
+      style,
+      onMessage,
+      onSizeUpdated,
+      scrollEnabledWithZoomedin,
+      scrollEnabled,
+    } = props;
 
     const [size, setSize] = useState({
       height: style && style.height ? style.height : 0,
-      width: getWidth(style)
+      width: getWidth(style),
     });
     const [scrollable, setScrollable] = useState(false);
-    const handleMessage = event => {
+    const handleMessage = (event) => {
       onMessage && onMessage(event);
       if (!event.nativeEvent) {
         return;
@@ -32,29 +38,32 @@ const AutoHeightWebView = React.memo(
         console.error(error);
         return;
       }
-      const { height, width, zoomedin } = data;
+      const {height, width, zoomedin} = data;
       !scrollEnabled && scrollEnabledWithZoomedin && setScrollable(!!zoomedin);
-      const { height: previousHeight, width: previousWidth } = size;
-      isSizeChanged({ height, previousHeight, width, previousWidth }) &&
+      const {height: previousHeight, width: previousWidth} = size;
+      isSizeChanged({height, previousHeight, width, previousWidth}) &&
         setSize({
           height,
-          width
+          width,
         });
     };
 
-    const currentScrollEnabled = scrollEnabled === false && scrollEnabledWithZoomedin ? scrollable : scrollEnabled;
+    const currentScrollEnabled =
+      scrollEnabled === false && scrollEnabledWithZoomedin
+        ? scrollable
+        : scrollEnabled;
 
-    const { currentSource, script } = reduceData(props);
+    const {currentSource, script} = reduceData(props);
 
-    const { width, height } = size;
+    const {width, height} = size;
     useEffect(
       () =>
         onSizeUpdated &&
         onSizeUpdated({
           height,
-          width
+          width,
         }),
-      [width, height, onSizeUpdated]
+      [width, height, onSizeUpdated],
     );
 
     return (
@@ -66,9 +75,9 @@ const AutoHeightWebView = React.memo(
           styles.webView,
           {
             width,
-            height
+            height,
           },
-          style
+          style,
         ]}
         injectedJavaScript={script}
         source={currentSource}
@@ -76,7 +85,7 @@ const AutoHeightWebView = React.memo(
       />
     );
   }),
-  (prevProps, nextProps) => !shouldUpdate({ prevProps, nextProps })
+  (prevProps, nextProps) => !shouldUpdate({prevProps, nextProps}),
 );
 
 AutoHeightWebView.propTypes = {
@@ -85,8 +94,8 @@ AutoHeightWebView.propTypes = {
     PropTypes.shape({
       href: PropTypes.string,
       type: PropTypes.string,
-      rel: PropTypes.string
-    })
+      rel: PropTypes.string,
+    }),
   ),
   style: ViewPropTypes.style,
   customScript: PropTypes.string,
@@ -97,31 +106,31 @@ AutoHeightWebView.propTypes = {
   originWhitelist: PropTypes.arrayOf(PropTypes.string),
   onMessage: PropTypes.func,
   scalesPageToFit: PropTypes.bool,
-  source: PropTypes.object
+  source: PropTypes.object,
 };
 
 let defaultProps = {
   showsVerticalScrollIndicator: false,
   showsHorizontalScrollIndicator: false,
-  originWhitelist: ['*']
+  originWhitelist: ['*'],
 };
 
 Platform.OS === 'android' &&
   Object.assign(defaultProps, {
-    scalesPageToFit: false
+    scalesPageToFit: false,
   });
 
 Platform.OS === 'ios' &&
   Object.assign(defaultProps, {
-    viewportContent: 'width=device-width'
+    viewportContent: 'width=device-width',
   });
 
 AutoHeightWebView.defaultProps = defaultProps;
 
 const styles = StyleSheet.create({
   webView: {
-    backgroundColor: 'transparent'
-  }
+    backgroundColor: 'transparent',
+  },
 });
 
 export default AutoHeightWebView;
