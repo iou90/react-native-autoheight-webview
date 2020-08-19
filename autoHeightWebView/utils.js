@@ -14,7 +14,7 @@ const domMutationObserveScript = `
 
 const updateSizeWithMessage = (element, scalesPageToFit) =>
   `
-  var usingScale = ${scalesPageToFit} ? screen.width / window.innerWidth : 1};
+  var usingScale = ${scalesPageToFit} ? screen.width / window.innerWidth : 1;
   var scaling = false;
   var zoomedin = false;
   var lastHeight = 0;
