@@ -133,7 +133,6 @@ const Explorer = () => {
         style={{
           marginTop: 15,
         }}
-        enableBaseUrl
         customStyle={widthStyle}
         onError={onError}
         onLoad={onWidthLoad}
