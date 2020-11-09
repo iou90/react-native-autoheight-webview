@@ -29,9 +29,9 @@
   },
   "homepage": "https://github.com/iou90/react-native-autoheight-webview#readme",
   "peerDependencies": {
-    "react": "*",
-    "react-native": ">=0.63.3",
-    "react-native-webview": ">=10.10.0"
+    "react": ">= 16.8.0",
+    "react-native": ">= 0.60.0",
+    "react-native-webview": ">= 10.9.0"
   },
   "dependencies": {
     "prop-types": "^15.7.2"
