@@ -40,12 +40,13 @@ const updateSizeWithMessage = (element, scalesPageToFit) =>
     var result = ${element}.getBoundingClientRect()
     height = result.height + result.top;
     if(!height) {
-      height = document.documentElement.offsetHeight
+      height = ${element}.offsetHeight || document.documentElement.offsetHeight
     }
     width = result.width;
     if(!width) {
-      width = document.documentElement.offsetWidth
+      width = ${element}.offsetWidth || document.documentElement.offsetWidth
     }
+
 
     window.ReactNativeWebView.postMessage(JSON.stringify({ width: Math.min(width, screen.width), height: height * usingScale }));
 
