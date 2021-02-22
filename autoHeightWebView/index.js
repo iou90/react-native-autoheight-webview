@@ -66,24 +66,22 @@ const AutoHeightWebView = React.memo(
       [width, height, onSizeUpdated],
     );
 
-    return (
-      <WebView
-        {...props}
-        ref={ref}
-        onMessage={handleMessage}
-        style={[
-          styles.webView,
-          {
-            width,
-            height,
-          },
-          style,
-        ]}
-        injectedJavaScript={script}
-        source={currentSource}
-        scrollEnabled={currentScrollEnabled}
-      />
-    );
+    return React.createElement(WebView, {
+      ...props,
+      ref,
+      onMessage: handleMessage,
+      style: [
+        styles.webView,
+        {
+          width,
+          height,
+        },
+        style,
+      ],
+      injectedJavaScript: script,
+      source: currentSource,
+      scrollEnabled: currentScrollEnabled
+    });
   }),
   (prevProps, nextProps) => !shouldUpdate({prevProps, nextProps}),
 );
