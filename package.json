@@ -38,13 +38,13 @@
   },
   "devDependencies": {
     "@react-native-community/eslint-config": "^2.0.0",
-    "@typescript-eslint/parser": "^4.6.0",
+    "@typescript-eslint/parser": "^4.15.1",
     "babel-eslint": "^10.1.0",
-    "eslint": "^7.12.1",
+    "eslint": "^7.20.0",
     "eslint-plugin-jsx": "^0.1.0",
-    "eslint-plugin-react": "^7.21.5",
+    "eslint-plugin-react": "^7.22.0",
     "eslint-plugin-react-hooks": "^4.2.0",
     "eslint-plugin-react-native": "^3.10.0",
-    "typescript": "^4.0.5"
+    "typescript": "^4.1.5"
   }
 }

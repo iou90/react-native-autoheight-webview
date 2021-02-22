@@ -13,16 +13,16 @@
     "react": "16.13.1",
     "react-native": "0.63.3",
     "react-native-autoheight-webview": "../",
-    "react-native-webview": "^10.10.2"
+    "react-native-webview": "^11.2.3"
   },
   "devDependencies": {
-    "@babel/core": "^7.8.4",
-    "@babel/runtime": "^7.8.4",
-    "@react-native-community/eslint-config": "^1.1.0",
-    "babel-jest": "^25.1.0",
-    "eslint": "^6.5.1",
-    "jest": "^25.1.0",
-    "metro-react-native-babel-preset": "^0.59.0",
+    "@babel/core": "^7.12.17",
+    "@babel/runtime": "^7.12.18",
+    "@react-native-community/eslint-config": "^2.0.0",
+    "babel-jest": "^26.6.3",
+    "eslint": "^7.20.0",
+    "jest": "^26.6.3",
+    "metro-react-native-babel-preset": "^0.65.1",
     "react-test-renderer": "16.13.1"
   },
   "jest": {
