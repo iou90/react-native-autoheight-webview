@@ -3,6 +3,7 @@
 import {Dimensions} from 'react-native';
 
 export const topic = "rnaw"
+export const topicString = `"${topic}"`
 
 const domMutationObserveScript = `
   var MutationObserver =
@@ -50,7 +51,7 @@ const updateSizeWithMessage = (element, scalesPageToFit) =>
     }
 
 
-    window.ReactNativeWebView.postMessage(JSON.stringify({ width: Math.min(width, screen.width), height: height * usingScale, topic: ${topic} }));
+    window.ReactNativeWebView.postMessage(JSON.stringify({ width: Math.min(width, screen.width), height: height * usingScale, topic: ${topicString} }));
 
     // Make additional height checks (required to fix issues wit twitter embeds)
     clearTimeout(forceRefreshTimeout);
@@ -90,7 +91,7 @@ const detectZoomChanged = `
   var doubleTapDelay = 400;
   function detectZoomChanged() {
     var tempZoomedin = (screen.width / window.innerWidth) > usingScale;
-    tempZoomedin !== zoomedin && window.ReactNativeWebView.postMessage(JSON.stringify({ zoomedin: tempZoomedin, topic: ${topic} }));
+    tempZoomedin !== zoomedin && window.ReactNativeWebView.postMessage(JSON.stringify({ zoomedin: tempZoomedin, topic: ${topicString} }));
     zoomedin = tempZoomedin;
   }
   window.addEventListener('ontouchstart', event => {
