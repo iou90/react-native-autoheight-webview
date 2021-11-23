@@ -10,10 +10,10 @@
     "lint": "eslint ."
   },
   "dependencies": {
-    "react": "17.0.1",
-    "react-native": "0.64.2",
+    "react": "17.0.2",
+    "react-native": "0.66.3",
     "react-native-autoheight-webview": "./..",
-    "react-native-webview": "^11.6.4"
+    "react-native-webview": "^11.14.3"
   },
   "devDependencies": {
     "@babel/core": "^7.12.9",
@@ -22,8 +22,8 @@
     "babel-jest": "^26.6.3",
     "eslint": "7.14.0",
     "jest": "^26.6.3",
-    "metro-react-native-babel-preset": "^0.64.0",
-    "react-test-renderer": "17.0.1"
+    "metro-react-native-babel-preset": "^0.66.2",
+    "react-test-renderer": "17.0.2"
   },
   "jest": {
     "preset": "react-native"

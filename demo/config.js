@@ -20,13 +20,7 @@ const style1 = `
 `;
 
 const inlineBodyStyle = `
-    @font-face {
-      font-family: ae_AlArabiya;
-      src:url("ae_AlArabiya.ttf");
-    }
-
     body {
-        font-family: ae_AlArabiya;
         display: inline-block;
     }
 `;
