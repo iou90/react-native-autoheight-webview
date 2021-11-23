@@ -1,5 +1,3 @@
-'use strict';
-
 import React, {useState, useEffect, forwardRef} from 'react';
 
 import {StyleSheet, Platform, ViewPropTypes} from 'react-native';
@@ -8,7 +6,13 @@ import PropTypes from 'prop-types';
 
 import {WebView} from 'react-native-webview';
 
-import {reduceData, getWidth, isSizeChanged, shouldUpdate} from './utils';
+import {
+  topic,
+  reduceData,
+  getWidth,
+  isSizeChanged,
+  shouldUpdate,
+} from './utils';
 
 const AutoHeightWebView = React.memo(
   forwardRef((props, ref) => {
@@ -24,28 +28,33 @@ const AutoHeightWebView = React.memo(
       height: style && style.height ? style.height : 0,
       width: getWidth(style),
     });
+
     const [scrollable, setScrollable] = useState(false);
     const handleMessage = (event) => {
-      onMessage && onMessage(event);
-      if (!event.nativeEvent) {
-        return;
+      if (event.nativeEvent) {
+        try {
+          const data = JSON.parse(event.nativeEvent.data);
+          if (data.topic !== topic) {
+            onMessage && onMessage(event);
+            return;
+          }
+          const {height, width, zoomedin} = data;
+          console.log(height);
+          !scrollEnabled &&
+            scrollEnabledWithZoomedin &&
+            setScrollable(!!zoomedin);
+          const {height: previousHeight, width: previousWidth} = size;
+          isSizeChanged({height, previousHeight, width, previousWidth}) &&
+            setSize({
+              height,
+              width,
+            });
+        } catch (error) {
+          onMessage && onMessage(event);
+        }
+      } else {
+        onMessage && onMessage(event);
       }
-      let data = {};
-      // Sometimes the message is invalid JSON, so we ignore that case
-      try {
-        data = JSON.parse(event.nativeEvent.data);
-      } catch (error) {
-        console.error(error);
-        return;
-      }
-      const {height, width, zoomedin} = data;
-      !scrollEnabled && scrollEnabledWithZoomedin && setScrollable(!!zoomedin);
-      const {height: previousHeight, width: previousWidth} = size;
-      isSizeChanged({height, previousHeight, width, previousWidth}) &&
-        setSize({
-          height,
-          width,
-        });
     };
 
     const currentScrollEnabled =
@@ -80,7 +89,7 @@ const AutoHeightWebView = React.memo(
       ],
       injectedJavaScript: script,
       source: currentSource,
-      scrollEnabled: currentScrollEnabled
+      scrollEnabled: currentScrollEnabled,
     });
   }),
   (prevProps, nextProps) => !shouldUpdate({prevProps, nextProps}),
