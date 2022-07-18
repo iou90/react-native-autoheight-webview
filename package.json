@@ -34,6 +34,7 @@
     "react-native-webview": ">= 10.9.0"
   },
   "dependencies": {
+    "deprecated-react-native-prop-types": "^2.3.0",
     "prop-types": "^15.7.2"
   },
   "devDependencies": {
