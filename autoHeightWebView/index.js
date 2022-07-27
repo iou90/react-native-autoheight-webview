@@ -65,15 +65,13 @@ const AutoHeightWebView = React.memo(
     const {currentSource, script} = reduceData(props);
 
     const {width, height} = size;
-    useEffect(
-      () =>
-        onSizeUpdated &&
+    useEffect(() => {
+      onSizeUpdated &&
         onSizeUpdated({
           height,
           width,
-        }),
-      [width, height, onSizeUpdated],
-    );
+        });
+    }, [width, height, onSizeUpdated]);
 
     return React.createElement(WebView, {
       ...props,
