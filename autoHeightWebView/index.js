@@ -82,6 +82,8 @@ const AutoHeightWebView = React.memo(
         {
           width,
           height,
+          opacity: style?.opacity || 0.99,
+          minHeight: style?.minHeight || 1,
         },
         style,
       ],
