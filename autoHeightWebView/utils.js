@@ -128,8 +128,9 @@ const getBaseScript = ({
 }) =>
   `
   ;
-  if (!document.getElementById("rnahw-wrapper")) {
-    var wrapper = document.createElement('div');
+  var wrapper = document.getElementById("rnahw-wrapper");
+  if (!wrapper) {
+    wrapper = document.createElement('div');
     wrapper.id = 'rnahw-wrapper';
     while (document.body.firstChild instanceof Node) {
       wrapper.appendChild(document.body.firstChild);
